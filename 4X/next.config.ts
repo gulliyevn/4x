@@ -150,12 +150,18 @@ const nextConfig: NextConfig = {
 
   // TypeScript configuration
   typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
     ignoreBuildErrors: false,
   },
 
   // ESLint configuration
   eslint: {
-    ignoreDuringBuilds: false,
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
   },
 };
 

@@ -7,18 +7,12 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import axios from 'axios'
-import type {
-  MarketData,
-  Symbol,
-  Ticker,
-  ChartInterval,
-  PricePoint,
-  OrderBook,
-  Trade
-} from '@/types/market'
-import type { ApiResponse, WebSocketMessage, WebSocketState } from '@/types/api'
+import type { MarketData, PricePoint, Ticker, Symbol, OrderBook, Trade, ChartInterval } from '@/types/market'
+import type { ApiResponse, WebSocketMessage } from '@/types/api'
+import { WebSocketState } from '@/types/api'
 
 interface MarketStore {
   // State
@@ -82,7 +76,7 @@ export const useMarketStore = create<MarketStore>()(
         tickers: {},
         isLoading: false,
         isConnected: false,
-        wsState: 'DISCONNECTED' as WebSocketState,
+        wsState: WebSocketState.DISCONNECTED,
         error: null,
         lastUpdate: null,
         
@@ -242,12 +236,12 @@ export const useMarketStore = create<MarketStore>()(
         connectWebSocket: () => {
           const { ws, wsState } = get()
           
-          if (ws && wsState === 'CONNECTED') {
+          if (ws && wsState === WebSocketState.CONNECTED) {
             return // Already connected
           }
 
           set((state) => {
-            state.wsState = 'CONNECTING'
+            state.wsState = WebSocketState.CONNECTING
             state.error = null
           })
 
@@ -258,7 +252,7 @@ export const useMarketStore = create<MarketStore>()(
               console.log('WebSocket connected')
               set((state) => {
                 state.ws = websocket
-                state.wsState = 'CONNECTED'
+                state.wsState = WebSocketState.CONNECTED
                 state.isConnected = true
                 state.reconnectAttempts = 0
                 state.error = null
@@ -285,7 +279,7 @@ export const useMarketStore = create<MarketStore>()(
             websocket.onerror = (error) => {
               console.error('WebSocket error:', error)
               set((state) => {
-                state.wsState = 'ERROR'
+                state.wsState = WebSocketState.ERROR
                 state.error = 'WebSocket connection error'
               })
             }
@@ -294,7 +288,7 @@ export const useMarketStore = create<MarketStore>()(
               console.log('WebSocket disconnected')
               set((state) => {
                 state.ws = null
-                state.wsState = 'DISCONNECTED'
+                state.wsState = WebSocketState.DISCONNECTED
                 state.isConnected = false
               })
 
@@ -314,8 +308,8 @@ export const useMarketStore = create<MarketStore>()(
           } catch (error) {
             console.error('Failed to create WebSocket connection:', error)
             set((state) => {
-              state.wsState = 'ERROR'
-              state.error = 'Failed to create WebSocket connection'
+              state.wsState = WebSocketState.ERROR
+              state.error = error instanceof Error ? error.message : 'Failed to create WebSocket connection'
             })
           }
         },
@@ -326,7 +320,7 @@ export const useMarketStore = create<MarketStore>()(
             ws.close()
             set((state) => {
               state.ws = null
-              state.wsState = 'DISCONNECTED'
+              state.wsState = WebSocketState.DISCONNECTED
               state.isConnected = false
               state.wsSubscriptions.clear()
             })
