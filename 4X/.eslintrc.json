@@ -1,8 +1,19 @@
 {
-  "extends": ["next/core-web-vitals"],
+  "extends": [
+    "next/core-web-vitals",
+    "@typescript-eslint/recommended",
+    "plugin:jest/recommended",
+    "plugin:testing-library/react"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "jest",
+    "testing-library"
+  ],
   "rules": {
-    "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-empty-function": "warn",
     "react/no-unescaped-entities": "warn",
     "@next/next/no-page-custom-font": "warn",
     "@next/next/no-html-link-for-pages": "warn",
@@ -10,6 +21,28 @@
     "react-hooks/exhaustive-deps": "warn",
     "@typescript-eslint/no-unsafe-function-type": "warn",
     "prefer-const": "warn",
-    "import/no-anonymous-default-export": "warn"
-  }
+    "import/no-anonymous-default-export": "warn",
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error",
+    "testing-library/await-async-query": "error",
+    "testing-library/no-await-sync-query": "error",
+    "testing-library/no-debugging-utils": "warn",
+    "testing-library/no-dom-import": "error"
+  },
+  "env": {
+    "jest": true,
+    "node": true,
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*", "**/*.{test,spec}.*"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
 } 

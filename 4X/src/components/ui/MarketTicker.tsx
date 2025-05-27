@@ -57,12 +57,29 @@ export default function MarketTicker() {
   }
 
   return (
-    <section className="bg-gradient-to-r from-[#98b5a4] to-[#162A2C] overflow-hidden">
-      <div className="market-ticker items-center relative w-full">
-        <div className="ticker-container">
-          <div className="ticker h-[30px]">
+    <section 
+      className="bg-gradient-to-r from-[#98b5a4] to-[#162A2C] overflow-hidden"
+      role="region"
+      aria-label="Market Ticker"
+    >
+      <div 
+        className="market-ticker items-center relative w-full"
+        data-testid="market-ticker"
+      >
+        <div 
+          className="ticker-container"
+          data-testid="ticker-container"
+        >
+          <div 
+            className="ticker h-[30px]"
+            data-testid="ticker"
+          >
             {tickerData.map((item, index) => (
-              <div key={`${item.symbol}-${index}`} className="ticker-item">
+              <div 
+                key={`${item.symbol}-${index}`} 
+                className="ticker-item"
+                data-testid={`ticker-item-${item.symbol}`}
+              >
                 <span className="font-semibold mr-2">{item.symbol}</span>
                 <span className="mr-2">${formatPrice(item.price)}</span>
                 <span className={`mr-4 ${
@@ -74,7 +91,11 @@ export default function MarketTicker() {
             ))}
             {/* Duplicate for seamless loop */}
             {tickerData.map((item, index) => (
-              <div key={`${item.symbol}-duplicate-${index}`} className="ticker-item">
+              <div 
+                key={`${item.symbol}-duplicate-${index}`} 
+                className="ticker-item"
+                data-testid={`ticker-item-${item.symbol}-duplicate`}
+              >
                 <span className="font-semibold mr-2">{item.symbol}</span>
                 <span className="mr-2">${formatPrice(item.price)}</span>
                 <span className={`mr-4 ${

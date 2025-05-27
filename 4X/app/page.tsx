@@ -35,7 +35,7 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark-mode font-open-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark-mode font-open-sans" data-testid="homepage">
       {/* Market Ticker */}
       <MarketTicker />
 
@@ -59,23 +59,25 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Market Prices */}
               <div className="lg:col-span-1">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Opening Price</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">$45,234.00</div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Current Price</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">$46,789.00</div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">24h High</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">$47,123.00</div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">24h Low</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">$44,567.00</div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="price-grid">
+                  {topSymbols.map((symbol) => {
+                    const marketPrice = mockMarketData[symbol.symbol]
+                    if (!marketPrice) return null
+                    
+                    return (
+                      <div key={symbol.symbol}>
+                        <PriceDisplay
+                          price={marketPrice.price}
+                          previousPrice={marketPrice.prevPrice}
+                          currency="USD"
+                          decimals={symbol.pricePrecision}
+                          size="md"
+                          showChange={true}
+                          showPercentage={true}
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Price History */}

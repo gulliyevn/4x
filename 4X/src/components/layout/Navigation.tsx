@@ -103,14 +103,19 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
 
   return (
     <header id="header" className="sticky top-0 w-full shadow-md z-50 transition-all duration-300 bg-gradient-to-r from-gray-200 to-transparent">
-      <nav id="navbar" className="container mx-auto px-4 flex justify-between items-center py-2">
+      <nav 
+        id="navbar" 
+        className="container mx-auto px-4 flex justify-between items-center py-2"
+        role="navigation"
+        aria-label="Main Navigation"
+      >
         {/* Logo */}
         <div className="flex items-center px-4 lg:px-0">
-          <Link href="/">
+          <Link href="/" data-testid="logo-link">
             <Image 
               id="logoCompany" 
               src="/assets/logo.png" 
-              alt="Company Logo" 
+              alt="4X Trading Platform" 
               width={48}
               height={48}
               className="w-12 h-12"
@@ -122,10 +127,18 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
         {/* Desktop Navigation */}
         <div className="nav-links absolute md:static text-black md:min-h-fit min-h-[60vh] left-0 top-[-100%] sm:hide hidden md:block md:w-auto w-full flex items-center px-14 transition-all duration-300">
           <ul className="flex md:flex-row flex-col md:items-center md:gap-[4vw] gap-8 justify-end">
+            <li>
+              <Link 
+                className={`hover:text-black text-xl cursor-pointer ${isActive('/') ? 'text-[#98b5a4]' : ''}`}
+                href="/"
+              >
+                Home
+              </Link>
+            </li>
             {navigationItems.map((item) => (
               <li key={item.label} className="relative group">
                 <Link 
-                  className="hover:text-black text-xl cursor-pointer" 
+                  className={`hover:text-black text-xl cursor-pointer ${isActive(item.href) ? 'text-[#98b5a4]' : ''}`}
                   href={item.href}
                   aria-haspopup="true" 
                   aria-expanded="false"
@@ -153,11 +166,13 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
 
         <div className="flex items-center space-x-4">
           {/* Language Dropdown */}
-          <div className="dropdown relative inline-block">
+          <div className="dropdown relative inline-block" data-testid="language-selector">
             <button 
               id="dropdownButton" 
               className="search w-8 h-8 flex justify-center items-center cursor-pointer text-[#005450] text-base font-semibold bg-transparent"
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+              data-testid="language-button"
+              aria-label="Select Language"
             >
               <Image 
                 id="current-lang-flag" 
@@ -166,11 +181,15 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
                 width={32}
                 height={32}
                 className="w-8 h-8"
+                data-testid="current-language-flag"
               />
             </button>
 
             {isLanguageDropdownOpen && (
-              <div className="dropdown-content absolute w-[150px] top-full -left-12 mt-2 bg-[#1a1a1a] shadow-lg p-3 rounded-md">
+              <div 
+                className="dropdown-content absolute w-[150px] top-full -left-12 mt-2 bg-[#1a1a1a] shadow-lg p-3 rounded-md"
+                data-testid="language-dropdown"
+              >
                 {languages.map((lang) => (
                   <button 
                     key={lang.code}
@@ -197,6 +216,7 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
             aria-label="Switch Theme" 
             className="w-10 h-10 rounded-full border border-gray-600 flex justify-center items-center"
             onClick={toggleTheme}
+            data-testid="theme-toggle"
           >
             <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
           </button>
@@ -294,6 +314,8 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
             <button 
               className="block sm:hidden text-xl p-2 bg-gray-200 rounded-md" 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              data-testid="mobile-menu-button"
+              aria-label="Toggle Mobile Menu"
             >
               <i className="fas fa-bars"></i>
             </button>
@@ -302,6 +324,15 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
             {isMobileMenuOpen && (
               <div className="absolute bg-[#1a1a1a] top-full right-0 mt-2 w-48 shadow-md rounded-md z-50">
                 <ul className="p-2 space-y-1">
+                  <li>
+                    <Link 
+                      href="/" 
+                      className="block px-4 py-2 hover:text-[#02d1fe] text-lg text-black dark:text-white"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                  </li>
                   {navigationItems.map((item) => (
                     <li key={item.label}>
                       <Link 
