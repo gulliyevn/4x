@@ -9,6 +9,9 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '@/stores/authStore'
 import { LoginCredentials } from '@/types/auth'
 import { Button, Input, Alert, Card, CardBody } from '@/components/ui'
+import { useRouter } from 'next/router'
+import { DEMO_MODE } from '@/lib/env'
+import { demoCredentials } from '@/lib/mockData'
 
 // Validation schema
 const loginSchema = z.object({
@@ -34,9 +37,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSuccess,
   className
 }) => {
-  const { login, isLoading, error } = useAuthStore()
+  const router = useRouter()
+  const { login, isLoading, error, clearError } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [loginSuccess, setLoginSuccess] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const {
     register,
@@ -60,6 +66,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       setLoginSuccess(true)
       reset()
       onSuccess?.()
+      router.push('/dashboard')
     } catch (error) {
       // Error is handled by the store
       console.error('Login failed:', error)
@@ -68,6 +75,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
+  }
+
+  const handleDemoLogin = () => {
+    const credentials: LoginCredentials = {
+      email: demoCredentials.email,
+      password: demoCredentials.password,
+      rememberMe: true
+    }
+    
+    onSubmit({ 
+      email: credentials.email, 
+      password: credentials.password,
+      rememberMe: credentials.rememberMe 
+    })
   }
 
   return (
@@ -130,6 +151,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               }
               fullWidth
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             {/* Password Input */}
@@ -164,6 +187,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               }
               fullWidth
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             {/* Remember Me and Forgot Password */}
@@ -253,6 +278,32 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </Link>
             </p>
           </div>
+
+          {DEMO_MODE && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-gray-500">or</span>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDemoLogin}
+                className="w-full"
+              >
+                Use Demo Credentials
+              </Button>
+              <div className="mt-2 text-center text-sm text-gray-500">
+                Demo Email: {demoCredentials.email}
+                <br />
+                Demo Password: {demoCredentials.password}
+              </div>
+            </>
+          )}
         </motion.div>
       </CardBody>
     </Card>

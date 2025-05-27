@@ -97,6 +97,14 @@ export interface User {
   failedLoginAttempts: number
   /** When account will be unlocked after failed attempts */
   lockedUntil?: Date
+  /** User's account type */
+  accountType: AccountType
+  /** Whether user has verified email */
+  isEmailVerified: boolean
+  /** Whether user has verified phone */
+  isPhoneVerified: boolean
+  /** User preferences */
+  preferences: UserPreferences
 }
 
 /**
@@ -316,7 +324,7 @@ export interface SessionInfo {
  */
 export interface UserPreferences {
   /** Theme preference */
-  theme: 'light' | 'dark' | 'system'
+  theme: 'light' | 'dark'
   /** Notification preferences */
   notifications: {
     /** Email notifications enabled */
@@ -350,4 +358,36 @@ export interface UserPreferences {
     /** Layout configuration */
     layout: 'grid' | 'list'
   }
+  /** Language preference */
+  language: string
+  /** Timezone preference */
+  timezone: string
+  /** Currency preference */
+  currency: string
+}
+
+/**
+ * User account type enumeration
+ */
+export enum AccountType {
+  /** Demo account */
+  DEMO = 'DEMO',
+  /** Basic account */
+  BASIC = 'BASIC',
+  /** Pro account */
+  PRO = 'PRO',
+  /** Enterprise account */
+  ENTERPRISE = 'ENTERPRISE',
+}
+
+/**
+ * Reset password data interface
+ */
+export interface ResetPasswordData {
+  /** User's email address */
+  email: string
+  /** Reset token from email */
+  token: string
+  /** New password */
+  newPassword: string
 } 

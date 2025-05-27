@@ -626,4 +626,70 @@ export interface MarketAnalysis {
     /** Source credibility score */
     credibility: number
   }
+}
+
+export interface Portfolio {
+  id: string
+  userId: string
+  totalValue: number
+  availableBalance: number
+  totalPnL: number
+  totalPnLPercent: number
+  currency: string
+  lastUpdated: Date
+}
+
+export interface PortfolioSummary {
+  totalValue: number
+  totalPnL: number
+  totalPnLPercent: number
+  dayPnL: number
+  dayPnLPercent: number
+  positions: number
+  availableBalance: number
+  marginUsed: number
+  marginAvailable: number
+  equity: number
+}
+
+export interface Position {
+  id: string
+  userId: string
+  symbol: string
+  side: 'LONG' | 'SHORT'
+  size: number
+  entryPrice: number
+  currentPrice: number
+  pnl: number
+  pnlPercent: number
+  leverage: number
+  margin: number
+  liquidationPrice: number
+  openedAt: Date
+  updatedAt: Date
+}
+
+export interface Order {
+  id: string
+  userId: string
+  symbol: string
+  side: 'BUY' | 'SELL'
+  type: 'MARKET' | 'LIMIT' | 'STOP_LOSS' | 'TAKE_PROFIT'
+  quantity: number
+  price: number
+  stopPrice?: number
+  status: 'PENDING' | 'FILLED' | 'CANCELLED' | 'REJECTED'
+  timeInForce: 'GTC' | 'IOC' | 'FOK'
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Trade {
+  id: string
+  symbol: string
+  price: number
+  quantity: number
+  side: 'BUY' | 'SELL'
+  timestamp: Date
+  isBuyerMaker: boolean
 } 

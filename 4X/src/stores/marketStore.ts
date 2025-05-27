@@ -56,6 +56,20 @@ interface MarketStore {
   // Utility actions
   clearError: () => void
   refreshData: () => Promise<void>
+
+  initializeMarketData: (data: Record<string, MarketData>) => void
+  updateMarketData: (symbol: string, data: MarketData) => void
+  updateMultipleMarketData: (updates: { symbol: string; data: MarketData }[]) => void
+  
+  setSymbols: (symbols: Symbol[]) => void
+  setTickers: (tickers: Record<string, Ticker>) => void
+  updateTicker: (symbol: string, ticker: Ticker) => void
+  
+  setPriceHistory: (symbol: string, history: PricePoint[]) => void
+  appendPricePoint: (symbol: string, point: PricePoint) => void
+  
+  setLoading: (isLoading: boolean) => void
+  reset: () => void
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
@@ -407,6 +421,61 @@ export const useMarketStore = create<MarketStore>()(
           
           await Promise.allSettled(promises)
         },
+
+        initializeMarketData: (data) => set({ marketData: data }),
+
+        updateMarketData: (symbol, data) => set((state) => ({
+          marketData: {
+            ...state.marketData,
+            [symbol]: data,
+          },
+        })),
+
+        updateMultipleMarketData: (updates) => set((state) => ({
+          marketData: updates.reduce(
+            (acc, { symbol, data }) => ({
+              ...acc,
+              [symbol]: data,
+            }),
+            state.marketData
+          ),
+        })),
+
+        setSymbols: (symbols) => set({ symbols }),
+
+        setTickers: (tickers) => set({ tickers }),
+
+        updateTicker: (symbol, ticker) => set((state) => ({
+          tickers: {
+            ...state.tickers,
+            [symbol]: ticker,
+          },
+        })),
+
+        setPriceHistory: (symbol, history) => set((state) => ({
+          priceHistory: {
+            ...state.priceHistory,
+            [symbol]: history,
+          },
+        })),
+
+        appendPricePoint: (symbol, point) => set((state) => ({
+          priceHistory: {
+            ...state.priceHistory,
+            [symbol]: [...(state.priceHistory[symbol] || []), point],
+          },
+        })),
+
+        setLoading: (isLoading) => set({ isLoading }),
+        reset: () => set({
+          symbols: [],
+          marketData: {},
+          tickers: {},
+          priceHistory: {},
+          selectedSymbol: null,
+          isLoading: false,
+          error: null,
+        }),
       })),
       {
         name: 'market-storage',

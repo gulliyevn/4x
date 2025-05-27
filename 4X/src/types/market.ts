@@ -190,9 +190,11 @@ export interface Symbol {
   /** Whether symbol supports spot trading */
   spotTradingAllowed: boolean
   /** Category of the symbol */
-  category: 'SPOT' | 'FUTURE' | 'OPTION' | 'FOREX'
+  category: 'Crypto' | 'Stocks' | 'Forex' | 'Commodities'
   /** Symbol icon URL */
   iconUrl?: string
+  /** Whether the symbol is active */
+  isActive: boolean
 }
 
 /**
@@ -264,9 +266,9 @@ export interface OrderBook {
   /** Timestamp of last update */
   timestamp: Date
   /** Buy orders (bids) */
-  bids: OrderBookEntry[]
+  bids: [number, number][] // [price, quantity][]
   /** Sell orders (asks) */
-  asks: OrderBookEntry[]
+  asks: [number, number][] // [price, quantity][]
   /** Last update ID from exchange */
   lastUpdateId: number
 }

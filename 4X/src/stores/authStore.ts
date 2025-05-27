@@ -19,6 +19,9 @@ import type {
   ProfileUpdate
 } from '@/types/auth'
 import type { ApiResponse } from '@/types/api'
+import { api } from '@/lib/api'
+import { env, DEMO_MODE } from '@/lib/env'
+import { demoCredentials, mockUser } from '@/lib/mockData'
 
 interface AuthStore extends AuthState {
   // Actions
@@ -76,43 +79,65 @@ export const useAuthStore = create<AuthStore>()(
 
         // Actions
         login: async (credentials: LoginCredentials) => {
-          set((state) => {
-            state.isLoading = true
-            state.error = null
-          })
-
+          set({ isLoading: true, error: null })
+          
           try {
-            const response = await axios.post<ApiResponse<{
-              user: User
-              accessToken: string
-              refreshToken: string
-              expiresAt: string
-            }>>(`${API_BASE_URL}/auth/login`, credentials)
-
-            if (response.data.success && response.data.data) {
-              const { user, accessToken, refreshToken, expiresAt } = response.data.data
-              
-              // Set axios default authorization header
-              axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-
-              set((state) => {
-                state.user = user
-                state.isAuthenticated = true
-                state.accessToken = accessToken
-                state.refreshToken = refreshToken
-                state.tokenExpiresAt = new Date(expiresAt)
-                state.rememberMe = credentials.rememberMe || false
-                state.lastActivity = new Date()
-                state.isLoading = false
-                state.error = null
+            // Check demo mode first
+            if (DEMO_MODE && 
+                credentials.email === demoCredentials.email && 
+                credentials.password === demoCredentials.password) {
+              // Demo login - no API call needed
+              console.log('🔑 Demo login successful')
+              set({
+                user: mockUser,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+                // Set demo tokens
+                accessToken: 'demo-token',
+                refreshToken: 'demo-refresh-token',
+                tokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+                rememberMe: credentials.rememberMe || false,
+                lastActivity: new Date()
               })
-            } else {
-              throw new Error(response.data.error?.message || 'Login failed')
+              return
+            }
+
+            // Only make API calls in production mode
+            if (!DEMO_MODE) {
+              const response = await api.post<ApiResponse<{
+                user: User
+                accessToken: string
+                refreshToken: string
+                expiresAt: string
+              }>>('/auth/login', credentials)
+
+              if (response.data.success && response.data.data) {
+                const { user, accessToken, refreshToken, expiresAt } = response.data.data
+                
+                // Set axios authorization header
+                axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+
+                set({
+                  user,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                  accessToken,
+                  refreshToken,
+                  tokenExpiresAt: new Date(expiresAt),
+                  rememberMe: credentials.rememberMe || false,
+                  lastActivity: new Date()
+                })
+              } else {
+                throw new Error(response.data.error?.message || 'Login failed')
+              }
             }
           } catch (error: any) {
-            set((state) => {
-              state.isLoading = false
-              state.error = error.response?.data?.error?.message || error.message || 'Login failed'
+            console.error('Login error:', error)
+            set({
+              error: error.response?.data?.error?.message || error.message || 'Invalid email or password',
+              isLoading: false
             })
             throw error
           }
@@ -122,24 +147,26 @@ export const useAuthStore = create<AuthStore>()(
           // Clear axios authorization header
           delete axios.defaults.headers.common['Authorization']
           
-          // Call logout API endpoint
-          const currentRefreshToken = get().refreshToken
-          if (currentRefreshToken) {
-            axios.post(`${API_BASE_URL}/auth/logout`, {
-              refreshToken: currentRefreshToken
-            }).catch(() => {
-              // Ignore logout API errors
-            })
+          // Only call logout API in production mode
+          if (!DEMO_MODE) {
+            const currentRefreshToken = get().refreshToken
+            if (currentRefreshToken) {
+              api.post('/auth/logout', {
+                refreshToken: currentRefreshToken
+              }).catch(() => {
+                // Ignore logout API errors
+              })
+            }
           }
 
-          set((state) => {
-            state.user = null
-            state.isAuthenticated = false
-            state.accessToken = null
-            state.refreshToken = null
-            state.tokenExpiresAt = null
-            state.lastActivity = null
-            state.error = null
+          set({
+            user: null,
+            isAuthenticated: false,
+            accessToken: null,
+            refreshToken: null,
+            tokenExpiresAt: null,
+            lastActivity: null,
+            error: null
           })
         },
 

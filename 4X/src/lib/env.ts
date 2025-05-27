@@ -5,6 +5,7 @@ const envSchema = z.object({
   // Public environment variables (available on client-side)
   NEXT_PUBLIC_BINANCE_API_URL: z.string().url().default('https://api.binance.com/api/v3'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
+  NEXT_PUBLIC_DEMO_MODE: z.string().optional().transform(val => val === 'true'),
   
   // Server-side only environment variables
   NEWS_API_KEY: z.string().min(1, 'NEWS_API_KEY is required'),
@@ -19,10 +20,11 @@ const envSchema = z.object({
 // Validate environment variables
 function validateEnv() {
   try {
-    return envSchema.parse({
+    const env = envSchema.parse({
       // Public variables
       NEXT_PUBLIC_BINANCE_API_URL: process.env.NEXT_PUBLIC_BINANCE_API_URL,
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
       
       // Server-side variables
       NEWS_API_KEY: process.env.NEWS_API_KEY,
@@ -33,6 +35,11 @@ function validateEnv() {
       // System variables
       NODE_ENV: process.env.NODE_ENV,
     })
+
+    // Log demo mode status
+    console.log('🔧 Demo Mode:', env.NEXT_PUBLIC_DEMO_MODE ? 'Enabled' : 'Disabled')
+
+    return env
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('❌ Invalid environment variables:')
@@ -60,4 +67,7 @@ export const isTest = env.NODE_ENV === 'test'
 export const clientEnv = {
   NEXT_PUBLIC_BINANCE_API_URL: env.NEXT_PUBLIC_BINANCE_API_URL,
   NEXT_PUBLIC_APP_URL: env.NEXT_PUBLIC_APP_URL,
-} as const 
+  NEXT_PUBLIC_DEMO_MODE: env.NEXT_PUBLIC_DEMO_MODE,
+} as const
+
+export const DEMO_MODE = env.NEXT_PUBLIC_DEMO_MODE 
