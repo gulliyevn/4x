@@ -1,19 +1,25 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import '../src/app/globals.css'
+import '../src/styles/globals.css'
 import Navigation from '@/components/layout/Navigation'
+import Footer from '@/components/layout/Footer'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '4X Trading Platform',
-  description: 'A modern trading platform for forex, commodities, and cryptocurrencies',
-  keywords: ['trading', 'forex', '4x', 'cryptocurrency', 'commodities'],
+  title: '4X Create Your Reality!',
+  description: 'Experience next-generation trading with our modern platform. Trade forex, commodities, and cryptocurrencies with advanced analytics and real-time data.',
+  keywords: ['trading', 'forex', '4x', 'cryptocurrency', 'commodities', 'AI trading', 'real-time charts'],
   authors: [{ name: 'Nijat Guliyev', url: 'https://github.com/gulliyevn' }],
+  icons: {
+    icon: '/assets/logo.png',
+    apple: '/assets/apple-touch-icon.png',
+  },
   openGraph: {
-    title: '4X Trading Platform',
-    description: 'A modern trading platform for forex, commodities, and cryptocurrencies',
+    title: '4X Create Your Reality!',
+    description: 'Experience next-generation trading with our modern platform.',
     type: 'website',
   },
 }
@@ -25,15 +31,42 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className} suppressHydrationWarning={true}>
-        <ErrorBoundary enableRetry showDetails={process.env.NODE_ENV === 'development'}>
-          <div id="root" className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Navigation />
-            <main className="flex-1">
-              {children}
-            </main>
-          </div>
+      <head>
+        {/* Font Awesome */}
+        <link 
+          rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+        {/* Google Fonts */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" 
+          rel="stylesheet"
+        />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" 
+          rel="stylesheet"
+        />
+      </head>
+      <body 
+        className={`${inter.className} dark-mode font-open-sans`} 
+        suppressHydrationWarning={true}
+      >
+        <ErrorBoundary>
+          <Navigation />
+          <main>
+            {children}
+          </main>
+          <Footer />
         </ErrorBoundary>
+        
+        {/* TradingView Widget Script */}
+        <Script 
+          src="https://s3.tradingview.com/tv.js" 
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   )

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { NotificationCenter } from '@/components/ui/NotificationCenter'
@@ -11,19 +12,77 @@ interface NavigationProps {
   className?: string
 }
 
-const navigationItems = [
-  { href: '/', label: 'Home', icon: '🏠' },
-  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { href: '/markets', label: 'Markets', icon: '📈' },
-  { href: '/charts', label: 'Charts', icon: '📉' },
-  { href: '/portfolio', label: 'Portfolio', icon: '💼' },
-  { href: '/demo', label: 'Demo', icon: '🎮' },
+const languages = [
+  { code: 'en', flag: '/assets/united-kingdom.png', label: 'EN' },
+  { code: 'tr', flag: '/assets/turkey.png', label: 'TR' },
+  { code: 'ru', flag: '/assets/russia.png', label: 'RU' }
 ]
 
 export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
   const pathname = usePathname()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
+  const [currentLanguage, setCurrentLanguage] = useState('en')
+  const [isDarkMode, setIsDarkMode] = useState(true)
+
+  const currentLang = languages.find(lang => lang.code === currentLanguage) || languages[0]
+
+  const navigationItems = [
+    {
+      label: 'Market',
+      href: '/markets',
+      dropdown: [
+        { href: '/markets?category=stocks', label: 'Stocks' },
+        { href: '/markets?category=crypto', label: 'Crypto' },
+        { href: '/markets?category=forex', label: 'Forex' },
+        { href: '/markets?category=shares', label: 'Shares' },
+        { href: '/markets?category=indices', label: 'Indices' },
+        { href: '/markets?category=commodities', label: 'Commodities' }
+      ]
+    },
+    {
+      label: 'Charts',
+      href: '/charts',
+      dropdown: [
+        { href: '/demo', label: 'Trade AI' },
+        { href: '/dashboard', label: 'Community' },
+        { href: '/portfolio', label: 'CopyTrading' },
+        { href: '/demo', label: 'Education' }
+      ]
+    },
+    {
+      label: 'News',
+      href: '/dashboard',
+      dropdown: [
+        { href: '/dashboard?category=stocks', label: 'Stocks' },
+        { href: '/dashboard?category=crypto', label: 'Crypto' },
+        { href: '/dashboard?category=forex', label: 'Forex' },
+        { href: '/dashboard?category=shares', label: 'Shares' },
+        { href: '/dashboard?category=indices', label: 'Indices' },
+        { href: '/dashboard?category=commodities', label: 'Commodities' },
+        { href: '/dashboard?category=world', label: 'World' }
+      ]
+    },
+    {
+      label: 'Brokers',
+      href: '/portfolio',
+      dropdown: [
+        { href: '/portfolio', label: 'Top Brokers' },
+        { href: '/markets', label: 'Compare' },
+        { href: '/dashboard', label: 'Comments' }
+      ]
+    },
+    {
+      label: 'More',
+      href: '/demo',
+      dropdown: [
+        { href: '/demo', label: 'About Us' },
+        { href: '/demo', label: 'Tutorial' },
+        { href: '/demo', label: 'Pricing' }
+      ]
+    }
+  ]
 
   const isActive = (href: string) => {
     if (href === '/') {
@@ -32,186 +91,234 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
     return pathname.startsWith(href)
   }
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+    document.body.classList.toggle('dark-mode')
+  }
+
+  const setLanguage = (langCode: string) => {
+    setCurrentLanguage(langCode)
+    setIsLanguageDropdownOpen(false)
+  }
+
   return (
-    <nav className={`bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">4X</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Trading Platform
-              </span>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    isActive(item.href)
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Right side items */}
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <NotificationCenter />
-
-            {/* User Profile Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <img
-                  className="h-8 w-8 rounded-full"
-                  src={mockUser.avatar}
-                  alt={mockUser.name}
-                />
-                <span className="hidden md:block text-gray-700 dark:text-gray-300">
-                  {mockUser.name}
-                </span>
-                <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                    isProfileOpen ? 'rotate-180' : ''
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* Profile Dropdown */}
-              <AnimatePresence>
-                {isProfileOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700"
-                  >
-                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {mockUser.name}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {mockUser.email}
-                      </p>
-                    </div>
-                    
-                    <Link
-                      href="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      👤 Profile Settings
-                    </Link>
-                    
-                    <Link
-                      href="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      ⚙️ Account Settings
-                    </Link>
-                    
-                    <Link
-                      href="/help"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      ❓ Help & Support
-                    </Link>
-                    
-                    <div className="border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => {
-                          setIsProfileOpen(false)
-                          // Add logout logic here
-                        }}
-                      >
-                        🚪 Sign Out
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              >
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
-            </div>
-          </div>
+    <header id="header" className="sticky top-0 w-full shadow-md z-50 transition-all duration-300 bg-gradient-to-r from-gray-200 to-transparent">
+      <nav id="navbar" className="container mx-auto px-4 flex justify-between items-center py-2">
+        {/* Logo */}
+        <div className="flex items-center px-4 lg:px-0">
+          <Link href="/">
+            <Image 
+              id="logoCompany" 
+              src="/assets/logo.png" 
+              alt="Company Logo" 
+              width={48}
+              height={48}
+              className="w-12 h-12"
+              loading="lazy"
+            />
+          </Link>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden"
+        {/* Desktop Navigation */}
+        <div className="nav-links absolute md:static text-black md:min-h-fit min-h-[60vh] left-0 top-[-100%] sm:hide hidden md:block md:w-auto w-full flex items-center px-14 transition-all duration-300">
+          <ul className="flex md:flex-row flex-col md:items-center md:gap-[4vw] gap-8 justify-end">
+            {navigationItems.map((item) => (
+              <li key={item.label} className="relative group">
+                <Link 
+                  className="hover:text-black text-xl cursor-pointer" 
+                  href={item.href}
+                  aria-haspopup="true" 
+                  aria-expanded="false"
+                >
+                  {item.label}
+                </Link>
+                {item.dropdown && (
+                  <ul className="absolute w-[150px] -left-10 top-full hidden group-hover:flex flex-col bg-[#1a1a1a] shadow-lg p-3 rounded-md">
+                    {item.dropdown.map((dropdownItem) => (
+                      <li key={dropdownItem.href} className="flex flex-row">
+                        <Link 
+                          className="hover:text-[#02d1fe] text-lg text-black dark:text-white py-1 px-2" 
+                          href={dropdownItem.href}
+                        >
+                          {dropdownItem.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          {/* Language Dropdown */}
+          <div className="dropdown relative inline-block">
+            <button 
+              id="dropdownButton" 
+              className="search w-8 h-8 flex justify-center items-center cursor-pointer text-[#005450] text-base font-semibold bg-transparent"
+              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
             >
-              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200 dark:border-gray-700">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
-                      isActive(item.href)
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
+              <Image 
+                id="current-lang-flag" 
+                src={currentLang.flag} 
+                alt={currentLang.label}
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
+            </button>
+
+            {isLanguageDropdownOpen && (
+              <div className="dropdown-content absolute w-[150px] top-full -left-12 mt-2 bg-[#1a1a1a] shadow-lg p-3 rounded-md">
+                {languages.map((lang) => (
+                  <button 
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)} 
+                    className="flex items-center gap-3 px-4 py-2 w-full text-left hover:bg-gray-700 rounded"
                   >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.label}
-                  </Link>
+                    <Image 
+                      className="w-6 h-6" 
+                      src={lang.flag} 
+                      alt={lang.label}
+                      width={24}
+                      height={24}
+                    />
+                    <span className="text-sm font-medium text-lg text-white">{lang.label}</span>
+                  </button>
                 ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            )}
+          </div>
+
+          {/* Theme Toggle */}
+          <button 
+            id="themeToggle" 
+            aria-label="Switch Theme" 
+            className="w-10 h-10 rounded-full border border-gray-600 flex justify-center items-center"
+            onClick={toggleTheme}
+          >
+            <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
+          </button>
+
+          {/* Notifications */}
+          <NotificationCenter />
+
+          {/* User Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center space-x-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <img
+                className="h-8 w-8 rounded-full"
+                src={mockUser.avatar}
+                alt={mockUser.name}
+              />
+              <span className="hidden md:block text-gray-700 dark:text-gray-300">
+                {mockUser.name}
+              </span>
+              <svg
+                className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                  isProfileOpen ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Profile Dropdown */}
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {mockUser.name}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {mockUser.email}
+                    </p>
+                  </div>
+                  
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    👤 Profile Settings
+                  </Link>
+                  
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    ⚙️ Account Settings
+                  </Link>
+                  
+                  <Link
+                    href="/help"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    ❓ Help & Support
+                  </Link>
+                  
+                  <div className="border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => {
+                        setIsProfileOpen(false)
+                        // Add logout logic here
+                      }}
+                    >
+                      🚪 Sign Out
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="relative">
+            <button 
+              className="block sm:hidden text-xl p-2 bg-gray-200 rounded-md" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+
+            {/* Mobile Dropdown Menu */}
+            {isMobileMenuOpen && (
+              <div className="absolute bg-[#1a1a1a] top-full right-0 mt-2 w-48 shadow-md rounded-md z-50">
+                <ul className="p-2 space-y-1">
+                  {navigationItems.map((item) => (
+                    <li key={item.label}>
+                      <Link 
+                        href={item.href} 
+                        className="block px-4 py-2 hover:text-[#02d1fe] text-lg text-black dark:text-white"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
 
       {/* Overlay for mobile menu */}
       {isMobileMenuOpen && (
@@ -220,7 +327,7 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-    </nav>
+    </header>
   )
 }
 
