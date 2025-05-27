@@ -6,6 +6,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ТОЧНЫЕ СТИЛИ ИЗ ОРИГИНАЛЬНОГО HTML */
+
+/* Apply Roboto to the entire website */
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400; /* Default weight */
+}
+
+/* Headings with Roboto Bold */
+h1, h2, h3 {
+    font-weight: 700;
+}
+
+/* Lighter text for subtle elements */
+p, span {
+    font-weight: 300;
+}
+
+.dark-mode .dark-mode\:bg-\[\#1a1a1a\] {
+    background-color: black;
+}
+
 /* Root variables for consistent theming */
 :root {
   --primary-green: #98b5a4;
@@ -32,16 +54,6 @@ body {
   font-weight: 400; /* Default weight */
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
 /* Dark mode styles */
 .dark-mode {
   background: #1a1a1a;
@@ -53,103 +65,291 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-/* Neon title effect - exact from original HTML */
+/* NEON EFFECTS - ТОЧНО КАК В ОРИГИНАЛЕ */
 .neon-title {
-  color: #fff;
-  text-shadow: 0 0 5px #fff, 0 0 10px #0ff, 0 0 15px #0ff, 0 0 20px #0ff;
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #0ff, 0 0 15px #0ff, 0 0 20px #0ff;
 }
 
-/* Neon paragraph effect */
 .neon-paragraph {
-  color: #fff;
-  text-shadow: 0 0 5px #fff, 0 0 10px #ff0, 0 0 15px #ff0, 0 0 20px #ff0;
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff0, 0 0 15px #ff0, 0 0 20px #ff0;
 }
 
-/* Market ticker styles */
+/* MARKET TICKER - ТОЧНО КАК В ОРИГИНАЛЕ */
 .market-ticker {
-  position: relative;
-  width: 80%;
-  padding: 0.5rem 0;
+    position: relative;
+    width: 80%;
+    padding: 0.5rem 0;
 }
 
 .ticker-wrapper {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
 }
 
 .ticker {
-  display: flex;
-  white-space: nowrap;
-  animation: ticker 60s linear infinite;
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 60s linear infinite;
 }
 
 @keyframes ticker {
-  0% {
-    transform: translate3d(100%, 0, 0);
-  }
-  100% {
-    transform: translate3d(-100%, 0, 0);
-  }
+    0% {
+        transform: translate3d(100%, 0, 0);
+    }
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
 }
 
 .ticker-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 1rem;
 }
 
 .ticker-container {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
 }
 
 .price-up-flash {
-  animation: priceUpFlash 1s ease;
+    animation: priceUpFlash 1s ease;
 }
 
 .price-down-flash {
-  animation: priceDownFlash 1s ease;
+    animation: priceDownFlash 1s ease;
 }
 
 .ticker-item {
-  padding: 0.5rem 1rem;
-  transition: background-color 0.3s ease;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s ease;
 }
 
-/* Button hover effects - exact from original */
+/* BUTTONS - ТОЧНЫЕ СТИЛИ ИЗ ОРИГИНАЛА */
 .btn-primary {
-  background: #98b5a4;
-  color: black;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 9999px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.1s ease;
-  width: 200px;
-  height: 55px;
+    background: #98b5a4;
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    width: 200px;
+    height: 55px;
 }
 
 .btn-primary:hover {
-  background: #162A2C;
-  color: #D6E0E2;
+    background: #162A2C;
+    color: #D6E0E2;
 }
 
-/* Service cards hover effect */
+/* SERVICE CARDS - ТОЧНЫЕ СТИЛИ ИЗ ОРИГИНАЛА */
 .service-card {
-  background: #98b5a4;
-  color: black;
-  transition: all 0.1s ease;
-  border-radius: 0.5rem;
-  transform: scale(1);
+    background: #98b5a4;
+    color: black;
+    transition: all 0.1s ease;
+    border-radius: 0.5rem;
+    transform: scale(1);
 }
 
 .service-card:hover {
-  background: #162A2C;
-  color: #D6E0E2;
-  transform: scale(1.05);
+    background: #162A2C;
+    color: #D6E0E2;
+    transform: scale(1.05);
+}
+
+/* ANIMATIONS */
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+[data-interval] {
+    transition: all 0.2s ease-in-out;
+}
+
+[data-interval]:hover {
+    transform: translateY(-1px);
+}
+
+[data-interval].active {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* MARKET STYLES */
+#slider {
+    transition: transform 0.3s ease-in-out;
+}
+
+.market-box {
+    transition: transform 0.2s ease-in-out;
+}
+
+.market-box:hover {
+    transform: translateY(-5px);
+}
+
+/* SLIDER STYLES */
+[x-cloak] {
+    display: none !important;
+}
+
+#slider {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1.5rem;
+    transition: transform 0.3s ease-in-out;
+    width: 100%;
+}
+
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+#slider > li {
+    flex: 0 0 auto !important;
+    min-width: 250px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.slider-container {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* HERO OVERLAY */
+.hero-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+}
+
+/* RESPONSIVE TEXT SIZING */
+@media (max-width: 640px) {
+    .neon-title {
+        font-size: 3rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    .neon-title {
+        font-size: 4rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .neon-title {
+        font-size: 5rem;
+    }
+}
+
+@media (min-width: 1025px) {
+    .neon-title {
+        font-size: 6rem;
+    }
+}
+
+/* ADDITIONAL UTILITY CLASSES */
+.font-open-sans {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.font-roboto {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ENSURE PROPER SPACING AND LAYOUT */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* TRADING CARD STYLES */
+.trading-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.trading-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* PRICE DISPLAY STYLES */
+.price-positive {
+    color: #10b981;
+}
+
+.price-negative {
+    color: #ef4444;
+}
+
+.price-neutral {
+    color: #6b7280;
+}
+
+/* FLASH ANIMATIONS FOR PRICE CHANGES */
+@keyframes priceUpFlash {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(16, 185, 129, 0.2); }
+    100% { background-color: transparent; }
+}
+
+@keyframes priceDownFlash {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(239, 68, 68, 0.2); }
+    100% { background-color: transparent; }
+}
+
+/* LOADING ANIMATIONS */
+.loading-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* CHART CONTAINER STYLES */
+.chart-container {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* NEWS CARD STYLES */
+.news-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease-in-out;
+}
+
+.news-card:hover {
+    border-color: #98b5a4;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Dropdown styles */
@@ -177,41 +377,6 @@ body {
   background: var(--primary-dark);
 }
 
-/* Responsive text utilities */
-@media (max-width: 640px) {
-  .neon-title {
-    font-size: 3rem;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 768px) {
-  .neon-title {
-    font-size: 4rem;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .neon-title {
-    font-size: 5rem;
-  }
-}
-
-@media (min-width: 1025px) {
-  .neon-title {
-    font-size: 6rem;
-  }
-}
-
-/* Loading animations */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
 /* Price change animations */
 .price-up {
   color: #10b981;
@@ -231,28 +396,6 @@ body {
 @keyframes flash-red {
   0%, 100% { background-color: transparent; }
   50% { background-color: rgba(239, 68, 68, 0.2); }
-}
-
-/* Chart container styles */
-.chart-container {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-}
-
-/* News card styles */
-.news-card {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s ease-in-out;
-}
-
-.news-card:hover {
-  border-color: #98b5a4;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Broker card styles */
@@ -321,11 +464,6 @@ body {
   overflow: hidden;
 }
 
-/* Hero image overlay */
-.hero-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
-}
-
 /* Custom utilities */
 .text-inherit {
   color: inherit;
@@ -363,108 +501,6 @@ body {
 
 .shadow-neon-blue {
   box-shadow: 0 0 20px rgba(2, 209, 254, 0.5);
-}
-
-/* ANIMATIONS */
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-[data-interval] {
-  transition: all 0.2s ease-in-out;
-}
-
-[data-interval]:hover {
-  transform: translateY(-1px);
-}
-
-[data-interval].active {
-  background-color: #3b82f6;
-  color: white;
-}
-
-/* MARKET STYLES */
-#slider {
-  transition: transform 0.3s ease-in-out;
-}
-
-.market-box {
-  transition: transform 0.2s ease-in-out;
-}
-
-.market-box:hover {
-  transform: translateY(-5px);
-}
-
-/* SLIDER STYLES */
-[x-cloak] {
-  display: none !important;
-}
-
-#slider {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  gap: 1.5rem;
-  transition: transform 0.3s ease-in-out;
-  width: 100%;
-}
-
-.overflow-hidden {
-  overflow: hidden !important;
-}
-
-#slider > li {
-  flex: 0 0 auto !important;
-  min-width: 250px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.slider-container {
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* PRICE DISPLAY STYLES */
-.price-positive {
-  color: #10b981;
-}
-
-.price-negative {
-  color: #ef4444;
-}
-
-.price-neutral {
-  color: #6b7280;
-}
-
-/* FLASH ANIMATIONS FOR PRICE CHANGES */
-@keyframes priceUpFlash {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(16, 185, 129, 0.2); }
-  100% { background-color: transparent; }
-}
-
-@keyframes priceDownFlash {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(239, 68, 68, 0.2); }
-  100% { background-color: transparent; }
-}
-
-/* LOADING ANIMATIONS */
-.loading-spinner {
-  animation: spin 1s linear infinite;
 }
 
 /* ENSURE PROPER HYDRATION */

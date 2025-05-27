@@ -45,10 +45,10 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
       label: 'Charts',
       href: '/charts',
       dropdown: [
-        { href: '/demo', label: 'Trade AI' },
-        { href: '/dashboard', label: 'Community' },
-        { href: '/portfolio', label: 'CopyTrading' },
-        { href: '/demo', label: 'Education' }
+        { href: '/demo?section=ai', label: 'Trade AI' },
+        { href: '/dashboard?section=community', label: 'Community' },
+        { href: '/portfolio?section=copy', label: 'CopyTrading' },
+        { href: '/demo?section=education', label: 'Education' }
       ]
     },
     {
@@ -68,18 +68,18 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
       label: 'Brokers',
       href: '/portfolio',
       dropdown: [
-        { href: '/portfolio', label: 'Top Brokers' },
-        { href: '/markets', label: 'Compare' },
-        { href: '/dashboard', label: 'Comments' }
+        { href: '/portfolio?section=brokers', label: 'Top Brokers' },
+        { href: '/markets?section=compare', label: 'Compare' },
+        { href: '/dashboard?section=comments', label: 'Comments' }
       ]
     },
     {
       label: 'More',
       href: '/demo',
       dropdown: [
-        { href: '/demo', label: 'About Us' },
-        { href: '/demo', label: 'Tutorial' },
-        { href: '/demo', label: 'Pricing' }
+        { href: '/demo?section=about', label: 'About Us' },
+        { href: '/demo?section=tutorial', label: 'Tutorial' },
+        { href: '/demo?section=pricing', label: 'Pricing' }
       ]
     }
   ]
@@ -147,8 +147,8 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
                 </Link>
                 {item.dropdown && (
                   <ul className="absolute w-[150px] -left-10 top-full hidden group-hover:flex flex-col bg-[#1a1a1a] shadow-lg p-3 rounded-md">
-                    {item.dropdown.map((dropdownItem) => (
-                      <li key={dropdownItem.href} className="flex flex-row">
+                    {item.dropdown.map((dropdownItem, index) => (
+                      <li key={`${item.label}-${index}-${dropdownItem.label}`} className="flex flex-row">
                         <Link 
                           className="hover:text-[#02d1fe] text-lg text-black dark:text-white py-1 px-2" 
                           href={dropdownItem.href}

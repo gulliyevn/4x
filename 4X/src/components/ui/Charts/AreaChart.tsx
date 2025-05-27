@@ -75,7 +75,7 @@ export const AreaChart: React.FC<AreaChartProps> = React.memo(({
       return `${path} L ${point.x} ${point.y}`
     }, '') + ` L ${points[points.length - 1]?.x || 0} ${padding + chartHeight} Z`
 
-    const gradientId = `area-gradient-${Math.random().toString(36).substr(2, 9)}`
+    const gradientId = `area-gradient-${data.length}-${width}-${height}`
 
     return { pathData, areaData, points, xScale, yScale, minY, maxY, gradientId }
   }, [data, width, height])
