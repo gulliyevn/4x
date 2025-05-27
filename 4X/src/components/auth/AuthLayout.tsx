@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -52,15 +51,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
     )}>
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-2/3 relative overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/herobanner.png"
-            alt="4X Trading Platform"
-            fill
-            className="object-cover"
-            priority
-          />
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#162A2C] via-[#1a3d3f] to-[#98b5a4]">
           <div className="absolute inset-0 bg-gradient-to-r from-[#162A2C]/90 to-[#162A2C]/70" />
         </div>
 

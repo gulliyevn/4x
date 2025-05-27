@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '@/stores/authStore'
 import { LoginCredentials } from '@/types/auth'
 import { Button, Input, Alert, Card, CardBody } from '@/components/ui'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { DEMO_MODE } from '@/lib/env'
 import { demoCredentials } from '@/lib/mockData'
 

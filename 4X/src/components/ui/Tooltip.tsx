@@ -216,44 +216,42 @@ export const Tooltip: React.FC<TooltipProps> = ({
   offset = 8,
 }) => {
   const [isVisible, setIsVisible] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [showTimeoutId, setShowTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const [hideTimeoutId, setHideTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+  
   const triggerRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
-  const showTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
-  const hideTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   
   const calculatedPosition = useTooltipPosition(triggerRef, tooltipRef, position)
-  
+
+  // Ensure component is mounted before rendering portal
   useEffect(() => {
-    setMounted(true)
-    return () => {
-      if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current)
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
-    }
+    setIsMounted(true)
   }, [])
-  
+
   const showTooltip = () => {
     if (disabled) return
     
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current)
+    if (hideTimeoutId) {
+      clearTimeout(hideTimeoutId)
+      setHideTimeoutId(null)
     }
     
-    showTimeoutRef.current = setTimeout(() => {
-      setIsVisible(true)
-    }, showDelay)
+    const timeoutId = setTimeout(() => setIsVisible(true), showDelay)
+    setShowTimeoutId(timeoutId)
   }
-  
+
   const hideTooltip = () => {
-    if (showTimeoutRef.current) {
-      clearTimeout(showTimeoutRef.current)
+    if (showTimeoutId) {
+      clearTimeout(showTimeoutId)
+      setShowTimeoutId(null)
     }
     
-    hideTimeoutRef.current = setTimeout(() => {
-      setIsVisible(false)
-    }, hideDelay)
+    const timeoutId = setTimeout(() => setIsVisible(false), hideDelay)
+    setHideTimeoutId(timeoutId)
   }
-  
+
   const handleTriggerClick = () => {
     if (trigger === 'click') {
       if (isVisible) {
@@ -263,48 +261,53 @@ export const Tooltip: React.FC<TooltipProps> = ({
       }
     }
   }
-  
+
   const handleTriggerMouseEnter = () => {
     if (trigger === 'hover') {
       showTooltip()
     }
   }
-  
+
   const handleTriggerMouseLeave = () => {
     if (trigger === 'hover') {
       hideTooltip()
     }
   }
-  
+
   const handleTriggerFocus = () => {
     if (trigger === 'focus') {
       showTooltip()
     }
   }
-  
+
   const handleTriggerBlur = () => {
     if (trigger === 'focus') {
       hideTooltip()
     }
   }
-  
-  // Close tooltip on escape key
+
+  // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isVisible) {
         hideTooltip()
       }
     }
-    
+
     if (isVisible) {
       document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
     }
-    
-    return () => document.removeEventListener('keydown', handleEscape)
   }, [isVisible])
-  
-  if (!mounted) return <>{children}</>
-  
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (showTimeoutId) clearTimeout(showTimeoutId)
+      if (hideTimeoutId) clearTimeout(hideTimeoutId)
+    }
+  }, [showTimeoutId, hideTimeoutId])
+
   return (
     <>
       <div
@@ -319,7 +322,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         {children}
       </div>
       
-      {typeof window !== 'undefined' && createPortal(
+      {isMounted && createPortal(
         <AnimatePresence>
           {isVisible && (
             <div

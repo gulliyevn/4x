@@ -10,9 +10,15 @@ import { devtools, persist } from 'zustand/middleware'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import axios from 'axios'
-import type { MarketData, PricePoint, Ticker, Symbol, OrderBook, Trade, ChartInterval } from '@/types/market'
+import type { MarketData, PricePoint, Ticker, Symbol, OrderBook, Trade, ChartInterval, SymbolStatus } from '@/types/market'
 import type { ApiResponse, WebSocketMessage } from '@/types/api'
 import { WebSocketState } from '@/types/api'
+
+interface PriceChangeAnimation {
+  symbol: string
+  direction: 'up' | 'down' | 'neutral'
+  timestamp: number
+}
 
 interface MarketStore {
   // State
@@ -30,11 +36,22 @@ interface MarketStore {
   error: string | null
   lastUpdate: Date | null
 
+  // Real-time features
+  priceChangeAnimations: Record<string, PriceChangeAnimation>
+  batchUpdateQueue: { symbol: string; data: MarketData }[]
+  batchUpdateTimer: NodeJS.Timeout | null
+  connectionQuality: 'excellent' | 'good' | 'poor' | 'disconnected'
+  latency: number
+
   // WebSocket connection
   ws: WebSocket | null
   wsSubscriptions: Set<string>
   reconnectAttempts: number
   maxReconnectAttempts: number
+
+  // Demo mode
+  demoMode: boolean
+  demoIntervals: Record<string, NodeJS.Timeout>
 
   // Actions
   setSelectedSymbol: (symbol: string) => void
@@ -52,6 +69,18 @@ interface MarketStore {
   unsubscribeFromSymbol: (symbol: string) => void
   subscribeToOrderBook: (symbol: string) => void
   subscribeToTrades: (symbol: string) => void
+  
+  // Real-time actions
+  triggerPriceAnimation: (symbol: string, direction: 'up' | 'down' | 'neutral') => void
+  clearPriceAnimation: (symbol: string) => void
+  batchUpdateMarketData: (updates: { symbol: string; data: MarketData }[]) => void
+  processBatchUpdates: () => void
+  updateConnectionQuality: () => void
+  
+  // Demo mode actions
+  startDemoMode: () => void
+  stopDemoMode: () => void
+  generateDemoPrice: (symbol: string) => MarketData
   
   // Utility actions
   clearError: () => void
@@ -74,6 +103,74 @@ interface MarketStore {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001'
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
+// Demo data for symbols
+const DEMO_SYMBOLS: Symbol[] = [
+  { 
+    symbol: 'EURUSD', 
+    baseAsset: 'EUR', 
+    quoteAsset: 'USD', 
+    name: 'Euro/US Dollar',
+    status: 'TRADING' as SymbolStatus,
+    baseAssetPrecision: 8,
+    quoteAssetPrecision: 8,
+    pricePrecision: 5,
+    quantityPrecision: 8,
+    minOrderQty: 0.01,
+    maxOrderQty: 1000000,
+    stepSize: 0.01,
+    minNotional: 10,
+    maxNotional: 1000000,
+    tickSize: 0.00001,
+    marginTradingAllowed: true,
+    spotTradingAllowed: true,
+    category: 'Forex',
+    isActive: true
+  },
+  { 
+    symbol: 'GBPUSD', 
+    baseAsset: 'GBP', 
+    quoteAsset: 'USD', 
+    name: 'British Pound/US Dollar',
+    status: 'TRADING' as SymbolStatus,
+    baseAssetPrecision: 8,
+    quoteAssetPrecision: 8,
+    pricePrecision: 5,
+    quantityPrecision: 8,
+    minOrderQty: 0.01,
+    maxOrderQty: 1000000,
+    stepSize: 0.01,
+    minNotional: 10,
+    maxNotional: 1000000,
+    tickSize: 0.00001,
+    marginTradingAllowed: true,
+    spotTradingAllowed: true,
+    category: 'Forex',
+    isActive: true
+  },
+  { 
+    symbol: 'BTCUSD', 
+    baseAsset: 'BTC', 
+    quoteAsset: 'USD', 
+    name: 'Bitcoin/US Dollar',
+    status: 'TRADING' as SymbolStatus,
+    baseAssetPrecision: 8,
+    quoteAssetPrecision: 8,
+    pricePrecision: 2,
+    quantityPrecision: 8,
+    minOrderQty: 0.00001,
+    maxOrderQty: 1000,
+    stepSize: 0.00001,
+    minNotional: 10,
+    maxNotional: 1000000,
+    tickSize: 0.01,
+    marginTradingAllowed: true,
+    spotTradingAllowed: true,
+    category: 'Crypto',
+    isActive: true
+  },
+]
 
 export const useMarketStore = create<MarketStore>()(
   devtools(
@@ -82,23 +179,34 @@ export const useMarketStore = create<MarketStore>()(
         // Initial state
         selectedSymbol: null,
         marketData: {},
-        symbols: [],
-        watchlist: ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'], // Default watchlist
+        symbols: DEMO_MODE ? DEMO_SYMBOLS : [],
+        watchlist: ['EURUSD', 'GBPUSD', 'BTCUSD'], // Default watchlist
         priceHistory: {},
         orderBooks: {},
         recentTrades: {},
         tickers: {},
         isLoading: false,
-        isConnected: false,
-        wsState: WebSocketState.DISCONNECTED,
+        isConnected: DEMO_MODE,
+        wsState: DEMO_MODE ? WebSocketState.CONNECTED : WebSocketState.DISCONNECTED,
         error: null,
         lastUpdate: null,
+        
+        // Real-time features
+        priceChangeAnimations: {},
+        batchUpdateQueue: [],
+        batchUpdateTimer: null,
+        connectionQuality: DEMO_MODE ? 'excellent' : 'disconnected',
+        latency: 0,
         
         // WebSocket state
         ws: null,
         wsSubscriptions: new Set(),
         reconnectAttempts: 0,
         maxReconnectAttempts: 5,
+
+        // Demo mode
+        demoMode: DEMO_MODE,
+        demoIntervals: {},
 
         // Actions
         setSelectedSymbol: (symbol: string) => {
@@ -118,6 +226,16 @@ export const useMarketStore = create<MarketStore>()(
         },
 
         fetchMarketData: async (symbol: string) => {
+          if (DEMO_MODE) {
+            // Generate demo data
+            const demoData = get().generateDemoPrice(symbol)
+            set((state) => {
+              state.marketData[symbol] = demoData
+              state.lastUpdate = new Date()
+            })
+            return
+          }
+
           set((state) => {
             state.isLoading = true
             state.error = null
@@ -148,6 +266,13 @@ export const useMarketStore = create<MarketStore>()(
         },
 
         fetchSymbols: async () => {
+          if (DEMO_MODE) {
+            set((state) => {
+              state.symbols = DEMO_SYMBOLS
+            })
+            return
+          }
+
           set((state) => {
             state.isLoading = true
             state.error = null
@@ -452,19 +577,22 @@ export const useMarketStore = create<MarketStore>()(
           },
         })),
 
-        setPriceHistory: (symbol, history) => set((state) => ({
-          priceHistory: {
-            ...state.priceHistory,
-            [symbol]: history,
-          },
-        })),
+        setPriceHistory: (symbol, history) => set((state) => {
+          if (!state.priceHistory[symbol]) {
+            state.priceHistory[symbol] = {} as Record<ChartInterval, PricePoint[]>
+          }
+          state.priceHistory[symbol]['1d' as ChartInterval] = history
+        }),
 
-        appendPricePoint: (symbol, point) => set((state) => ({
-          priceHistory: {
-            ...state.priceHistory,
-            [symbol]: [...(state.priceHistory[symbol] || []), point],
-          },
-        })),
+        appendPricePoint: (symbol, point) => set((state) => {
+          if (!state.priceHistory[symbol]) {
+            state.priceHistory[symbol] = {} as Record<ChartInterval, PricePoint[]>
+          }
+          if (!state.priceHistory[symbol]['1d' as ChartInterval]) {
+            state.priceHistory[symbol]['1d' as ChartInterval] = []
+          }
+          state.priceHistory[symbol]['1d' as ChartInterval].push(point)
+        }),
 
         setLoading: (isLoading) => set({ isLoading }),
         reset: () => set({
@@ -476,6 +604,80 @@ export const useMarketStore = create<MarketStore>()(
           isLoading: false,
           error: null,
         }),
+
+        // Real-time actions
+        triggerPriceAnimation: (symbol: string, direction: 'up' | 'down' | 'neutral') => {
+          set((state) => {
+            state.priceChangeAnimations[symbol] = {
+              symbol,
+              direction,
+              timestamp: Date.now(),
+            }
+          })
+        },
+        clearPriceAnimation: (symbol: string) => {
+          set((state) => {
+            delete state.priceChangeAnimations[symbol]
+          })
+        },
+        batchUpdateMarketData: (updates) => {
+          set((state) => {
+            state.batchUpdateQueue = [...state.batchUpdateQueue, ...updates]
+          })
+        },
+        processBatchUpdates: () => {
+          const { batchUpdateQueue } = get()
+          if (batchUpdateQueue.length === 0) return
+          
+          set((state) => {
+            state.batchUpdateQueue = []
+            batchUpdateQueue.forEach(({ symbol, data }) => {
+              state.marketData[symbol] = data
+            })
+          })
+        },
+        updateConnectionQuality: () => {
+          set((state) => {
+            state.connectionQuality = 'excellent'
+          })
+        },
+        
+        // Demo mode actions
+        startDemoMode: () => {
+          set((state) => {
+            state.demoMode = true
+          })
+        },
+        stopDemoMode: () => {
+          set((state) => {
+            state.demoMode = false
+          })
+        },
+        generateDemoPrice: (symbol: string): MarketData => {
+          const basePrice = symbol.includes('USD') ? 1.2345 : 50000
+          const volatility = 0.001
+          const change = (Math.random() - 0.5) * 2 * volatility
+          const price = basePrice * (1 + change)
+          const prevPrice = basePrice
+          
+          return {
+            symbol,
+            price: Number(price.toFixed(5)),
+            prevPrice: Number(prevPrice.toFixed(5)),
+            change24h: price - prevPrice,
+            changePercent24h: ((price - prevPrice) / prevPrice) * 100,
+            high24h: price * 1.02,
+            low24h: price * 0.98,
+            volume24h: Math.floor(Math.random() * 1000000),
+            quoteVolume24h: Math.floor(Math.random() * 1000000),
+            bidPrice: price * 0.9999,
+            askPrice: price * 1.0001,
+            spread: price * 0.0002,
+            timestamp: new Date(),
+            tradeCount24h: Math.floor(Math.random() * 10000),
+            isMarketOpen: true,
+          }
+        },
       })),
       {
         name: 'market-storage',

@@ -22,9 +22,26 @@ import {
 } from '@/types/market'
 import { PositionStatus } from '@/types/trading'
 
-// Current timestamp for realistic data
-const now = new Date()
+// Fixed timestamp for consistent SSR/client rendering
+const FIXED_TIMESTAMP = new Date('2024-01-15T12:00:00Z')
+const now = FIXED_TIMESTAMP
 const dayMs = 24 * 60 * 60 * 1000
+
+// Seeded random number generator for consistent results
+class SeededRandom {
+  private seed: number
+
+  constructor(seed: number) {
+    this.seed = seed
+  }
+
+  next(): number {
+    this.seed = (this.seed * 9301 + 49297) % 233280
+    return this.seed / 233280
+  }
+}
+
+const rng = new SeededRandom(12345)
 
 /**
  * Mock User Data
@@ -86,15 +103,15 @@ export const demoCredentials = {
 }
 
 /**
- * Generate realistic price with trend
+ * Generate realistic price with trend (deterministic)
  */
 function generatePrice(basePrice: number, volatility = 0.02, trend = 0): number {
-  const change = (Math.random() - 0.5) * 2 * volatility + trend
+  const change = (rng.next() - 0.5) * 2 * volatility + trend
   return Math.max(basePrice * (1 + change), 0.01)
 }
 
 /**
- * Generate price history
+ * Generate price history (deterministic)
  */
 function generatePriceHistory(basePrice: number, days = 30): PricePoint[] {
   const points: PricePoint[] = []
@@ -102,17 +119,17 @@ function generatePriceHistory(basePrice: number, days = 30): PricePoint[] {
   
   for (let i = days; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * dayMs)
-    const dailyVolatility = Math.random() * 0.05 + 0.01
+    const dailyVolatility = rng.next() * 0.05 + 0.01
     
     currentPrice = generatePrice(currentPrice, dailyVolatility)
     
     points.push({
       time: timestamp.getTime(),
       open: currentPrice,
-      high: currentPrice * (1 + Math.random() * 0.03),
-      low: currentPrice * (1 - Math.random() * 0.03),
+      high: currentPrice * (1 + rng.next() * 0.03),
+      low: currentPrice * (1 - rng.next() * 0.03),
       close: currentPrice,
-      volume: Math.floor(Math.random() * 1000000 + 100000),
+      volume: Math.floor(rng.next() * 1000000 + 100000),
     })
   }
   
@@ -849,18 +866,18 @@ mockSymbols.forEach(symbol => {
     prevPrice,
     change24h: change,
     changePercent24h: changePercent,
-    high24h: currentPrice * (1 + Math.random() * 0.05),
-    low24h: currentPrice * (1 - Math.random() * 0.05),
-    volume24h: Math.floor(Math.random() * 10000000 + 1000000),
-    quoteVolume24h: Math.floor(Math.random() * 1000000000 + 100000000),
+    high24h: currentPrice * (1 + rng.next() * 0.05),
+    low24h: currentPrice * (1 - rng.next() * 0.05),
+    volume24h: Math.floor(rng.next() * 10000000 + 1000000),
+    quoteVolume24h: Math.floor(rng.next() * 1000000000 + 100000000),
     bidPrice: currentPrice * 0.999,
     askPrice: currentPrice * 1.001,
     spread: currentPrice * 0.002,
     timestamp: now,
-    tradeCount24h: Math.floor(Math.random() * 10000 + 1000),
-    marketCap: symbol.category === 'Crypto' ? Math.floor(Math.random() * 500000000000 + 10000000000) : undefined,
-    circulatingSupply: symbol.category === 'Crypto' ? Math.floor(Math.random() * 100000000 + 1000000) : undefined,
-    totalSupply: symbol.category === 'Crypto' ? Math.floor(Math.random() * 200000000 + 1000000) : undefined,
+    tradeCount24h: Math.floor(rng.next() * 10000 + 1000),
+    marketCap: symbol.category === 'Crypto' ? Math.floor(rng.next() * 500000000000 + 10000000000) : undefined,
+    circulatingSupply: symbol.category === 'Crypto' ? Math.floor(rng.next() * 100000000 + 1000000) : undefined,
+    totalSupply: symbol.category === 'Crypto' ? Math.floor(rng.next() * 200000000 + 1000000) : undefined,
     isMarketOpen: true
   }
   
@@ -870,23 +887,23 @@ mockSymbols.forEach(symbol => {
     price: currentPrice,
     priceChange: change,
     priceChangePercent: changePercent,
-    weightedAvgPrice: currentPrice * (1 + (Math.random() - 0.5) * 0.01),
+    weightedAvgPrice: currentPrice * (1 + (rng.next() - 0.5) * 0.01),
     prevClosePrice: prevPrice,
-    lastQty: Math.random() * 10,
+    lastQty: rng.next() * 10,
     bidPrice: currentPrice * 0.999,
-    bidQty: Math.random() * 100,
+    bidQty: rng.next() * 100,
     askPrice: currentPrice * 1.001,
-    askQty: Math.random() * 100,
+    askQty: rng.next() * 100,
     openPrice: prevPrice,
-    highPrice: currentPrice * (1 + Math.random() * 0.03),
-    lowPrice: currentPrice * (1 - Math.random() * 0.03),
-    volume: Math.floor(Math.random() * 1000000 + 100000),
-    quoteVolume: Math.floor(Math.random() * 1000000000 + 100000000),
+    highPrice: currentPrice * (1 + rng.next() * 0.03),
+    lowPrice: currentPrice * (1 - rng.next() * 0.03),
+    volume: Math.floor(rng.next() * 1000000 + 100000),
+    quoteVolume: Math.floor(rng.next() * 1000000000 + 100000000),
     openTime: now.getTime() - 24 * 60 * 60 * 1000,
     closeTime: now.getTime(),
-    firstId: Math.floor(Math.random() * 1000000),
-    lastId: Math.floor(Math.random() * 1000000) + 1000000,
-    count: Math.floor(Math.random() * 10000 + 1000),
+    firstId: Math.floor(rng.next() * 1000000),
+    lastId: Math.floor(rng.next() * 1000000) + 1000000,
+    count: Math.floor(rng.next() * 10000 + 1000),
   }
   
   // Price History
@@ -899,12 +916,54 @@ mockSymbols.forEach(symbol => {
 export const mockPortfolio: Portfolio = {
   id: 'portfolio-demo-001',
   userId: mockUser.id,
+  name: 'Demo Portfolio',
+  description: 'Demo trading portfolio for testing',
   totalValue: 125750.85,
   availableBalance: 15420.50,
-  totalPnL: 8750.85,
+  marginUsed: 45000.00,
+  freeMargin: 80750.85,
+  marginLevel: 279.44,
+  unrealizedPnL: 2250.75,
+  realizedPnL: 6500.10,
   totalPnLPercent: 7.48,
+  totalPnL: 8750.85,
   currency: 'USD',
-  lastUpdated: now
+  lastUpdated: now,
+  balances: {
+    USD: {
+      available: 15420.50,
+      locked: 5000.00,
+      total: 20420.50,
+      valueInBaseCurrency: 20420.50
+    },
+    BTC: {
+      available: 2.5,
+      locked: 0,
+      total: 2.5,
+      valueInBaseCurrency: 107625.00
+    },
+    ETH: {
+      available: 15.0,
+      locked: 0,
+      total: 15.0,
+      valueInBaseCurrency: 38711.25
+    }
+  },
+  positions: [],
+  orders: [],
+  createdAt: new Date('2024-01-01'),
+  updatedAt: now,
+  statistics: {
+    totalTrades: 45,
+    winningTrades: 28,
+    losingTrades: 17,
+    winRate: 62.22,
+    averageWin: 485.50,
+    averageLoss: -275.30,
+    profitFactor: 1.76,
+    maxDrawdown: 8.5,
+    sharpeRatio: 1.45
+  }
 }
 
 /**
@@ -938,6 +997,7 @@ export const mockPositions: Position[] = [
     currentPrice: mockMarketData['BTCUSDT'].price,
     unrealizedPnL: (mockMarketData['BTCUSDT'].price - 42850.00) * 2.5,
     realizedPnL: 0,
+    pnl: (mockMarketData['BTCUSDT'].price - 42850.00) * 2.5,
     pnlPercent: ((mockMarketData['BTCUSDT'].price - 42850.00) / 42850.00) * 100,
     leverage: 10,
     margin: 10712.50,
@@ -959,6 +1019,7 @@ export const mockPositions: Position[] = [
     currentPrice: mockMarketData['ETHUSDT'].price,
     unrealizedPnL: (mockMarketData['ETHUSDT'].price - 2525.50) * 15.0,
     realizedPnL: 0,
+    pnl: (mockMarketData['ETHUSDT'].price - 2525.50) * 15.0,
     pnlPercent: ((mockMarketData['ETHUSDT'].price - 2525.50) / 2525.50) * 100,
     leverage: 5,
     margin: 7576.50,
@@ -980,6 +1041,7 @@ export const mockPositions: Position[] = [
     currentPrice: mockMarketData['AAPL'].price,
     unrealizedPnL: (mockMarketData['AAPL'].price - 192.25) * 100,
     realizedPnL: 0,
+    pnl: (mockMarketData['AAPL'].price - 192.25) * 100,
     pnlPercent: ((mockMarketData['AAPL'].price - 192.25) / 192.25) * 100,
     leverage: 1,
     margin: 19225.00,
@@ -1259,9 +1321,9 @@ export const demoHelpers = {
     
     // Add small random price movement for live feel
     const data = { ...mockMarketData[symbol] }
-    const priceChange = (Math.random() - 0.5) * 0.001 // 0.1% max change
+    const priceChange = (rng.next() - 0.5) * 0.001 // 0.1% max change
     data.price = data.price * (1 + priceChange)
-    data.timestamp = new Date()
+    data.timestamp = FIXED_TIMESTAMP
     
     return data
   },
@@ -1271,7 +1333,13 @@ export const demoHelpers = {
    */
   getRandomUpdates: (count = 5): { symbol: string; data: MarketData }[] => {
     const symbols = Object.keys(mockMarketData)
-    const randomSymbols = symbols.sort(() => 0.5 - Math.random()).slice(0, count)
+    // Use a deterministic shuffle based on seeded random
+    const shuffled = symbols.slice()
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rng.next() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    const randomSymbols = shuffled.slice(0, count)
     
     return randomSymbols.map(symbol => ({
       symbol,
@@ -1291,14 +1359,14 @@ export const demoHelpers = {
     ]
     
     const symbols = Object.keys(mockMarketData)
-    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)]
-    const template = templates[Math.floor(Math.random() * templates.length)]
+    const randomSymbol = symbols[Math.floor(rng.next() * symbols.length)]
+    const template = templates[Math.floor(rng.next() * templates.length)]
     
     return {
       ...mockNewsArticles[0],
-      id: `news-${Date.now()}`,
+      id: `news-${FIXED_TIMESTAMP.getTime()}`,
       title: template.replace('{}', randomSymbol),
-      publishedAt: new Date(),
+      publishedAt: FIXED_TIMESTAMP,
       relatedSymbols: [randomSymbol],
     }
   }
