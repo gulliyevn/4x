@@ -6,55 +6,37 @@ import { mockMarketData, mockSymbols } from '@/lib/mockData'
 interface TickerItem {
   symbol: string
   price: number
-  change: number
-  changePercent: number
+  change24h: number
 }
 
 export default function MarketTicker() {
   const [tickerData, setTickerData] = useState<TickerItem[]>([])
 
   useEffect(() => {
-    // Generate ticker data from mock data
-    const generateTickerData = () => {
-      const data: TickerItem[] = []
-      
-      mockSymbols.slice(0, 20).forEach(symbol => {
-        const marketPrice = mockMarketData[symbol.symbol]
-        if (marketPrice) {
-          const change = marketPrice.price - marketPrice.prevPrice
-          const changePercent = (change / marketPrice.prevPrice) * 100
-          
-          data.push({
-            symbol: symbol.symbol,
-            price: marketPrice.price,
-            change,
-            changePercent
-          })
-        }
-      })
-      
-      setTickerData(data)
-    }
+    // Initialize ticker data from mockMarketData
+    const initialData: TickerItem[] = mockSymbols.slice(0, 10).map(symbol => {
+      const marketData = mockMarketData[symbol.symbol]
+      return {
+        symbol: symbol.symbol,
+        price: marketData?.price || 0,
+        change24h: marketData?.changePercent24h || 0
+      }
+    })
+    
+    setTickerData(initialData)
 
-    generateTickerData()
-    
-    // Update ticker data every 10 seconds
-    const interval = setInterval(generateTickerData, 10000)
-    
+    const interval = setInterval(() => {
+      setTickerData(prev => 
+        prev.map(item => ({
+          ...item,
+          price: item.price * (0.98 + Math.random() * 0.04),
+          change24h: (Math.random() - 0.5) * 10
+        }))
+      )
+    }, 3000)
+
     return () => clearInterval(interval)
   }, [])
-
-  const formatPrice = (price: number) => {
-    if (price >= 1) {
-      return price.toFixed(2)
-    } else {
-      return price.toFixed(6)
-    }
-  }
-
-  const formatChange = (change: number) => {
-    return change >= 0 ? `+${change.toFixed(2)}` : change.toFixed(2)
-  }
 
   return (
     <section 
@@ -71,6 +53,7 @@ export default function MarketTicker() {
           data-testid="ticker-container"
         >
           <div 
+            id="ticker"
             className="ticker h-[30px]"
             data-testid="ticker"
           >
@@ -80,12 +63,12 @@ export default function MarketTicker() {
                 className="ticker-item"
                 data-testid={`ticker-item-${item.symbol}`}
               >
-                <span className="font-semibold mr-2">{item.symbol}</span>
-                <span className="mr-2">${formatPrice(item.price)}</span>
-                <span className={`mr-4 ${
-                  item.change >= 0 ? 'text-green-300' : 'text-red-300'
-                }`}>
-                  {formatChange(item.change)} ({item.changePercent.toFixed(2)}%)
+                <span className="font-semibold text-white">{item.symbol}</span>
+                <span className="ml-2 text-white">
+                  ${item.price.toFixed(2)}
+                </span>
+                <span className={`ml-2 ${item.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {item.change24h >= 0 ? '+' : ''}{item.change24h.toFixed(2)}%
                 </span>
               </div>
             ))}
@@ -96,12 +79,12 @@ export default function MarketTicker() {
                 className="ticker-item"
                 data-testid={`ticker-item-${item.symbol}-duplicate`}
               >
-                <span className="font-semibold mr-2">{item.symbol}</span>
-                <span className="mr-2">${formatPrice(item.price)}</span>
-                <span className={`mr-4 ${
-                  item.change >= 0 ? 'text-green-300' : 'text-red-300'
-                }`}>
-                  {formatChange(item.change)} ({item.changePercent.toFixed(2)}%)
+                <span className="font-semibold text-white">{item.symbol}</span>
+                <span className="ml-2 text-white">
+                  ${item.price.toFixed(2)}
+                </span>
+                <span className={`ml-2 ${item.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {item.change24h >= 0 ? '+' : ''}{item.change24h.toFixed(2)}%
                 </span>
               </div>
             ))}

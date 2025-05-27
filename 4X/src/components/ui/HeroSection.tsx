@@ -2,19 +2,9 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function HeroSection() {
-  const router = useRouter()
-
-  const handleGetStarted = () => {
-    router.push('/pricing')
-  }
-
-  const handleCharts = () => {
-    router.push('/charts')
-  }
-
   return (
     <section 
       id="heroSection" 
@@ -23,13 +13,15 @@ export default function HeroSection() {
       aria-label="Hero Section"
     >
       <div className="relative w-full h-[700px] overflow-hidden">
-        <Image
-          src="/assets/herobanner.png"
-          alt="Hero Background"
-          fill
-          className="w-full h-full object-cover object-center transition-shadow duration-300 hover:shadow-lg hover:shadow-black/50"
-          priority
-        />
+        <Link href="#" id="heroImage">
+          <Image
+            src="/assets/herobanner.png"
+            alt="Hero Background"
+            fill
+            className="w-full h-full object-cover object-center transition-shadow duration-300 hover:shadow-lg hover:shadow-black/50"
+            priority
+          />
+        </Link>
         
         {/* Hero overlay for better text visibility */}
         <div className="absolute inset-0 hero-overlay"></div>
@@ -52,20 +44,22 @@ export default function HeroSection() {
 
           {/* Action Buttons */}
           <div className="pl-[10px] sm:pl-[139px] pb-[40px] pt-4 flex gap-10 justify-center sm:justify-start" id="actionButtons">
-            <button 
-              onClick={handleGetStarted}
-              className="px-6 py-3 bg-[#98b5a4] hover:bg-[#162A2C] text-black hover:text-[#D6E0E2] dark-mode:text-white text-inherit transition-all duration-100 rounded-full shadow w-[200px] h-[55px]"
-              aria-label="Get Started with 4X Trading"
-            >
-              Get Started
-            </button>
-            <button 
-              onClick={handleCharts}
-              className="px-6 py-3 bg-[#98b5a4] hover:bg-[#162A2C] text-black hover:text-[#D6E0E2] dark-mode:text-white text-inherit transition-all duration-100 rounded-full shadow w-[200px] h-[55px]"
-              aria-label="View Trading Charts"
-            >
-              Charts
-            </button>
+            <Link href="/pricing" id="getStartedBtn">
+              <button 
+                className="px-6 py-3 bg-[#98b5a4] hover:bg-[#162A2C] text-black hover:text-[#D6E0E2] dark-mode:text-white text-inherit transition-all duration-100 rounded-full shadow w-[200px] h-[55px]"
+                aria-label="Get Started with 4X Trading"
+              >
+                Get Started
+              </button>
+            </Link>
+            <Link href="/charts" id="realtimechartsBtn">
+              <button 
+                className="px-6 py-3 bg-[#98b5a4] hover:bg-[#162A2C] text-black hover:text-[#D6E0E2] dark-mode:text-white text-inherit transition-all duration-100 rounded-full shadow w-[200px] h-[55px]"
+                aria-label="View Trading Charts"
+              >
+                Charts
+              </button>
+            </Link>
           </div>
         </div>
       </div>
