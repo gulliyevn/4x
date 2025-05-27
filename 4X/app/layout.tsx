@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../src/app/globals.css'
+import Navigation from '@/components/layout/Navigation'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,7 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
-        <div id="root">{children}</div>
+        <ErrorBoundary enableRetry showDetails={process.env.NODE_ENV === 'development'}>
+          <div id="root" className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <Navigation />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
+        </ErrorBoundary>
       </body>
     </html>
   )
