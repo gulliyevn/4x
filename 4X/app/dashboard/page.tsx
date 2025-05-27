@@ -291,7 +291,7 @@ export default function DashboardPage() {
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Market Overview
-            </h2>
+              </h2>
             
             <div className="space-y-4">
               {topSymbols.map((symbol, index) => {
@@ -448,7 +448,7 @@ export default function DashboardPage() {
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Market News
-            </h2>
+              </h2>
             
             <div className="space-y-4">
               {latestNews.map((article: NewsArticle) => (

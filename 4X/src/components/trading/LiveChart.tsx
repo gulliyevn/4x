@@ -68,7 +68,6 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
   showControls = true,
   className = ''
 }) => {
-  const chartRef = useRef<ChartJS>(null)
   const [selectedTimeframe, setSelectedTimeframe] = useState<ChartInterval>(ChartInterval.ONE_HOUR)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -140,38 +139,37 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
   const chartData = useMemo(() => {
     const data = candlestickData.length > 0 ? candlestickData : generateDemoData()
     
-    return {
-      datasets: [
-        {
-          label: 'Price',
-          data: data.map(d => ({
-            x: d.x,
-            y: [d.o, d.h, d.l, d.c]
-          })),
-          backgroundColor: (ctx: any) => {
-            const point = data[ctx.dataIndex]
-            return point.c >= point.o ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)'
-          },
-          borderColor: (ctx: any) => {
-            const point = data[ctx.dataIndex]
-            return point.c >= point.o ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
-          },
-          borderWidth: 1,
-        },
-        ...(showVolume ? [{
-          label: 'Volume',
-          data: data.map(d => ({
-            x: d.x,
-            y: d.v || 0
-          })),
-          backgroundColor: 'rgba(99, 102, 241, 0.3)',
-          borderColor: 'rgb(99, 102, 241)',
-          borderWidth: 1,
-          yAxisID: 'volume',
-          type: 'bar' as const,
-        }] : [])
-      ]
+    const priceDataset = {
+      label: 'Price',
+      data: data.map(d => ({
+        x: d.x,
+        y: d.c // Use close price for line chart
+      })),
+      backgroundColor: 'rgba(152, 181, 164, 0.2)',
+      borderColor: 'rgb(152, 181, 164)',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.1,
     }
+
+    const datasets = [priceDataset]
+
+    if (showVolume) {
+      datasets.push({
+        label: 'Volume',
+        data: data.map(d => ({
+          x: d.x,
+          y: d.v || 0
+        })),
+        backgroundColor: 'rgba(99, 102, 241, 0.3)',
+        borderColor: 'rgb(99, 102, 241)',
+        borderWidth: 1,
+        yAxisID: 'volume',
+        type: 'bar',
+      } as any)
+    }
+    
+    return { datasets }
   }, [candlestickData, generateDemoData, showVolume])
 
   // Chart options
@@ -242,13 +240,7 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
           },
           label: (item: TooltipItem<any>) => {
             if (item.datasetIndex === 0) {
-              const data = item.raw as number[]
-              return [
-                `Open: ${data[0]?.toFixed(5)}`,
-                `High: ${data[1]?.toFixed(5)}`,
-                `Low: ${data[2]?.toFixed(5)}`,
-                `Close: ${data[3]?.toFixed(5)}`,
-              ]
+              return `Price: ${item.parsed.y?.toFixed(5)}`
             } else {
               return `Volume: ${item.parsed.y?.toLocaleString()}`
             }
@@ -319,31 +311,29 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
   const handleReset = useCallback(() => {
     setZoomLevel(1)
     setPanOffset(0)
-    if (chartRef.current) {
-      chartRef.current.resetZoom()
-    }
+    // Reset zoom level state
   }, [])
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`chart-container ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="chart-header">
+        <div className="chart-title-section">
+          <h3 className="chart-title">
             {symbol} Chart
           </h3>
           
           {/* Connection Status */}
-          <div className="flex items-center space-x-2">
+          <div className="connection-status">
             <motion.div
               animate={{ 
                 backgroundColor: isConnected ? '#10b981' : '#ef4444',
                 scale: isConnected ? [1, 1.2, 1] : 1
               }}
               transition={{ duration: 0.5, repeat: isConnected ? Infinity : 0 }}
-              className="w-2 h-2 rounded-full"
+              className="connection-indicator"
             />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="connection-text">
               {isConnected ? 'Live' : 'Disconnected'}
             </span>
           </div>
@@ -351,17 +341,15 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
 
         {/* Controls */}
         {showControls && (
-          <div className="flex items-center space-x-2">
+          <div className="chart-controls">
             {/* Timeframe Selector */}
-            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <div className="timeframe-selector">
               {TIMEFRAMES.map((timeframe) => (
                 <button
                   key={timeframe.value}
                   onClick={() => setSelectedTimeframe(timeframe.value)}
-                  className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                    selectedTimeframe === timeframe.value
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  className={`timeframe-btn ${
+                    selectedTimeframe === timeframe.value ? 'active' : ''
                   }`}
                 >
                   {timeframe.label}
@@ -370,31 +358,31 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
             </div>
 
             {/* Zoom Controls */}
-            <div className="flex space-x-1">
+            <div className="zoom-controls">
               <button
                 onClick={() => handleZoom('in')}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="zoom-btn"
                 title="Zoom In"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="zoom-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </button>
               <button
                 onClick={() => handleZoom('out')}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="zoom-btn"
                 title="Zoom Out"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="zoom-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
                 </svg>
               </button>
               <button
                 onClick={handleReset}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="zoom-btn"
                 title="Reset Zoom"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="zoom-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
@@ -404,18 +392,18 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
       </div>
 
       {/* Chart Container */}
-      <div className="relative" style={{ height }}>
+      <div className="chart-content" style={{ height }}>
         <AnimatePresence>
           {isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 z-10"
+              className="chart-loading"
             >
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                <span className="text-gray-600 dark:text-gray-400">Loading chart...</span>
+              <div className="loading-content">
+                <div className="loading-spinner"></div>
+                <span className="loading-text">Loading chart...</span>
               </div>
             </motion.div>
           )}
@@ -425,18 +413,18 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 z-10"
+              className="chart-error"
             >
-              <div className="text-center">
-                <div className="text-red-500 mb-2">
-                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="error-content">
+                <div className="error-icon">
+                  <svg className="error-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">{error}</p>
+                <p className="error-message">{error}</p>
                 <button
                   onClick={() => fetchPriceHistory(symbol, selectedTimeframe, 100)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  className="retry-btn"
                 >
                   Retry
                 </button>
@@ -446,9 +434,8 @@ export const LiveChart: React.FC<LiveChartProps> = React.memo(({
         </AnimatePresence>
 
         {!isLoading && !error && (
-          <div className="p-4 h-full">
+          <div className="chart-wrapper">
             <Chart
-              ref={chartRef}
               type="line"
               data={chartData}
               options={chartOptions}

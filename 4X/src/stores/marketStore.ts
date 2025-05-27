@@ -373,6 +373,17 @@ export const useMarketStore = create<MarketStore>()(
 
         // WebSocket actions
         connectWebSocket: () => {
+          // Skip WebSocket connection in demo mode
+          if (DEMO_MODE) {
+            console.log('WebSocket connection skipped in demo mode')
+            set((state) => {
+              state.wsState = WebSocketState.CONNECTED
+              state.isConnected = true
+              state.connectionQuality = 'excellent'
+            })
+            return
+          }
+
           const { ws, wsState } = get()
           
           if (ws && wsState === WebSocketState.CONNECTED) {
@@ -687,8 +698,10 @@ export const useMarketStore = create<MarketStore>()(
         }),
         onRehydrateStorage: () => (state) => {
           if (state) {
-            // Auto-connect WebSocket on app initialization
-            state.connectWebSocket()
+            // Auto-connect WebSocket on app initialization (only in production mode)
+            if (!DEMO_MODE) {
+              state.connectWebSocket()
+            }
             
             // Fetch initial data
             state.fetchSymbols()
@@ -753,7 +766,9 @@ const handleWebSocketMessage = (message: WebSocketMessage) => {
   }
 }
 
-// Auto-connect WebSocket when store is created
-setTimeout(() => {
-  useMarketStore.getState().connectWebSocket()
-}, 1000) 
+// Auto-connect WebSocket when store is created (only in production mode)
+if (!DEMO_MODE) {
+  setTimeout(() => {
+    useMarketStore.getState().connectWebSocket()
+  }, 1000)
+} 
