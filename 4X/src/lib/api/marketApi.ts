@@ -71,8 +71,16 @@ class MarketWebSocket {
         this.ws = new WebSocket(BINANCE_WS_URL)
         
         this.ws.onopen = () => {
-          console.log('🔗 Market WebSocket connected')
           this.reconnectAttempts = 0
+          
+          // Resubscribe to all streams
+          this.subscriptions.forEach(stream => {
+            if (this.messageHandlers.has(stream)) {
+              const handler = this.messageHandlers.get(stream)!
+              this.subscribe(stream, handler)
+            }
+          })
+          
           resolve()
         }
         
@@ -91,7 +99,6 @@ class MarketWebSocket {
         }
         
         this.ws.onclose = () => {
-          console.log('📤 Market WebSocket disconnected')
           this.ws = null
           this.attemptReconnect()
         }
@@ -106,15 +113,11 @@ class MarketWebSocket {
       this.reconnectAttempts++
       const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
       
-      console.log(`🔄 Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`)
-      
       setTimeout(() => {
         this.connect().catch(() => {
           // Continue attempting to reconnect
         })
       }, delay)
-    } else {
-      console.error('❌ Max WebSocket reconnection attempts reached')
     }
   }
 
@@ -138,8 +141,6 @@ class MarketWebSocket {
       this.ws.send(JSON.stringify(subscribeMessage))
       this.subscriptions.add(stream)
       this.messageHandlers.set(stream, handler)
-      
-      console.log(`📊 Subscribed to ${stream}`)
     }
   }
 
@@ -154,8 +155,6 @@ class MarketWebSocket {
       this.ws.send(JSON.stringify(unsubscribeMessage))
       this.subscriptions.delete(stream)
       this.messageHandlers.delete(stream)
-      
-      console.log(`📤 Unsubscribed from ${stream}`)
     }
   }
 
@@ -168,8 +167,8 @@ class MarketWebSocket {
     }
   }
 
-  isConnected(): boolean {
-    return this.ws?.readyState === WebSocket.OPEN
+  get connected(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN || false
   }
 }
 
@@ -478,7 +477,7 @@ export const unsubscribeFromSymbol = (symbol: string, type: 'ticker' | 'depth' |
 
 // WebSocket connection management
 export const connectMarketWebSocket = async (): Promise<void> => {
-  if (!marketWebSocket.isConnected()) {
+  if (!marketWebSocket.connected) {
     await marketWebSocket.connect()
   }
 }

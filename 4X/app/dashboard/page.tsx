@@ -1,474 +1,546 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import PriceDisplay from '@/components/ui/PriceDisplay'
-import { LineChart, AreaChart, PieChart } from '@/components/ui/Charts'
-import { useRealTimePrice } from '@/hooks/useRealTimePrice'
-import { useMarketStore } from '@/stores/marketStore'
-import { 
-  mockPortfolioSummary, 
-  mockPositions, 
-  mockRecentTrades, 
-  mockNewsArticles,
-  mockMarketData,
-  mockSymbols
-} from '@/lib/mockData'
-import { PositionStatus, OrderSide } from '@/types/trading'
-import { OrderBookSide } from '@/types/market'
-import type { Trade, NewsArticle } from '@/types'
+import React, { useState } from 'react'
+import Link from 'next/link'
+
+// Dashboard Interfaces
+interface QuickStat {
+  title: string
+  value: string
+  change: string
+  changePercent: number
+  icon: string
+  color: 'success' | 'danger' | 'primary' | 'warning'
+}
+
+interface RecentActivity {
+  id: string
+  type: 'trade' | 'deposit' | 'withdrawal' | 'alert'
+  description: string
+  amount?: number
+  symbol?: string
+  timestamp: string
+  status: 'completed' | 'pending' | 'failed'
+}
+
+interface Notification {
+  id: string
+  type: 'price_alert' | 'news' | 'system' | 'trade'
+  title: string
+  message: string
+  timestamp: string
+  read: boolean
+  priority: 'high' | 'medium' | 'low'
+}
+
+// Mock Data
+const mockQuickStats: QuickStat[] = [
+  {
+    title: 'Portfolio Value',
+    value: '$125,430.56',
+    change: '+$2,340.78',
+    changePercent: 1.90,
+    icon: '💼',
+    color: 'primary'
+  },
+  {
+    title: 'Today\'s P&L',
+    value: '+$1,234.56',
+    change: '+2.34%',
+    changePercent: 2.34,
+    icon: '📈',
+    color: 'success'
+  },
+  {
+    title: 'Available Balance',
+    value: '$8,750.00',
+    change: '-$500.00',
+    changePercent: -5.40,
+    icon: '💰',
+    color: 'warning'
+  },
+  {
+    title: 'Open Positions',
+    value: '6',
+    change: '+2',
+    changePercent: 50.00,
+    icon: '📊',
+    color: 'primary'
+  }
+]
+
+const mockRecentActivity: RecentActivity[] = [
+  {
+    id: '1',
+    type: 'trade',
+    description: 'Bought Bitcoin',
+    amount: 0.1234,
+    symbol: 'BTC/USD',
+    timestamp: '2 minutes ago',
+    status: 'completed'
+  },
+  {
+    id: '2',
+    type: 'deposit',
+    description: 'Bank deposit',
+    amount: 5000,
+    timestamp: '1 hour ago',
+    status: 'completed'
+  },
+  {
+    id: '3',
+    type: 'trade',
+    description: 'Sold Ethereum',
+    amount: 2.5678,
+    symbol: 'ETH/USD',
+    timestamp: '3 hours ago',
+    status: 'completed'
+  },
+  {
+    id: '4',
+    type: 'alert',
+    description: 'Price alert triggered for AAPL',
+    symbol: 'AAPL',
+    timestamp: '5 hours ago',
+    status: 'completed'
+  },
+  {
+    id: '5',
+    type: 'withdrawal',
+    description: 'Bank withdrawal',
+    amount: 2000,
+    timestamp: '1 day ago',
+    status: 'pending'
+  }
+]
+
+const mockNotifications: Notification[] = [
+  {
+    id: '1',
+    type: 'price_alert',
+    title: 'Bitcoin Price Alert',
+    message: 'BTC/USD has reached your target price of $67,000',
+    timestamp: '5 minutes ago',
+    read: false,
+    priority: 'high'
+  },
+  {
+    id: '2',
+    type: 'news',
+    title: 'Market Update',
+    message: 'Federal Reserve announces interest rate decision',
+    timestamp: '1 hour ago',
+    read: false,
+    priority: 'medium'
+  },
+  {
+    id: '3',
+    type: 'trade',
+    title: 'Trade Executed',
+    message: 'Your limit order for AAPL has been filled',
+    timestamp: '2 hours ago',
+    read: true,
+    priority: 'medium'
+  },
+  {
+    id: '4',
+    type: 'system',
+    title: 'System Maintenance',
+    message: 'Scheduled maintenance tonight from 2-4 AM EST',
+    timestamp: '6 hours ago',
+    read: true,
+    priority: 'low'
+  }
+]
 
 export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
-  const [portfolioChartData, setPortfolioChartData] = useState<any[]>([])
-  const [marketChartData, setMarketChartData] = useState<any[]>([])
-  
-  const { marketData } = useMarketStore()
-  
-  // Generate portfolio performance chart data
-  useEffect(() => {
-    const generatePortfolioData = () => {
-      const data = []
-      const now = Date.now()
-      let baseValue = mockPortfolioSummary.totalValue
-      
-      for (let i = 30; i >= 0; i--) {
-        const time = now - (i * 24 * 60 * 60 * 1000)
-        const change = (Math.random() - 0.5) * 0.02
-        baseValue = baseValue * (1 + change)
-        
-        data.push({
-          x: time,
-          y: baseValue,
-          label: new Date(time).toLocaleDateString()
-        })
-      }
-      
-      setPortfolioChartData(data)
-    }
+  const [showAllNotifications, setShowAllNotifications] = useState(false)
 
-    const generateMarketData = () => {
-      const data = []
-      const now = Date.now()
-      let basePrice = 45000 // BTC base price
-      
-      for (let i = 24; i >= 0; i--) {
-        const time = now - (i * 60 * 60 * 1000) // Hourly data
-        const change = (Math.random() - 0.5) * 0.03
-        basePrice = basePrice * (1 + change)
-        
-        data.push({
-          x: time,
-          y: basePrice,
-          label: new Date(time).toLocaleTimeString()
-        })
-      }
-      
-      setMarketChartData(data)
-    }
+  const timeframes = ['1D', '1W', '1M', '3M', '1Y']
 
-    generatePortfolioData()
-    generateMarketData()
-  }, [])
-
-  const topSymbols = mockSymbols.slice(0, 6)
-  const recentTrades = mockRecentTrades.slice(0, 5)
-  const activePositions = mockPositions.slice(0, 4)
-  const latestNews = mockNewsArticles.slice(0, 4)
-
-  const portfolioDistribution = [
-    { label: 'BTC', value: 35000, color: '#f7931a' },
-    { label: 'ETH', value: 25000, color: '#627eea' },
-    { label: 'Stocks', value: 20000, color: '#10b981' },
-    { label: 'Forex', value: 15000, color: '#3b82f6' },
-    { label: 'Cash', value: 5000, color: '#6b7280' }
-  ]
+  // Filter unread notifications
+  const unreadNotifications = mockNotifications.filter(n => !n.read)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-neutral-50">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Trading Dashboard
+      <section className="bg-white border-b border-neutral-200">
+        <div className="container py-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+                Welcome back, Trader! 👋
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome back! Here's your trading overview for today.
+              <p className="text-lg text-secondary">
+                Here's what's happening with your investments today
           </p>
         </div>
 
-        {/* Portfolio Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Portfolio Value
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${mockPortfolioSummary.totalValue.toLocaleString()}
-                </p>
+            {/* Quick Actions */}
+            <div className="flex gap-4">
+              <Link href="/markets" className="btn btn-secondary">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Explore Markets
+              </Link>
+              <Link href="/charts" className="btn btn-primary">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Start Trading
+              </Link>
               </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">💼</span>
               </div>
             </div>
-            <div className="mt-4">
-              <span className={`text-sm font-medium ${
-                mockPortfolioSummary.totalPnL >= 0 
-                  ? 'text-green-600 dark:text-green-400' 
-                  : 'text-red-600 dark:text-red-400'
-              }`}>
-                {mockPortfolioSummary.totalPnL >= 0 ? '+' : ''}
-                ${mockPortfolioSummary.totalPnL.toLocaleString()} 
-                ({mockPortfolioSummary.totalPnLPercent.toFixed(2)}%)
-              </span>
-            </div>
-          </motion.div>
+      </section>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Available Balance
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${mockPortfolioSummary.availableBalance.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">💰</span>
-              </div>
+      {/* Quick Stats */}
+      <section className="section">
+        <div className="container">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {mockQuickStats.map((stat, index) => (
+              <div key={index} className="trading-card">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-secondary">{stat.title}</h3>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    stat.color === 'success' ? 'bg-success' :
+                    stat.color === 'danger' ? 'bg-danger' :
+                    stat.color === 'warning' ? 'bg-warning' :
+                    'bg-gradient-to-r from-accent-primary to-accent-secondary'
+                  }`}>
+                    <span className="text-2xl">{stat.icon}</span>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {stat.value}
+                </div>
+                <div className={`text-sm ${stat.changePercent >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {stat.change} ({stat.changePercent >= 0 ? '+' : ''}{stat.changePercent.toFixed(2)}%)
             </div>
-            <div className="mt-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Ready for trading
-              </span>
-            </div>
-          </motion.div>
+              </div>
+            ))}
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Active Positions
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {activePositions.length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📊</span>
+          {/* Main Dashboard Grid */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Portfolio Performance Chart */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                  <h3 className="text-xl font-semibold text-primary">Portfolio Performance</h3>
+                  
+                  {/* Timeframe Selector */}
+                  <div className="flex gap-2">
+                    {timeframes.map((tf) => (
+                      <button
+                        key={tf}
+                        onClick={() => setSelectedTimeframe(tf)}
+                        className={`btn btn-sm ${
+                          selectedTimeframe === tf ? 'btn-primary' : 'btn-ghost'
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
               </div>
             </div>
-            <div className="mt-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Open trades
-              </span>
+                
+                <div className="h-64 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-lg flex items-center justify-center border-2 border-dashed border-neutral-300">
+                  <div className="text-center">
+                    <div className="text-4xl mb-4">📊</div>
+                    <h3 className="text-xl font-semibold text-primary mb-2">
+                      Portfolio Performance Chart
+                    </h3>
+                    <p className="text-secondary">
+                      Track your portfolio value over time • {selectedTimeframe}
+                </p>
+              </div>
+                </div>
+              </div>
             </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Today's P&L
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${mockPortfolioSummary.dayPnL.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📈</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className={`text-sm font-medium ${
-                mockPortfolioSummary.dayPnL >= 0 
-                  ? 'text-green-600 dark:text-green-400' 
-                  : 'text-red-600 dark:text-red-400'
-              }`}>
-                {mockPortfolioSummary.dayPnL >= 0 ? '+' : ''}
-                {mockPortfolioSummary.dayPnLPercent.toFixed(2)}%
+            {/* Notifications Panel */}
+            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-primary">
+                  Notifications
+                  {unreadNotifications.length > 0 && (
+                    <span className="ml-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-danger rounded-full">
+                      {unreadNotifications.length}
               </span>
-            </div>
-          </motion.div>
+                  )}
+                </h3>
+                <button
+                  onClick={() => setShowAllNotifications(!showAllNotifications)}
+                  className="text-sm text-accent-primary hover:text-accent-secondary"
+                >
+                  {showAllNotifications ? 'Show Unread' : 'Show All'}
+                </button>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Portfolio Performance Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Portfolio Performance
-              </h2>
-              <div className="flex space-x-2">
-                {['1D', '1W', '1M', '3M', '1Y'].map((timeframe) => (
-                  <button
-                    key={timeframe}
-                    onClick={() => setSelectedTimeframe(timeframe)}
-                    className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                      selectedTimeframe === timeframe
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              <div className="space-y-4 max-h-80 overflow-y-auto">
+                {(showAllNotifications ? mockNotifications : unreadNotifications).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg border transition-colors ${
+                      notification.read 
+                        ? 'bg-neutral-50 border-neutral-200' 
+                        : 'bg-accent-primary/5 border-accent-primary/20'
                     }`}
                   >
-                    {timeframe}
-                  </button>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                        notification.priority === 'high' ? 'bg-danger text-white' :
+                        notification.priority === 'medium' ? 'bg-warning text-white' :
+                        'bg-neutral-400 text-white'
+                      }`}>
+                        {notification.type === 'price_alert' ? '🚨' :
+                         notification.type === 'news' ? '📰' :
+                         notification.type === 'trade' ? '💹' : '⚙️'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-primary text-sm">{notification.title}</h4>
+                        <p className="text-secondary text-sm mt-1">{notification.message}</p>
+                        <p className="text-tertiary text-xs mt-2">{notification.timestamp}</p>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
+              
+              {unreadNotifications.length === 0 && !showAllNotifications && (
+                <div className="text-center py-8 text-tertiary">
+                  <div className="text-4xl mb-2">✅</div>
+                  <p>All caught up!</p>
+                </div>
+              )}
             </div>
-            
-            <AreaChart
-              data={portfolioChartData}
-              width={600}
-              height={300}
-              color="#10b981"
-              gradient={true}
-              showGrid={true}
-              showAxes={true}
-              animate={true}
-            />
-          </motion.div>
-
-          {/* Portfolio Distribution */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-              Portfolio Distribution
-            </h2>
-            
-            <PieChart
-              data={portfolioDistribution}
-              width={300}
-              height={250}
-              innerRadius={50}
-              showLegend={true}
-              showLabels={true}
-              animate={true}
-            />
-          </motion.div>
+          </div>
         </div>
+      </section>
 
-        {/* Market Overview & Active Positions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Market Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-              Market Overview
-              </h2>
+      {/* Recent Activity & Quick Actions */}
+      <section className="section bg-white">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Recent Activity */}
+            <div>
+              <h3 className="text-xl font-semibold text-primary mb-6">Recent Activity</h3>
             
             <div className="space-y-4">
-              {topSymbols.map((symbol, index) => {
-                const marketPrice = mockMarketData[symbol.symbol]
-                if (!marketPrice) return null
-                
-                return (
-                  <div key={symbol.symbol} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">
-                          {symbol.baseAsset.slice(0, 2)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {symbol.symbol}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {symbol.name}
-                        </p>
-                      </div>
+                {mockRecentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-center gap-4 p-4 bg-neutral-50 rounded-lg">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      activity.type === 'trade' ? 'bg-accent-primary text-white' :
+                      activity.type === 'deposit' ? 'bg-success text-white' :
+                      activity.type === 'withdrawal' ? 'bg-warning text-white' :
+                      'bg-neutral-400 text-white'
+                    }`}>
+                      {activity.type === 'trade' ? '💹' :
+                       activity.type === 'deposit' ? '💰' :
+                       activity.type === 'withdrawal' ? '🏦' : '🔔'}
                     </div>
                     
-                    <PriceDisplay
-                      price={marketPrice.price}
-                      previousPrice={marketPrice.prevPrice}
-                      currency="USD"
-                      decimals={symbol.pricePrecision}
-                      size="sm"
-                      showChange={true}
-                      showPercentage={true}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </motion.div>
-
-          {/* Active Positions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-              Active Positions
-            </h2>
-            
-            <div className="space-y-4">
-              {activePositions.map((position) => (
-                <div key={position.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {position.symbol}
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        position.side === OrderSide.BUY 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                      }`}>
-                        {position.side}
-                      </span>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-primary">{activity.description}</h4>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          activity.status === 'completed' ? 'bg-success/10 text-success' :
+                          activity.status === 'pending' ? 'bg-warning/10 text-warning' :
+                          'bg-danger/10 text-danger'
+                        }`}>
+                          {activity.status}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="text-sm text-secondary">
+                          {activity.symbol && (
+                            <span className="font-medium">{activity.symbol}</span>
+                          )}
+                          {activity.amount && (
+                            <span className="ml-2">
+                              {activity.type === 'trade' ? `${activity.amount} units` : `$${activity.amount.toLocaleString()}`}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-tertiary">{activity.timestamp}</span>
+                      </div>
                     </div>
-                    <span className={`font-medium ${
-                      position.pnl >= 0 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {position.pnl >= 0 ? '+' : ''}
-                      ${position.pnl.toFixed(2)}
-                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <Link href="/portfolio" className="btn btn-ghost w-full">
+                  View All Activity
+                </Link>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div>
+              <h3 className="text-xl font-semibold text-primary mb-6">Quick Actions</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {/* Trade Actions */}
+                <Link href="/charts" className="trading-card text-center group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-primary mb-2">Quick Trade</h4>
+                  <p className="text-sm text-secondary">Execute trades instantly</p>
+                </Link>
+                
+                <Link href="/markets" className="trading-card text-center group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-primary mb-2">Market Watch</h4>
+                  <p className="text-sm text-secondary">Monitor live prices</p>
+                </Link>
+                
+                <Link href="/portfolio" className="trading-card text-center group">
+                  <div className="w-12 h-12 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-primary mb-2">Portfolio</h4>
+                  <p className="text-sm text-secondary">Manage investments</p>
+                </Link>
+                
+                <div className="trading-card text-center group cursor-pointer">
+                  <div className="w-12 h-12 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-primary mb-2">Deposit</h4>
+                  <p className="text-sm text-secondary">Add funds to account</p>
+                </div>
+              </div>
+              
+              {/* Market Overview */}
+              <div className="mt-8">
+                <h4 className="font-semibold text-primary mb-4">Market Overview</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-full flex items-center justify-center text-white font-bold text-xs">
+                        B
+                      </div>
+                      <div>
+                        <div className="font-medium text-primary">BTC/USD</div>
+                        <div className="text-sm text-secondary">Bitcoin</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-primary">$67,234.56</div>
+                      <div className="text-sm text-success">+2.34%</div>
+                    </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-full flex items-center justify-center text-white font-bold text-xs">
+                        E
+                      </div>
                     <div>
-                      <span className="block">Size: {position.size}</span>
-                      <span className="block">Entry: ${position.entryPrice.toFixed(4)}</span>
+                        <div className="font-medium text-primary">ETH/USD</div>
+                        <div className="text-sm text-secondary">Ethereum</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-primary">$3,456.78</div>
+                      <div className="text-sm text-success">+1.87%</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-full flex items-center justify-center text-white font-bold text-xs">
+                        A
                     </div>
                     <div>
-                      <span className="block">Current: ${position.currentPrice.toFixed(4)}</span>
-                      <span className="block">P&L%: {position.pnlPercent.toFixed(2)}%</span>
+                        <div className="font-medium text-primary">AAPL</div>
+                        <div className="text-sm text-secondary">Apple Inc.</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-primary">$189.45</div>
+                      <div className="text-sm text-success">+1.25%</div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
+      </section>
 
-        {/* Recent Trades & Market News */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Trades */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-              Recent Trades
-            </h2>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-2 text-gray-600 dark:text-gray-400">Symbol</th>
-                    <th className="text-left py-2 text-gray-600 dark:text-gray-400">Side</th>
-                    <th className="text-left py-2 text-gray-600 dark:text-gray-400">Size</th>
-                    <th className="text-left py-2 text-gray-600 dark:text-gray-400">Price</th>
-                    <th className="text-left py-2 text-gray-600 dark:text-gray-400">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentTrades.map((trade: Trade) => (
-                    <tr key={trade.id} className="border-b border-gray-100 dark:border-gray-700">
-                      <td className="py-3 font-medium text-gray-900 dark:text-white">
-                        {trade.symbol}
-                      </td>
-                      <td className="py-3">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          trade.side === OrderBookSide.BUY 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                        }`}>
-                          {trade.side}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-600 dark:text-gray-400">
-                        {trade.quantity}
-                      </td>
-                      <td className="py-3 text-gray-600 dark:text-gray-400">
-                        ${trade.price.toFixed(4)}
-                      </td>
-                      <td className="py-3 text-gray-600 dark:text-gray-400">
-                        {new Date(trade.timestamp).toLocaleTimeString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-
-          {/* Market News */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-              Market News
-              </h2>
-            
-            <div className="space-y-4">
-              {latestNews.map((article: NewsArticle) => (
-                <div key={article.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer">
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">
-                    {article.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                    {article.description}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
-                    <span>{article.source.name}</span>
-                    <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
-                  </div>
+      {/* Trading Tools */}
+      <section className="section">
+        <div className="container">
+          <h3 className="text-xl font-semibold text-primary mb-6">Trading Tools & Resources</h3>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Economic Calendar */}
+            <div className="trading-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-accent-tertiary rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
-              ))}
+                <h4 className="font-semibold text-primary">Economic Calendar</h4>
+              </div>
+              <p className="text-secondary mb-4">Stay updated with important economic events and announcements.</p>
+              <Link href="/news" className="btn btn-ghost btn-sm">
+                View Calendar →
+              </Link>
             </div>
-          </motion.div>
+            
+            {/* Market Analysis */}
+            <div className="trading-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-accent-tertiary rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h4 className="font-semibold text-primary">Market Analysis</h4>
+              </div>
+              <p className="text-secondary mb-4">Get professional insights and technical analysis from our experts.</p>
+              <Link href="/news" className="btn btn-ghost btn-sm">
+                Read Analysis →
+              </Link>
+            </div>
+            
+            {/* Risk Calculator */}
+            <div className="trading-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-accent-tertiary rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h4 className="font-semibold text-primary">Risk Calculator</h4>
+              </div>
+              <p className="text-secondary mb-4">Calculate position sizes and manage your trading risk effectively.</p>
+              <button className="btn btn-ghost btn-sm">
+                Calculate Risk →
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 } 

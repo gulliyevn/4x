@@ -1,11 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable ESLint and TypeScript errors during build
+  // Enable ESLint and TypeScript errors during build
   eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: false,
+  },
+  experimental: {
+    optimizePackageImports: ['framer-motion'],
   },
   
   // Turbopack configuration (stable in Next.js 15)

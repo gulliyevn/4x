@@ -58,14 +58,14 @@ export function useThrottle<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
-  const throttledCallback = useRef<T>()
-  const lastRun = useRef<number>(Date.now())
+  const throttledCallback = useRef<T>(null as any)
+  const lastCall = useRef<number>(0)
 
   if (!throttledCallback.current) {
     throttledCallback.current = ((...args: Parameters<T>) => {
-      if (Date.now() - lastRun.current >= delay) {
+      if (Date.now() - lastCall.current >= delay) {
         callback(...args)
-        lastRun.current = Date.now()
+        lastCall.current = Date.now()
       }
     }) as T
   }
@@ -157,7 +157,7 @@ export function useBatchProcessor<T>(
   processor: (items: T[]) => void,
   options?: { batchSize?: number; delay?: number }
 ) {
-  const batchProcessorRef = useRef<BatchProcessor<T>>()
+  const batchProcessorRef = useRef<BatchProcessor<T>>(null as any)
   
   if (!batchProcessorRef.current) {
     batchProcessorRef.current = new BatchProcessor(processor, options)
@@ -270,11 +270,13 @@ export function createLazyComponent<T extends React.ComponentType<any>>(
 ) {
   const LazyComponent = React.lazy(importFunc)
   
-  return React.forwardRef((props: any, ref: any) => (
-    <React.Suspense fallback={fallback ? React.createElement(fallback) : <div>Loading...</div>}>
-      <LazyComponent {...props} ref={ref} />
-    </React.Suspense>
-  ))
+  return React.forwardRef((props: any, ref: any) => 
+    React.createElement(React.Suspense, {
+      fallback: fallback ? React.createElement(fallback) : React.createElement('div', {}, 'Loading...')
+    },
+      React.createElement(LazyComponent, { ...props, ref })
+    )
+  )
 }
 
 // Memory management utilities
@@ -364,7 +366,7 @@ export class WebWorkerManager {
 
 // React hook for WebWorker management
 export function useWebWorker(name: string, script?: string) {
-  const managerRef = useRef<WebWorkerManager>()
+  const managerRef = useRef<WebWorkerManager>(null as any)
   
   if (!managerRef.current) {
     managerRef.current = new WebWorkerManager()

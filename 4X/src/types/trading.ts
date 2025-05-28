@@ -218,6 +218,8 @@ export interface Position {
   currentPrice: number
   /** Exit price (if closed) */
   exitPrice?: number
+  /** Current PnL (alias for unrealizedPnL) */
+  pnl: number
   /** Unrealized PnL */
   unrealizedPnL: number
   /** Realized PnL */
@@ -228,6 +230,8 @@ export interface Position {
   leverage: number
   /** Margin required */
   margin: number
+  /** Liquidation price */
+  liquidationPrice?: number
   /** Stop loss price */
   stopLoss?: number
   /** Take profit price */
@@ -258,10 +262,14 @@ export interface Portfolio {
   name: string
   /** Portfolio description */
   description?: string
+  /** Portfolio base currency */
+  currency: string
   /** Total portfolio value */
   totalValue: number
   /** Available balance */
   availableBalance: number
+  /** Total PnL (alias for unrealizedPnL + realizedPnL) */
+  totalPnL: number
   /** Margin used */
   marginUsed: number
   /** Free margin */
@@ -293,6 +301,8 @@ export interface Portfolio {
   createdAt: Date
   /** Last update timestamp */
   updatedAt: Date
+  /** Last data update timestamp */
+  lastUpdated: Date
   /** Portfolio statistics */
   statistics: {
     /** Total trades count */
@@ -628,17 +638,9 @@ export interface MarketAnalysis {
   }
 }
 
-export interface Portfolio {
-  id: string
-  userId: string
-  totalValue: number
-  availableBalance: number
-  totalPnL: number
-  totalPnLPercent: number
-  currency: string
-  lastUpdated: Date
-}
-
+/**
+ * Portfolio summary interface for dashboard display
+ */
 export interface PortfolioSummary {
   totalValue: number
   totalPnL: number
@@ -652,38 +654,9 @@ export interface PortfolioSummary {
   equity: number
 }
 
-export interface Position {
-  id: string
-  userId: string
-  symbol: string
-  side: 'LONG' | 'SHORT'
-  size: number
-  entryPrice: number
-  currentPrice: number
-  pnl: number
-  pnlPercent: number
-  leverage: number
-  margin: number
-  liquidationPrice: number
-  openedAt: Date
-  updatedAt: Date
-}
-
-export interface Order {
-  id: string
-  userId: string
-  symbol: string
-  side: 'BUY' | 'SELL'
-  type: 'MARKET' | 'LIMIT' | 'STOP_LOSS' | 'TAKE_PROFIT'
-  quantity: number
-  price: number
-  stopPrice?: number
-  status: 'PENDING' | 'FILLED' | 'CANCELLED' | 'REJECTED'
-  timeInForce: 'GTC' | 'IOC' | 'FOK'
-  createdAt: Date
-  updatedAt: Date
-}
-
+/**
+ * Trade interface for market trades
+ */
 export interface Trade {
   id: string
   symbol: string

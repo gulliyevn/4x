@@ -33,9 +33,6 @@ function validateEnv() {
         NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
       })
 
-      // Log demo mode status
-      console.log('🔧 Demo Mode:', env.NEXT_PUBLIC_DEMO_MODE ? 'Enabled' : 'Disabled')
-
       // Return client env with defaults for server-side variables
       return {
         ...env,
@@ -62,9 +59,6 @@ function validateEnv() {
         // System variables
         NODE_ENV: process.env.NODE_ENV,
       })
-
-      // Log demo mode status
-      console.log('🔧 Demo Mode:', env.NEXT_PUBLIC_DEMO_MODE ? 'Enabled' : 'Disabled')
 
       return env
     }

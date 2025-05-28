@@ -375,7 +375,6 @@ export const useMarketStore = create<MarketStore>()(
         connectWebSocket: () => {
           // Skip WebSocket connection in demo mode
           if (DEMO_MODE) {
-            console.log('WebSocket connection skipped in demo mode')
             set((state) => {
               state.wsState = WebSocketState.CONNECTED
               state.isConnected = true
@@ -399,7 +398,6 @@ export const useMarketStore = create<MarketStore>()(
             const websocket = new WebSocket(`${WS_URL}/market`)
             
             websocket.onopen = () => {
-              console.log('WebSocket connected')
               set((state) => {
                 state.ws = websocket
                 state.wsState = WebSocketState.CONNECTED
@@ -435,7 +433,6 @@ export const useMarketStore = create<MarketStore>()(
             }
 
             websocket.onclose = () => {
-              console.log('WebSocket disconnected')
               set((state) => {
                 state.ws = null
                 state.wsState = WebSocketState.DISCONNECTED

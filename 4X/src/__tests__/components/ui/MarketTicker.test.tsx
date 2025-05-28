@@ -1,89 +1,127 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import MarketTicker from '@/components/ui/MarketTicker'
 
-// Mock the market data
-const mockMarketData = [
-  { symbol: 'BTCUSDT', price: 45000, change: 2.5 },
-  { symbol: 'ETHUSDT', price: 3200, change: -1.2 },
-  { symbol: 'ADAUSDT', price: 1.25, change: 5.8 },
-  { symbol: 'DOTUSDT', price: 25.50, change: -0.5 },
-]
+// Mock для IntersectionObserver
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}))
 
 describe('MarketTicker', () => {
-  it('renders the market ticker container', () => {
-    render(<MarketTicker />)
-    
-    const tickerContainer = screen.getByTestId('market-ticker')
-    expect(tickerContainer).toBeInTheDocument()
+  beforeEach(() => {
+    // Mock для window.addEventListener
+    jest.spyOn(window, 'addEventListener').mockImplementation(() => {})
+    jest.spyOn(window, 'removeEventListener').mockImplementation(() => {})
   })
 
-  it('has proper CSS classes for styling', () => {
-    render(<MarketTicker />)
-    
-    const tickerContainer = screen.getByTestId('market-ticker')
-    expect(tickerContainer).toHaveClass('market-ticker')
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
-  it('renders ticker items with proper structure', async () => {
+  it('renders market ticker with all market items', () => {
     render(<MarketTicker />)
     
-    // Wait for ticker items to be rendered
-    await waitFor(() => {
-      const tickerItems = screen.getAllByTestId(/ticker-item-/)
-      expect(tickerItems.length).toBeGreaterThan(0)
+    // Проверяем наличие основных криптовалют
+    expect(screen.getAllByText('BTC')).toHaveLength(3) // 3 копии для бесконечного скролла
+    expect(screen.getAllByText('ETH')).toHaveLength(3)
+    expect(screen.getAllByText('USDT')).toHaveLength(3)
+    expect(screen.getAllByText('LINK')).toHaveLength(3)
+  })
+
+  it('displays formatted prices correctly', () => {
+    render(<MarketTicker />)
+    
+    // Проверяем форматирование цен
+    expect(screen.getAllByText('$110,432.44')).toHaveLength(3) // Bitcoin price
+    expect(screen.getAllByText('$2,673.00')).toHaveLength(3) // Ethereum price
+    expect(screen.getAllByText('$1.2300')).toHaveLength(3) // Cardano price (< 1000)
+  })
+
+  it('shows positive and negative changes with correct styling', () => {
+    render(<MarketTicker />)
+    
+    // Проверяем положительные изменения
+    const positiveChanges = screen.getAllByText('+0.84%')
+    expect(positiveChanges).toHaveLength(3) // Bitcoin change
+    positiveChanges.forEach(element => {
+      expect(element.closest('.ticker-change')).toHaveClass('positive')
+    })
+
+    // Проверяем отрицательные изменения
+    const negativeChanges = screen.getAllByText('-3.10%')
+    expect(negativeChanges).toHaveLength(3) // Litecoin change
+    negativeChanges.forEach(element => {
+      expect(element.closest('.ticker-change')).toHaveClass('negative')
     })
   })
 
-  it('displays price information correctly', async () => {
+  it('displays volume information', () => {
     render(<MarketTicker />)
     
-    // Wait for data to load and check for price displays
-    await waitFor(() => {
-      // Should contain price information
-      expect(screen.getByTestId('market-ticker')).toBeInTheDocument()
-    })
+    // Проверяем отображение объемов
+    expect(screen.getAllByText('20.17K')).toHaveLength(6) // USDT и BTC volume
+    expect(screen.getAllByText('695.16K')).toHaveLength(6) // LINK и ETH volume
+    expect(screen.getAllByText('298.62K')).toHaveLength(6) // LTC и BNB volume (2 элемента × 3 копии)
   })
 
-  it('has scrolling animation classes', () => {
-    render(<MarketTicker />)
+  it('renders with custom className', () => {
+    const { container } = render(<MarketTicker className="custom-ticker" />)
     
-    const ticker = screen.getByTestId('ticker')
-    expect(ticker).toHaveClass('ticker')
-  })
-
-  it('renders with gradient background', () => {
-    render(<MarketTicker />)
-    
-    const section = screen.getByRole('region')
-    expect(section).toHaveClass('bg-gradient-to-r', 'from-[#98b5a4]', 'to-[#162A2C]')
-  })
-
-  it('has proper overflow handling', () => {
-    render(<MarketTicker />)
-    
-    const section = screen.getByRole('region')
-    expect(section).toHaveClass('overflow-hidden')
-  })
-
-  it('maintains proper height', () => {
-    render(<MarketTicker />)
-    
-    const tickerContainer = screen.getByTestId('market-ticker')
-    expect(tickerContainer).toHaveClass('market-ticker')
-  })
-
-  it('renders ticker container with proper structure', () => {
-    render(<MarketTicker />)
-    
-    const tickerContainer = screen.getByTestId('ticker-container')
-    expect(tickerContainer).toBeInTheDocument()
-    expect(tickerContainer).toHaveClass('ticker-container')
+    const ticker = container.querySelector('.market-ticker')
+    expect(ticker).toHaveClass('custom-ticker')
   })
 
   it('has proper accessibility attributes', () => {
     render(<MarketTicker />)
     
-    const section = screen.getByRole('region')
-    expect(section).toBeInTheDocument()
+    const ticker = screen.getByRole('marquee')
+    expect(ticker).toHaveAttribute('aria-label', 'Live market prices ticker')
+    
+    // Проверяем группы данных
+    const marketGroups = screen.getAllByRole('group')
+    expect(marketGroups.length).toBeGreaterThan(0)
+    
+    // Проверяем первую группу
+    expect(marketGroups[0]).toHaveAttribute('aria-label', 'Tether market data')
+  })
+
+  it('renders gradient overlays for smooth edges', () => {
+    const { container } = render(<MarketTicker />)
+    
+    const leftGradient = container.querySelector('.ticker-gradient-left')
+    const rightGradient = container.querySelector('.ticker-gradient-right')
+    
+    expect(leftGradient).toBeInTheDocument()
+    expect(rightGradient).toBeInTheDocument()
+    expect(leftGradient).toHaveAttribute('aria-hidden', 'true')
+    expect(rightGradient).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('displays change icons correctly', () => {
+    render(<MarketTicker />)
+    
+    // Проверяем иконки изменений
+    const upArrows = screen.getAllByText('▲')
+    const downArrows = screen.getAllByText('▼')
+    
+    expect(upArrows.length).toBeGreaterThan(0)
+    expect(downArrows.length).toBeGreaterThan(0)
+  })
+
+  it('shows separators between items', () => {
+    render(<MarketTicker />)
+    
+    const separators = screen.getAllByText('|')
+    expect(separators.length).toBeGreaterThan(0)
+  })
+
+  it('renders with custom speed prop', () => {
+    const { container } = render(<MarketTicker speed={30} />)
+    
+    const tickerWrapper = container.querySelector('.ticker-wrapper')
+    expect(tickerWrapper).toHaveStyle('animation-duration: 30s')
   })
 }) 

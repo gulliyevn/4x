@@ -1,27 +1,14 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Navigation from '@/components/Navigation'
-import Footer from '@/components/Footer'
-import ErrorBoundary from '@/components/ErrorBoundary'
-import Script from 'next/script'
+import './page-styles.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '4X Create Your Reality!',
-  description: 'Experience next-generation trading with our modern platform. Trade forex, commodities, and cryptocurrencies with advanced analytics and real-time data.',
-  keywords: ['trading', 'forex', '4x', 'cryptocurrency', 'commodities', 'AI trading', 'real-time charts'],
-  authors: [{ name: 'Nijat Guliyev', url: 'https://github.com/gulliyevn' }],
-  icons: {
-    icon: '/assets/logo.png',
-    apple: '/assets/apple-touch-icon.png',
-  },
-  openGraph: {
-    title: '4X Create Your Reality!',
-    description: 'Experience next-generation trading with our modern platform.',
-    type: 'website',
-  },
+  title: '4X Trading Professional Platform',
+  description: 'Professional trading platform with advanced analytics, real-time data, and comprehensive market access',
+  keywords: 'trading, forex, stocks, cryptocurrency, charts, market analysis',
 }
 
 export default function RootLayout({
@@ -31,42 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        {/* Font Awesome */}
-        <link 
-          rel="stylesheet" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-        {/* Google Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" 
-          rel="stylesheet"
-        />
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" 
-          rel="stylesheet"
-        />
-      </head>
-      <body 
-        className={`${inter.className} dark-mode font-open-sans`} 
-        suppressHydrationWarning={true}
-      >
-        <ErrorBoundary>
-          <Navigation />
-          <main>
-            {children}
-          </main>
-          <Footer />
-        </ErrorBoundary>
-        
-        {/* TradingView Widget Script */}
-        <Script 
-          src="https://s3.tradingview.com/tv.js" 
-          strategy="lazyOnload"
-        />
+      <body className={inter.className}>
+        {children}
       </body>
     </html>
   )

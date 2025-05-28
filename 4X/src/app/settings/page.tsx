@@ -10,8 +10,8 @@ import type { UserPreferences } from '@/types/auth'
 export default function SettingsPage() {
   const router = useRouter()
   const { user, isAuthenticated } = useAuthStore()
-  const [preferences, setPreferences] = useState<UserPreferences>(user?.preferences || {
-    theme: 'dark',
+  const [preferences, setPreferences] = useState({
+    theme: 'dark' as 'light' | 'dark',
     language: 'en',
     timezone: 'UTC',
     currency: 'USD',
@@ -20,10 +20,22 @@ export default function SettingsPage() {
       push: true,
       sms: false,
       priceAlerts: true,
-      newsAlerts: true,
-      tradingAlerts: true,
+      news: true,
+      system: true,
+    },
+    trading: {
+      defaultLeverage: 1,
+      confirmTrades: true,
+      autoClose: false,
+    },
+    dashboard: {
+      layout: 'grid' as const,
+      widgets: ['portfolio', 'market', 'news'],
+      defaultChartInterval: '1h',
     },
   })
+  const [isSaving, setIsSaving] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -33,6 +45,17 @@ export default function SettingsPage() {
   }, [isAuthenticated])
 
   if (!isAuthenticated) return null
+
+  const handleSave = () => {
+    // Save preferences logic here
+    setIsSaving(true)
+    
+    setTimeout(() => {
+      setIsSaving(false)
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+    }, 1000)
+  }
 
   return (
     <DashboardLayout>
@@ -243,13 +266,10 @@ export default function SettingsPage() {
           
           <div className="mt-8 flex justify-end">
             <button
-              onClick={() => {
-                // Save preferences
-                console.log('Saving preferences:', preferences)
-              }}
+              onClick={handleSave}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Save Changes
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>

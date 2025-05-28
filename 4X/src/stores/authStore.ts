@@ -22,6 +22,7 @@ import type { ApiResponse } from '@/types/api'
 import { api } from '@/lib/api'
 import { env, DEMO_MODE } from '@/lib/env'
 import { demoCredentials, mockUser } from '@/lib/mockData'
+import { UserRole } from '@/types/auth'
 
 interface AuthStore extends AuthState {
   // Actions
@@ -82,24 +83,18 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: true, error: null })
           
           try {
-            // Check demo mode first
-            if (DEMO_MODE && 
+            // Check if demo mode is enabled and credentials match
+            if (env.NEXT_PUBLIC_DEMO_MODE && 
                 credentials.email === demoCredentials.email && 
                 credentials.password === demoCredentials.password) {
               // Demo login - no API call needed
-              console.log('🔑 Demo login successful')
               set({
                 user: mockUser,
                 isAuthenticated: true,
                 isLoading: false,
-                error: null,
-                // Set demo tokens
-                accessToken: 'demo-token',
-                refreshToken: 'demo-refresh-token',
-                tokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-                rememberMe: credentials.rememberMe || false,
-                lastActivity: new Date()
+                error: null
               })
+              
               return
             }
 

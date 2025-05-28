@@ -1,390 +1,399 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import PriceDisplay from '@/components/ui/PriceDisplay'
-import { LineChart, AreaChart } from '@/components/ui/Charts'
-import { useRealTimePrice } from '@/hooks/useRealTimePrice'
-import { useMarketStore } from '@/stores/marketStore'
-import { 
-  mockSymbols,
-  mockMarketData
-} from '@/lib/mockData'
+import Link from 'next/link'
+import Navigation from '../../src/components/Navigation'
+
+interface MarketData {
+  symbol: string
+  name: string
+  price: number
+  change: number
+  changePercent: number
+  volume: number
+  marketCap?: number
+  category: string
+}
+
+interface MarketCategory {
+  id: string
+  name: string
+  icon: string
+  description: string
+  count: number
+  totalValue: string
+  change24h: number
+}
 
 export default function MarketsPage() {
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('marketCap')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDT')
-  const [sortBy, setSortBy] = useState('symbol')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [chartData, setChartData] = useState<any[]>([])
-  
-  const { marketData } = useMarketStore()
-  
-  // Generate chart data for selected symbol
+
+  const [marketData, setMarketData] = useState<MarketData[]>([
+    { symbol: 'AAPL', name: 'Apple Inc.', price: 189.45, change: 2.34, changePercent: 1.25, volume: 45.2, marketCap: 2980.5, category: 'stocks' },
+    { symbol: 'MSFT', name: 'Microsoft Corp.', price: 378.90, change: -1.23, changePercent: -0.32, volume: 32.1, marketCap: 2810.3, category: 'stocks' },
+    { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 142.30, change: 3.45, changePercent: 2.48, volume: 28.7, marketCap: 1780.2, category: 'stocks' },
+    { symbol: 'TSLA', name: 'Tesla Inc.', price: 234.56, change: -5.67, changePercent: -2.36, volume: 67.8, marketCap: 745.6, category: 'stocks' },
+    { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 498.32, change: 12.45, changePercent: 2.56, volume: 41.3, marketCap: 1230.4, category: 'stocks' },
+    { symbol: 'BTC', name: 'Bitcoin', price: 43567.89, change: 567.23, changePercent: 1.32, volume: 15.4, marketCap: 854.2, category: 'crypto' },
+    { symbol: 'ETH', name: 'Ethereum', price: 2678.45, change: -23.45, changePercent: -0.87, volume: 8.9, marketCap: 321.5, category: 'crypto' },
+    { symbol: 'BNB', name: 'Binance Coin', price: 312.67, change: 8.90, changePercent: 2.93, volume: 2.1, marketCap: 48.2, category: 'crypto' },
+    { symbol: 'EUR/USD', name: 'Euro/US Dollar', price: 1.0876, change: 0.0023, changePercent: 0.21, volume: 145.2, category: 'forex' },
+    { symbol: 'GBP/USD', name: 'British Pound/US Dollar', price: 1.2543, change: -0.0034, changePercent: -0.27, volume: 89.7, category: 'forex' },
+    { symbol: 'USD/JPY', name: 'US Dollar/Japanese Yen', price: 149.85, change: 0.45, changePercent: 0.30, volume: 112.3, category: 'forex' },
+    { symbol: 'GOLD', name: 'Gold Futures', price: 2034.50, change: 12.30, changePercent: 0.61, volume: 234.5, category: 'commodities' },
+    { symbol: 'OIL', name: 'Crude Oil WTI', price: 78.45, change: -1.23, changePercent: -1.54, volume: 456.7, category: 'commodities' },
+    { symbol: 'SILVER', name: 'Silver Futures', price: 24.67, change: 0.34, changePercent: 1.40, volume: 123.4, category: 'commodities' }
+  ])
+
+  const categories: MarketCategory[] = [
+    { id: 'all', name: 'All Markets', icon: '🌍', description: 'Complete market overview', count: 14, totalValue: '$12.5T', change24h: 0.85 },
+    { id: 'stocks', name: 'Stocks', icon: '📈', description: 'Global equity markets', count: 5, totalValue: '$8.2T', change24h: 1.12 },
+    { id: 'crypto', name: 'Cryptocurrency', icon: '₿', description: 'Digital assets', count: 3, totalValue: '$1.2T', change24h: 2.45 },
+    { id: 'forex', name: 'Forex', icon: '💱', description: 'Currency pairs', count: 3, totalValue: '$7.5T', change24h: -0.23 },
+    { id: 'commodities', name: 'Commodities', icon: '🥇', description: 'Raw materials & futures', count: 3, totalValue: '$2.1T', change24h: 0.67 }
+  ]
+
   useEffect(() => {
-    const generateChartData = () => {
-      const data = []
-      const now = Date.now()
-      const basePrice = mockMarketData[selectedSymbol]?.price || 45000
-      let currentPrice = basePrice
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
       
-      for (let i = 24; i >= 0; i--) {
-        const time = now - (i * 60 * 60 * 1000) // Hourly data
-        const change = (Math.random() - 0.5) * 0.02
-        currentPrice = currentPrice * (1 + change)
-        
-        data.push({
-          x: time,
-          y: currentPrice,
-          label: new Date(time).toLocaleTimeString()
-        })
-      }
-      
-      setChartData(data)
-    }
+      // Simulate real-time price updates
+      setMarketData(prev => prev.map(item => ({
+        ...item,
+        price: item.price + (Math.random() - 0.5) * (item.price * 0.001),
+        change: item.change + (Math.random() - 0.5) * 0.5,
+        volume: item.volume + (Math.random() - 0.5) * (item.volume * 0.1)
+      })))
+    }, 3000)
 
-    generateChartData()
-  }, [selectedSymbol])
+    return () => clearInterval(timer)
+  }, [])
 
-  // Filter and sort symbols
-  const filteredSymbols = mockSymbols
-    .filter(symbol => {
-      const matchesSearch = symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           symbol.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = selectedCategory === 'All' || symbol.category === selectedCategory
-      return matchesSearch && matchesCategory
-    })
+  const filteredData = marketData
+    .filter(item => 
+      (activeCategory === 'all' || item.category === activeCategory) &&
+      (item.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
     .sort((a, b) => {
-      let aValue, bValue
+      let aValue = a[sortBy as keyof MarketData] as number
+      let bValue = b[sortBy as keyof MarketData] as number
       
-      switch (sortBy) {
-        case 'symbol':
-          aValue = a.symbol
-          bValue = b.symbol
-          break
-        case 'name':
-          aValue = a.name
-          bValue = b.name
-          break
-        case 'price':
-          aValue = mockMarketData[a.symbol]?.price || 0
-          bValue = mockMarketData[b.symbol]?.price || 0
-          break
-        case 'change':
-          aValue = mockMarketData[a.symbol]?.change24h || 0
-          bValue = mockMarketData[b.symbol]?.change24h || 0
-          break
-        default:
-          aValue = a.symbol
-          bValue = b.symbol
+      if (sortBy === 'marketCap') {
+        aValue = a.marketCap || 0
+        bValue = b.marketCap || 0
       }
       
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
+      return sortOrder === 'desc' ? bValue - aValue : aValue - bValue
     })
 
-  const categories = ['All', ...Array.from(new Set(mockSymbols.map(s => s.category)))]
+  const formatPrice = (price: number, symbol: string) => {
+    if (symbol.includes('/')) return price.toFixed(4)
+    if (symbol === 'BTC') return `$${price.toLocaleString()}`
+    if (symbol === 'ETH') return `$${price.toLocaleString()}`
+    return `$${price.toFixed(2)}`
+  }
 
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(column)
-      setSortOrder('asc')
-    }
+  const formatVolume = (volume: number) => {
+    if (volume >= 1000) return `${(volume / 1000).toFixed(1)}T`
+    return `${volume.toFixed(1)}B`
+  }
+
+  const formatMarketCap = (marketCap?: number) => {
+    if (!marketCap) return 'N/A'
+    if (marketCap >= 1000) return `$${(marketCap / 1000).toFixed(1)}T`
+    return `$${marketCap.toFixed(1)}B`
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Markets
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Real-time market data and trading opportunities across all asset classes.
-          </p>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Search Markets
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by symbol or name..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+    <div className="page-container">
+      <Navigation />
+      
+      {/* Markets Header */}
+      <section className="markets-header">
+        <div className="container">
+          <div className="markets-title-section">
+            <h1 className="markets-title">
+              📊 Global Markets
+            </h1>
+            <p className="markets-subtitle">
+              Real-time market data, analysis, and insights across stocks, cryptocurrency, 
+              forex, and commodities with AI-powered intelligence.
+            </p>
+            <div className="markets-status">
+              <div className="status-indicator">
+                <span className="status-dot"></span>
+                <span className="status-text">Markets Open</span>
+              </div>
+              <div className="last-updated">
+                Last Updated: <span className="timestamp">{currentTime.toLocaleTimeString()}</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      {/* Market Categories */}
+      <section className="market-categories-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Market Categories</h2>
+            <p className="section-subtitle">
+              Explore different asset classes and market segments
+            </p>
+          </div>
+          
+          <div className="categories-grid">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                className={`category-card ${activeCategory === category.id ? 'active' : ''}`}
+                onClick={() => setActiveCategory(category.id)}
               >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+                <div className="category-header">
+                  <span className="category-icon">{category.icon}</span>
+                  <span className={`category-change ${category.change24h >= 0 ? 'positive' : 'negative'}`}>
+                    {category.change24h >= 0 ? '+' : ''}{category.change24h.toFixed(2)}%
+                  </span>
+                </div>
+                <h3 className="category-title">{category.name}</h3>
+                <p className="category-description">{category.description}</p>
+                <div className="category-stats">
+                  <div className="category-stat">
+                    <span className="stat-label">Assets</span>
+                    <span className="stat-value">{category.count}</span>
+                  </div>
+                  <div className="category-stat">
+                    <span className="stat-label">Total Value</span>
+                    <span className="stat-value">{category.totalValue}</span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Market Data Table */}
+      <section className="market-data-section">
+        <div className="container">
+          <div className="data-controls">
+            <div className="search-controls">
+              <input
+                type="text"
+                placeholder="Search markets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              <button className="search-button">
+                <span className="search-icon">🔍</span>
+              </button>
+            </div>
+            
+            <div className="sort-controls">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="sort-select"
+              >
+                <option value="marketCap">Market Cap</option>
+                <option value="price">Price</option>
+                <option value="changePercent">Change %</option>
+                <option value="volume">Volume</option>
               </select>
+              <button
+                onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                className="sort-order-btn"
+              >
+                {sortOrder === 'desc' ? '↓' : '↑'}
+              </button>
             </div>
+          </div>
 
-            {/* Results Count */}
-            <div className="flex items-end">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {filteredSymbols.length} of {mockSymbols.length} markets
+          <div className="market-table-container">
+            <div className="market-table">
+              <div className="table-header">
+                <div className="header-cell symbol">Symbol</div>
+                <div className="header-cell name">Name</div>
+                <div className="header-cell price">Price</div>
+                <div className="header-cell change">24h Change</div>
+                <div className="header-cell volume">Volume</div>
+                <div className="header-cell market-cap">Market Cap</div>
+                <div className="header-cell actions">Actions</div>
+              </div>
+              
+              <div className="table-body">
+                {filteredData.map((item, index) => (
+                  <div key={index} className="table-row">
+                    <div className="table-cell symbol">
+                      <div className="symbol-info">
+                        <span className="symbol-text">{item.symbol}</span>
+                        <span className="category-badge">{item.category}</span>
+                      </div>
+                    </div>
+                    <div className="table-cell name">
+                      <span className="name-text">{item.name}</span>
+                    </div>
+                    <div className="table-cell price">
+                      <span className="price-text">{formatPrice(item.price, item.symbol)}</span>
+                    </div>
+                    <div className="table-cell change">
+                      <div className={`change-info ${item.changePercent >= 0 ? 'positive' : 'negative'}`}>
+                        <span className="change-value">
+                          {item.changePercent >= 0 ? '+' : ''}{item.changePercent.toFixed(2)}%
+                        </span>
+                        <span className="change-amount">
+                          {item.changePercent >= 0 ? '+' : ''}{item.change.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="table-cell volume">
+                      <span className="volume-text">{formatVolume(item.volume)}</span>
+                    </div>
+                    <div className="table-cell market-cap">
+                      <span className="market-cap-text">{formatMarketCap(item.marketCap)}</span>
+                    </div>
+                    <div className="table-cell actions">
+                      <div className="action-buttons">
+                        <Link href={`/charts/${item.symbol}`} className="action-btn chart">
+                          📊
+                        </Link>
+                        <Link href={`/ai-insights?symbol=${item.symbol}`} className="action-btn ai">
+                          🤖
+                        </Link>
+                        <button className="action-btn favorite">
+                          ⭐
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Markets Table */}
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
-            >
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Market Data
-                </h2>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th 
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                        onClick={() => handleSort('symbol')}
-                      >
-                        <div className="flex items-center space-x-1">
-                          <span>Symbol</span>
-                          {sortBy === 'symbol' && (
-                            <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                        onClick={() => handleSort('name')}
-                      >
-                        <div className="flex items-center space-x-1">
-                          <span>Name</span>
-                          {sortBy === 'name' && (
-                            <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                        onClick={() => handleSort('price')}
-                      >
-                        <div className="flex items-center justify-end space-x-1">
-                          <span>Price</span>
-                          {sortBy === 'price' && (
-                            <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
-                        onClick={() => handleSort('change')}
-                      >
-                        <div className="flex items-center justify-end space-x-1">
-                          <span>24h Change</span>
-                          {sortBy === 'change' && (
-                            <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {filteredSymbols.map((symbol, index) => {
-                      const marketPrice = mockMarketData[symbol.symbol]
-                      if (!marketPrice) return null
-
-                      return (
-                        <motion.tr
-                          key={symbol.symbol}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
-                            selectedSymbol === symbol.symbol ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                          }`}
-                          onClick={() => setSelectedSymbol(symbol.symbol)}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-                                <span className="text-white font-bold text-xs">
-                                  {symbol.baseAsset.slice(0, 2)}
-                                </span>
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                  {symbol.symbol}
-                                </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                  {symbol.category}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900 dark:text-white">
-                              {symbol.name}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right">
-                            <PriceDisplay
-                              price={marketPrice.price}
-                              previousPrice={marketPrice.prevPrice}
-                              currency="USD"
-                              decimals={symbol.pricePrecision}
-                              size="sm"
-                              showChange={false}
-                              showPercentage={false}
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right">
-                            <div className={`text-sm font-medium ${
-                              marketPrice.change24h >= 0 
-                                ? 'text-green-600 dark:text-green-400' 
-                                : 'text-red-600 dark:text-red-400'
-                            }`}>
-                              {marketPrice.change24h >= 0 ? '+' : ''}
-                              {marketPrice.change24h.toFixed(2)}%
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
-                              Trade
-                            </button>
-                          </td>
-                        </motion.tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
+      {/* Market Insights */}
+      <section className="market-insights-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Market Insights</h2>
+            <p className="section-subtitle">
+              AI-powered analysis and market intelligence
+            </p>
           </div>
+          
+          <div className="insights-grid">
+            <div className="insight-card">
+              <div className="insight-header">
+                <span className="insight-icon">📈</span>
+                <h3 className="insight-title">Top Gainers</h3>
+              </div>
+              <div className="insight-content">
+                {filteredData
+                  .filter(item => item.changePercent > 0)
+                  .sort((a, b) => b.changePercent - a.changePercent)
+                  .slice(0, 3)
+                  .map((item, index) => (
+                    <div key={index} className="insight-item">
+                      <span className="item-symbol">{item.symbol}</span>
+                      <span className="item-change positive">+{item.changePercent.toFixed(2)}%</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
 
-          {/* Chart Panel */}
-          <div className="lg:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-            >
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {selectedSymbol}
-                </h3>
-                <div className="flex items-center space-x-4">
-                  {mockMarketData[selectedSymbol] && (
-                    <PriceDisplay
-                      price={mockMarketData[selectedSymbol].price}
-                      previousPrice={mockMarketData[selectedSymbol].prevPrice}
-                      currency="USD"
-                      decimals={mockSymbols.find(s => s.symbol === selectedSymbol)?.pricePrecision || 2}
-                      size="md"
-                      showChange={true}
-                      showPercentage={true}
-                    />
-                  )}
+            <div className="insight-card">
+              <div className="insight-header">
+                <span className="insight-icon">📉</span>
+                <h3 className="insight-title">Top Losers</h3>
+              </div>
+              <div className="insight-content">
+                {filteredData
+                  .filter(item => item.changePercent < 0)
+                  .sort((a, b) => a.changePercent - b.changePercent)
+                  .slice(0, 3)
+                  .map((item, index) => (
+                    <div key={index} className="insight-item">
+                      <span className="item-symbol">{item.symbol}</span>
+                      <span className="item-change negative">{item.changePercent.toFixed(2)}%</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            <div className="insight-card">
+              <div className="insight-header">
+                <span className="insight-icon">🔥</span>
+                <h3 className="insight-title">High Volume</h3>
+              </div>
+              <div className="insight-content">
+                {filteredData
+                  .sort((a, b) => b.volume - a.volume)
+                  .slice(0, 3)
+                  .map((item, index) => (
+                    <div key={index} className="insight-item">
+                      <span className="item-symbol">{item.symbol}</span>
+                      <span className="item-volume">{formatVolume(item.volume)}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            <div className="insight-card">
+              <div className="insight-header">
+                <span className="insight-icon">🤖</span>
+                <h3 className="insight-title">AI Recommendations</h3>
+              </div>
+              <div className="insight-content">
+                <div className="insight-item">
+                  <span className="item-symbol">AAPL</span>
+                  <span className="item-recommendation buy">Strong Buy</span>
+                </div>
+                <div className="insight-item">
+                  <span className="item-symbol">BTC</span>
+                  <span className="item-recommendation hold">Hold</span>
+                </div>
+                <div className="insight-item">
+                  <span className="item-symbol">TSLA</span>
+                  <span className="item-recommendation sell">Sell</span>
                 </div>
               </div>
-
-              <div className="mb-4">
-                <AreaChart
-                  data={chartData}
-                  width={300}
-                  height={200}
-                  color="#3b82f6"
-                  gradient={true}
-                  showGrid={true}
-                  showAxes={false}
-                  animate={true}
-                />
-              </div>
-
-              <div className="space-y-3">
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                  Buy {selectedSymbol}
-                </button>
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                  Sell {selectedSymbol}
-                </button>
-                <button className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                  Add to Watchlist
-                </button>
-              </div>
-
-              {/* Market Stats */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                  Market Statistics
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">24h Volume:</span>
-                    <span className="text-gray-900 dark:text-white">
-                      {mockMarketData[selectedSymbol]?.volume24h?.toLocaleString() || 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">24h High:</span>
-                    <span className="text-gray-900 dark:text-white">
-                      ${mockMarketData[selectedSymbol]?.high24h?.toFixed(2) || 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">24h Low:</span>
-                    <span className="text-gray-900 dark:text-white">
-                      ${mockMarketData[selectedSymbol]?.low24h?.toFixed(2) || 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="cta-section">
+        <div className="container">
+          <div className="cta-content">
+            <h2 className="cta-title">
+              Start Trading with AI Intelligence
+            </h2>
+            <p className="cta-subtitle">
+              Access advanced market analysis, real-time data, and AI-powered insights 
+              to make informed trading decisions.
+            </p>
+            <div className="cta-buttons">
+              <Link href="/ai-insights" className="btn btn-primary btn-lg">
+                <span className="btn-icon">🤖</span>
+                Get AI Analysis
+              </Link>
+              <Link href="/charts" className="btn btn-ghost btn-lg">
+                <span className="btn-icon">📊</span>
+                View Charts
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 } 

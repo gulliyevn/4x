@@ -66,7 +66,7 @@ export type {
   NewsRecommendation,
 } from './news'
 
-export {
+export type {
   NewsCategory,
   NewsSentiment,
   NewsPriority,

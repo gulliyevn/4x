@@ -117,19 +117,18 @@ const transformFinnhubArticle = (article: any): NewsArticle => ({
     id: 'finnhub',
     name: 'Finnhub',
     url: 'https://finnhub.io',
-    category: NewsCategory.CRYPTO,
+    category: 'CRYPTO',
     language: 'en',
     isActive: true,
     isPremium: false,
   },
   author: article.source || 'Finnhub',
-  category: NewsCategory.CRYPTO,
-  type: NewsType.ARTICLE,
-  priority: NewsPriority.MEDIUM,
+  category: 'CRYPTO',
+  type: 'ARTICLE',
+  priority: 'MEDIUM',
   relatedSymbols: [],
   tags: [],
   language: 'en',
-  readingTime: Math.ceil((article.summary?.length || 0) / 200),
   isTrending: false,
   isFeatured: false,
   isPremium: false,
@@ -147,19 +146,18 @@ const transformNewsAPIArticle = (article: any): NewsArticle => ({
     id: article.source?.id || 'newsapi',
     name: article.source?.name || 'NewsAPI',
     url: article.url || '',
-    category: NewsCategory.GENERAL,
+    category: 'GENERAL',
     language: 'en',
     isActive: true,
     isPremium: false,
   },
   author: article.author || article.source?.name || 'Unknown',
-  category: NewsCategory.GENERAL,
-  type: NewsType.ARTICLE,
-  priority: NewsPriority.MEDIUM,
+  category: 'GENERAL',
+  type: 'ARTICLE',
+  priority: 'MEDIUM',
   relatedSymbols: [],
   tags: [],
   language: 'en',
-  readingTime: Math.ceil((article.content?.length || 0) / 200),
   isTrending: false,
   isFeatured: false,
   isPremium: false,
@@ -315,7 +313,7 @@ export const getNews = async (
   }
   
   // Fallback to external APIs
-  let allArticles: NewsArticle[] = []
+  const allArticles: NewsArticle[] = []
   let totalResults = 0
   
   // Try NewsAPI
@@ -488,4 +486,68 @@ export const checkNewsSourceHealth = async (): Promise<{
   }
   
   return health
-} 
+}
+
+const mockCryptoNews: NewsArticle[] = [
+  {
+    id: '1',
+    title: 'Bitcoin Reaches New All-Time High',
+    description: 'Bitcoin surpasses $100,000 for the first time in history',
+    content: 'Bitcoin has reached a new milestone...',
+    url: 'https://example.com/bitcoin-ath',
+    image: 'https://example.com/bitcoin.jpg',
+    publishedAt: new Date('2024-01-15T10:00:00Z'),
+    source: {
+      id: 'coindesk',
+      name: 'CoinDesk',
+      url: 'https://coindesk.com',
+      category: 'CRYPTO',
+      language: 'en',
+      isActive: true,
+      isPremium: false,
+    },
+    author: 'John Doe',
+    category: 'CRYPTO',
+    type: 'ARTICLE',
+    priority: 'HIGH',
+    relatedSymbols: ['BTC', 'BTCUSD'],
+    tags: ['bitcoin', 'cryptocurrency', 'ath'],
+    language: 'en',
+    isTrending: true,
+    isFeatured: true,
+    isPremium: false,
+  },
+  // ... existing code ...
+]
+
+const mockGeneralNews: NewsArticle[] = [
+  {
+    id: '4',
+    title: 'Federal Reserve Announces Interest Rate Decision',
+    description: 'Fed keeps rates unchanged amid economic uncertainty',
+    content: 'The Federal Reserve announced today...',
+    url: 'https://example.com/fed-rates',
+    image: 'https://example.com/fed.jpg',
+    publishedAt: new Date('2024-01-15T14:00:00Z'),
+    source: {
+      id: 'reuters',
+      name: 'Reuters',
+      url: 'https://reuters.com',
+      category: 'GENERAL',
+      language: 'en',
+      isActive: true,
+      isPremium: false,
+    },
+    author: 'Jane Smith',
+    category: 'GENERAL',
+    type: 'ARTICLE',
+    priority: 'HIGH',
+    relatedSymbols: ['USD', 'SPY'],
+    tags: ['federal-reserve', 'interest-rates', 'economy'],
+    language: 'en',
+    isTrending: true,
+    isFeatured: false,
+    isPremium: false,
+  },
+  // ... existing code ...
+] 

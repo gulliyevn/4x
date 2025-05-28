@@ -419,9 +419,6 @@ export const useTradingStore = create<TradingStore>()(
                 triggeredAt: new Date(),
                 triggerCount: alert.triggerCount + 1,
               })
-
-              // Here you would typically send a notification
-              console.log(`Price alert triggered for ${symbol} at ${currentPrice}`)
             }
           })
         },

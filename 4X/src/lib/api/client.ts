@@ -141,17 +141,8 @@ const createApiClient = (): AxiosInstance => {
             config.headers.Authorization = `Bearer ${accessToken}`
           }
         } catch (error) {
-          console.warn('Failed to inject auth token:', error)
+          // Silently fail auth token injection
         }
-      }
-      
-      // Request logging
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-          headers: config.headers,
-          data: config.data,
-          params: config.params,
-        })
       }
       
       // Add request timestamp
@@ -168,33 +159,12 @@ const createApiClient = (): AxiosInstance => {
   // Response interceptor
   client.interceptors.response.use(
     (response: AxiosResponse) => {
-      // Response logging
-      if (process.env.NODE_ENV === 'development') {
-        const duration = Date.now() - (response.config.metadata?.startTime || 0)
-        console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-          status: response.status,
-          duration: `${duration}ms`,
-          data: response.data,
-        })
-      }
-      
       return response
     },
     async (error: AxiosError) => {
       const config = error.config as InternalAxiosRequestConfig & { 
         _retryCount?: number
         _isRetry?: boolean 
-      }
-      
-      // Response logging
-      if (process.env.NODE_ENV === 'development') {
-        const duration = Date.now() - (config?.metadata?.startTime || 0)
-        console.error(`❌ API Error: ${config?.method?.toUpperCase()} ${config?.url}`, {
-          status: error.response?.status,
-          duration: `${duration}ms`,
-          message: error.message,
-          data: error.response?.data,
-        })
       }
       
       // Handle auth errors
@@ -241,7 +211,6 @@ const createApiClient = (): AxiosInstance => {
           config._retryCount = retryCount + 1
           
           const delay = calculateRetryDelay(retryCount)
-          console.log(`🔄 Retrying request (${retryCount + 1}/${MAX_RETRIES}) after ${delay}ms`)
           
           await sleep(delay)
           return client(config)

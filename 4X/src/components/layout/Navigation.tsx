@@ -1,365 +1,315 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { NotificationCenter } from '@/components/ui/NotificationCenter'
-import { mockUser } from '@/lib/mockData'
+import React, { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useThemeStore } from '@/stores/themeStore';
 
-interface NavigationProps {
-  className?: string
-}
+const Navigation = React.memo(() => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-const languages = [
-  { code: 'en', flag: '/assets/united-kingdom.png', label: 'EN' },
-  { code: 'tr', flag: '/assets/turkey.png', label: 'TR' },
-  { code: 'ru', flag: '/assets/russia.png', label: 'RU' }
-]
+  // Theme store integration
+  const { 
+    language, 
+    resolvedTheme, 
+    setLanguage, 
+    toggleTheme 
+  } = useThemeStore();
 
-export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
-  const pathname = usePathname()
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
-  const [currentLanguage, setCurrentLanguage] = useState('en')
-  const [isDarkMode, setIsDarkMode] = useState(true)
+  // Scroll detection for enhanced header styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
 
-  const currentLang = languages.find(lang => lang.code === currentLanguage) || languages[0]
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const navigationItems = [
-    {
-      label: 'Market',
-      href: '/markets',
-      dropdown: [
-        { href: '/markets?category=stocks', label: 'Stocks' },
-        { href: '/markets?category=crypto', label: 'Crypto' },
-        { href: '/markets?category=forex', label: 'Forex' },
-        { href: '/markets?category=shares', label: 'Shares' },
-        { href: '/markets?category=indices', label: 'Indices' },
-        { href: '/markets?category=commodities', label: 'Commodities' }
-      ]
-    },
-    {
-      label: 'Charts',
-      href: '/charts',
-      dropdown: [
-        { href: '/demo?section=ai', label: 'Trade AI' },
-        { href: '/dashboard?section=community', label: 'Community' },
-        { href: '/portfolio?section=copy', label: 'CopyTrading' },
-        { href: '/demo?section=education', label: 'Education' }
-      ]
-    },
-    {
-      label: 'News',
-      href: '/dashboard',
-      dropdown: [
-        { href: '/dashboard?category=stocks', label: 'Stocks' },
-        { href: '/dashboard?category=crypto', label: 'Crypto' },
-        { href: '/dashboard?category=forex', label: 'Forex' },
-        { href: '/dashboard?category=shares', label: 'Shares' },
-        { href: '/dashboard?category=indices', label: 'Indices' },
-        { href: '/dashboard?category=commodities', label: 'Commodities' },
-        { href: '/dashboard?category=world', label: 'World' }
-      ]
-    },
-    {
-      label: 'Brokers',
-      href: '/portfolio',
-      dropdown: [
-        { href: '/portfolio?section=brokers', label: 'Top Brokers' },
-        { href: '/markets?section=compare', label: 'Compare' },
-        { href: '/dashboard?section=comments', label: 'Comments' }
-      ]
-    },
-    {
-      label: 'More',
-      href: '/demo',
-      dropdown: [
-        { href: '/demo?section=about', label: 'About Us' },
-        { href: '/demo?section=tutorial', label: 'Tutorial' },
-        { href: '/demo?section=pricing', label: 'Pricing' }
-      ]
-    }
-  ]
+  // Optimized handlers with useCallback
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(prev => !prev);
+  }, []);
 
-  const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/'
-    }
-    return pathname.startsWith(href)
-  }
+  const toggleLangDropdown = useCallback(() => {
+    setIsLangDropdownOpen(prev => !prev);
+  }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode)
-    document.body.classList.toggle('dark-mode')
-  }
+  const handleLanguageChange = useCallback((lang: 'en' | 'tr' | 'ru') => {
+    setLanguage(lang);
+    setIsLangDropdownOpen(false);
+  }, [setLanguage]);
 
-  const setLanguage = (langCode: string) => {
-    setCurrentLanguage(langCode)
-    setIsLanguageDropdownOpen(false)
-  }
+  const handleMobileMenuClose = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.language-dropdown')) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Language flag mapping
+  const getFlagSrc = (lang: string) => {
+    const flags = {
+      en: '/assets/united-kingdom.png',
+      tr: '/assets/turkey.png',
+      ru: '/assets/russia.png'
+    };
+    return flags[lang as keyof typeof flags] || flags.en;
+  };
 
   return (
-    <header id="header" className="sticky top-0 w-full shadow-md z-50 transition-all duration-300 bg-gradient-to-r from-gray-200 to-transparent">
-      <nav 
-        id="navbar" 
-        className="container mx-auto px-4 flex justify-between items-center py-2"
-        role="navigation"
-        aria-label="Main Navigation"
-      >
-        {/* Logo */}
-        <div className="flex items-center px-4 lg:px-0">
-          <Link href="/" data-testid="logo-link">
+    <header className={`navigation-header ${isScrolled ? 'scrolled' : ''}`}>
+      <nav className="nav-container">
+        
+        {/* LOGO SECTION */}
+        <Link href="/" className="nav-logo">
+          <div className="flex items-center space-x-3">
             <Image 
-              id="logoCompany" 
               src="/assets/logo.png" 
               alt="4X Trading Platform" 
-              width={48}
+              width={48} 
               height={48}
-              className="w-12 h-12"
-              loading="lazy"
+              className="nav-logo-image w-12 h-12"
             />
-          </Link>
+            <div className="hidden sm:block">
+              <div className="text-xl font-bold text-white tracking-tight">
+                4X Trading
+              </div>
+              <div className="nav-logo-subtitle">
+                Professional Platform
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* DESKTOP NAVIGATION MENU */}
+        <ul className="nav-menu">
+          
+          {/* MARKET DROPDOWN */}
+          <li className="nav-item">
+            <Link href="/markets" className="nav-link" role="menuitem" aria-haspopup="true">
+              <span className="nav-link-icon">📊</span>
+              <span>Market</span>
+            </Link>
+            <div className="dropdown-menu" role="menu" aria-label="Market submenu">
+              <Link href="/markets/stocks" className="dropdown-item" role="menuitem">Stocks</Link>
+              <Link href="/markets/crypto" className="dropdown-item" role="menuitem">Cryptocurrency</Link>
+              <Link href="/markets/forex" className="dropdown-item" role="menuitem">Forex</Link>
+              <Link href="/markets/shares" className="dropdown-item" role="menuitem">Shares</Link>
+              <Link href="/markets/indices" className="dropdown-item" role="menuitem">Indices</Link>
+              <Link href="/markets/commodities" className="dropdown-item" role="menuitem">Commodities</Link>
+            </div>
+          </li>
+
+          {/* CHARTS DROPDOWN */}
+          <li className="nav-item">
+            <Link href="/charts" className="nav-link" role="menuitem" aria-haspopup="true">
+              <span className="nav-link-icon">📈</span>
+              <span>Charts</span>
+            </Link>
+            <div className="dropdown-menu" role="menu" aria-label="Charts submenu">
+              <Link href="/charts/ai-trader" className="dropdown-item" role="menuitem">AI Trading Assistant</Link>
+              <Link href="/charts/community" className="dropdown-item" role="menuitem">Community Charts</Link>
+              <Link href="/charts/copy-trading" className="dropdown-item" role="menuitem">Copy Trading</Link>
+              <Link href="/charts/education" className="dropdown-item" role="menuitem">Educational Resources</Link>
+            </div>
+          </li>
+
+          {/* NEWS DROPDOWN */}
+          <li className="nav-item">
+            <Link href="/news" className="nav-link" role="menuitem" aria-haspopup="true">
+              <span className="nav-link-icon">📰</span>
+              <span>News</span>
+            </Link>
+            <div className="dropdown-menu" role="menu" aria-label="News submenu">
+              <Link href="/news/stocks" className="dropdown-item" role="menuitem">Stock News</Link>
+              <Link href="/news/crypto" className="dropdown-item" role="menuitem">Crypto News</Link>
+              <Link href="/news/forex" className="dropdown-item" role="menuitem">Forex News</Link>
+              <Link href="/news/shares" className="dropdown-item" role="menuitem">Share Analysis</Link>
+              <Link href="/news/indices" className="dropdown-item" role="menuitem">Index Updates</Link>
+              <Link href="/news/commodities" className="dropdown-item" role="menuitem">Commodity Reports</Link>
+              <Link href="/news/world" className="dropdown-item" role="menuitem">Global Markets</Link>
+            </div>
+          </li>
+
+          {/* BROKERS DROPDOWN */}
+          <li className="nav-item">
+            <Link href="/brokers" className="nav-link" role="menuitem" aria-haspopup="true">
+              <span className="nav-link-icon">🏢</span>
+              <span>Brokers</span>
+            </Link>
+            <div className="dropdown-menu" role="menu" aria-label="Brokers submenu">
+              <Link href="/brokers" className="dropdown-item" role="menuitem">Top Rated Brokers</Link>
+              <Link href="/brokers/compare" className="dropdown-item" role="menuitem">Compare Brokers</Link>
+              <Link href="/brokers/comments" className="dropdown-item" role="menuitem">Reviews & Comments</Link>
+            </div>
+          </li>
+
+          {/* MORE DROPDOWN */}
+          <li className="nav-item">
+            <Link href="/more" className="nav-link" role="menuitem" aria-haspopup="true">
+              <span className="nav-link-icon">⚡</span>
+              <span>More</span>
+            </Link>
+            <div className="dropdown-menu" role="menu" aria-label="More submenu">
+              <Link href="/about" className="dropdown-item" role="menuitem">About Platform</Link>
+              <Link href="/tutorial" className="dropdown-item" role="menuitem">Trading Tutorial</Link>
+              <Link href="/pricing" className="dropdown-item" role="menuitem">Pricing Plans</Link>
+            </div>
+          </li>
+        </ul>
+
+        {/* RIGHT SIDE ACTIONS */}
+        <div className="nav-actions">
+          
+          {/* LANGUAGE DROPDOWN */}
+          <div className={`language-dropdown ${isLangDropdownOpen ? 'open' : ''}`}>
+            <button 
+              onClick={toggleLangDropdown}
+              className="nav-button"
+              aria-label="Select language"
+              aria-haspopup="true"
+              aria-expanded={isLangDropdownOpen}
+            >
+              <Image 
+                src={getFlagSrc(language)}
+                alt={language.toUpperCase()}
+                width={20}
+                height={20}
+                className="language-flag"
+              />
+            </button>
+
+            <div className="language-dropdown-menu" role="menu" aria-label="Language selection">
+              <button 
+                onClick={() => handleLanguageChange('en')} 
+                className="language-item"
+                role="menuitem"
+              >
+                <Image src="/assets/united-kingdom.png" alt="English" width={20} height={20} className="language-flag" />
+                <span>EN</span>
+              </button>
+              <button 
+                onClick={() => handleLanguageChange('tr')} 
+                className="language-item"
+                role="menuitem"
+              >
+                <Image src="/assets/turkey.png" alt="Türkçe" width={20} height={20} className="language-flag" />
+                <span>TR</span>
+              </button>
+              <button 
+                onClick={() => handleLanguageChange('ru')} 
+                className="language-item"
+                role="menuitem"
+              >
+                <Image src="/assets/russia.png" alt="Русский" width={20} height={20} className="language-flag" />
+                <span>RU</span>
+              </button>
+            </div>
+          </div>
+
+          {/* THEME TOGGLE */}
+          <button 
+            onClick={toggleTheme}
+            className="nav-button"
+            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            <i className={`fas ${resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+          </button>
+
+          {/* MOBILE MENU BUTTON */}
+          <button 
+            onClick={toggleMobileMenu}
+            className="mobile-menu-button"
+            aria-label="Toggle mobile menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+          </button>
         </div>
 
-        {/* Desktop Navigation */}
-        <div className="nav-links absolute md:static text-black md:min-h-fit min-h-[60vh] left-0 top-[-100%] sm:hide hidden md:block md:w-auto w-full flex items-center px-14 transition-all duration-300">
-          <ul className="flex md:flex-row flex-col md:items-center md:gap-[4vw] gap-8 justify-end">
-            <li>
+        {/* MOBILE BACKDROP */}
+        {isMobileMenuOpen && (
+          <div 
+            className={`mobile-backdrop ${isMobileMenuOpen ? 'open' : ''}`}
+            onClick={handleMobileMenuClose}
+            aria-hidden="true"
+          />
+        )}
+        
+        {/* MOBILE DROPDOWN MENU */}
+        <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
+          <ul className="mobile-menu-list">
+            <li className="mobile-menu-item">
               <Link 
-                className={`hover:text-black text-xl cursor-pointer ${isActive('/') ? 'text-[#98b5a4]' : ''}`}
-                href="/"
+                href="/markets" 
+                className="mobile-menu-link" 
+                onClick={handleMobileMenuClose}
               >
-                Home
+                <span>📊</span>
+                <span>Market</span>
               </Link>
             </li>
-            {navigationItems.map((item) => (
-              <li key={item.label} className="relative group">
-                <Link 
-                  className={`hover:text-black text-xl cursor-pointer ${isActive(item.href) ? 'text-[#98b5a4]' : ''}`}
-                  href={item.href}
-                  aria-haspopup="true" 
-                  aria-expanded="false"
-                >
-                  {item.label}
-                </Link>
-                {item.dropdown && (
-                  <ul className="absolute w-[150px] -left-10 top-full hidden group-hover:flex flex-col bg-[#1a1a1a] shadow-lg p-3 rounded-md">
-                    {item.dropdown.map((dropdownItem, index) => (
-                      <li key={`${item.label}-${index}-${dropdownItem.label}`} className="flex flex-row">
-                        <Link 
-                          className="hover:text-[#02d1fe] text-lg text-black dark:text-white py-1 px-2" 
-                          href={dropdownItem.href}
-                        >
-                          {dropdownItem.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+            <li className="mobile-menu-item">
+              <Link 
+                href="/charts" 
+                className="mobile-menu-link" 
+                onClick={handleMobileMenuClose}
+              >
+                <span>📈</span>
+                <span>Charts</span>
+              </Link>
+            </li>
+            <li className="mobile-menu-item">
+              <Link 
+                href="/news" 
+                className="mobile-menu-link" 
+                onClick={handleMobileMenuClose}
+              >
+                <span>📰</span>
+                <span>News</span>
+              </Link>
+            </li>
+            <li className="mobile-menu-item">
+              <Link 
+                href="/brokers" 
+                className="mobile-menu-link" 
+                onClick={handleMobileMenuClose}
+              >
+                <span>🏢</span>
+                <span>Brokers</span>
+              </Link>
+            </li>
+            <li className="mobile-menu-item">
+              <Link 
+                href="/more" 
+                className="mobile-menu-link" 
+                onClick={handleMobileMenuClose}
+              >
+                <span>⚡</span>
+                <span>More</span>
+              </Link>
+            </li>
           </ul>
         </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Language Dropdown */}
-          <div className="dropdown relative inline-block" data-testid="language-selector">
-            <button 
-              id="dropdownButton" 
-              className="search w-8 h-8 flex justify-center items-center cursor-pointer text-[#005450] text-base font-semibold bg-transparent"
-              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              data-testid="language-button"
-              aria-label="Select Language"
-            >
-              <Image 
-                id="current-lang-flag" 
-                src={currentLang.flag} 
-                alt={currentLang.label}
-                width={32}
-                height={32}
-                className="w-8 h-8"
-                data-testid="current-language-flag"
-              />
-            </button>
-
-            {isLanguageDropdownOpen && (
-              <div 
-                className="dropdown-content absolute w-[150px] top-full -left-12 mt-2 bg-[#1a1a1a] shadow-lg p-3 rounded-md"
-                data-testid="language-dropdown"
-              >
-                {languages.map((lang) => (
-                  <button 
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code)} 
-                    className="flex items-center gap-3 px-4 py-2 w-full text-left hover:bg-gray-700 rounded"
-                  >
-                    <Image 
-                      className="w-6 h-6" 
-                      src={lang.flag} 
-                      alt={lang.label}
-                      width={24}
-                      height={24}
-                    />
-                    <span className="text-sm font-medium text-lg text-white">{lang.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Theme Toggle */}
-          <button 
-            id="themeToggle" 
-            aria-label="Switch Theme" 
-            className="w-10 h-10 rounded-full border border-gray-600 flex justify-center items-center"
-            onClick={toggleTheme}
-            data-testid="theme-toggle"
-          >
-            <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
-          </button>
-
-          {/* Notifications */}
-          <NotificationCenter />
-
-          {/* User Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center space-x-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <img
-                className="h-8 w-8 rounded-full"
-                src={mockUser.avatar}
-                alt={mockUser.name}
-              />
-              <span className="hidden md:block text-gray-700 dark:text-gray-300">
-                {mockUser.name}
-              </span>
-              <svg
-                className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                  isProfileOpen ? 'rotate-180' : ''
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Profile Dropdown */}
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700"
-                >
-                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {mockUser.name}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {mockUser.email}
-                    </p>
-                  </div>
-                  
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsProfileOpen(false)}
-                  >
-                    👤 Profile Settings
-                  </Link>
-                  
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsProfileOpen(false)}
-                  >
-                    ⚙️ Account Settings
-                  </Link>
-                  
-                  <Link
-                    href="/help"
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsProfileOpen(false)}
-                  >
-                    ❓ Help & Support
-                  </Link>
-                  
-                  <div className="border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => {
-                        setIsProfileOpen(false)
-                        // Add logout logic here
-                      }}
-                    >
-                      🚪 Sign Out
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="relative">
-            <button 
-              className="block sm:hidden text-xl p-2 bg-gray-200 rounded-md" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              data-testid="mobile-menu-button"
-              aria-label="Toggle Mobile Menu"
-            >
-              <i className="fas fa-bars"></i>
-            </button>
-
-            {/* Mobile Dropdown Menu */}
-            {isMobileMenuOpen && (
-              <div className="absolute bg-[#1a1a1a] top-full right-0 mt-2 w-48 shadow-md rounded-md z-50">
-                <ul className="p-2 space-y-1">
-                  <li>
-                    <Link 
-                      href="/" 
-                      className="block px-4 py-2 hover:text-[#02d1fe] text-lg text-black dark:text-white"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Home
-                    </Link>
-                  </li>
-                  {navigationItems.map((item) => (
-                    <li key={item.label}>
-                      <Link 
-                        href={item.href} 
-                        className="block px-4 py-2 hover:text-[#02d1fe] text-lg text-black dark:text-white"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
       </nav>
-
-      {/* Overlay for mobile menu */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-25 z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
     </header>
-  )
-}
+  );
+});
 
-export default Navigation 
+Navigation.displayName = 'Navigation';
+
+export default Navigation; 

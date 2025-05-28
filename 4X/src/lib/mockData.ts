@@ -6,9 +6,9 @@
  */
 
 import type { User } from '@/types/auth'
-import type { MarketData, Ticker, Symbol, Trade, OrderBook, PricePoint } from '@/types/market'
+import type { MarketData, Ticker, Symbol, OrderBook, PricePoint } from '@/types/market'
 import type { NewsArticle, NewsCategory } from '@/types/news'
-import type { Position, Order, Portfolio, PortfolioSummary } from '@/types/trading'
+import type { Position, Order, Portfolio, PortfolioSummary, Trade } from '@/types/trading'
 import { UserRole, AccountStatus, AccountType, TwoFactorMethod } from '@/types/auth'
 import {
   OrderType,
@@ -1105,7 +1105,7 @@ export const mockRecentTrades: Trade[] = [
     symbol: 'BTCUSDT',
     price: 43100.00,
     quantity: 0.75,
-    side: OrderBookSide.BUY,
+    side: 'BUY',
     timestamp: new Date(now.getTime() - 15 * 60 * 1000),
     isBuyerMaker: false
   },
@@ -1114,7 +1114,7 @@ export const mockRecentTrades: Trade[] = [
     symbol: 'ETHUSDT',
     price: 2575.25,
     quantity: 2.5,
-    side: OrderBookSide.SELL,
+    side: 'SELL',
     timestamp: new Date(now.getTime() - 32 * 60 * 1000),
     isBuyerMaker: true,
   },
@@ -1123,7 +1123,7 @@ export const mockRecentTrades: Trade[] = [
     symbol: 'AAPL',
     price: 195.80,
     quantity: 50,
-    side: OrderBookSide.BUY,
+    side: 'BUY',
     timestamp: new Date(now.getTime() - 85 * 60 * 1000),
     isBuyerMaker: false,
   },
