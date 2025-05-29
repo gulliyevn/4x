@@ -3,7 +3,17 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navigation from '../src/components/Navigation'
-import Image from 'next/image'
+import TrustIndicators from '../src/components/sections/TrustIndicators'
+import LiveDataSection from '../src/components/sections/LiveDataSection'
+import NewsSection from '../src/components/sections/NewsSection'
+import SocialProofSection from '../src/components/sections/SocialProofSection'
+import FAQSection from '../src/components/sections/FAQSection'
+import PerformanceDashboard from '../src/components/sections/PerformanceDashboard'
+import MobileAppSection from '../src/components/sections/MobileAppSection'
+import InteractiveDemo from '../src/components/sections/InteractiveDemo'
+import EducationCenter from '../src/components/sections/EducationCenter'
+import './page-styles.css'
+import './enhanced-styles.css'
 
 export default function HomePage() {
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -111,16 +121,10 @@ export default function HomePage() {
               </div>
               
               <h1 className="hero-title">
-                AI-Powered
-                <span className="gradient-text"> Financial Intelligence</span>
-                <br />
                 Create Your Reality
+                <br />
+                <span className="gradient-text hero-subtitle-text">AI-Powered Financial Intelligence</span>
               </h1>
-              
-              <p className="hero-subtitle">
-                Harness the power of artificial intelligence with 94.7% prediction accuracy, 
-                real-time market analysis, and advanced trading tools trusted by over 100,000+ professionals worldwide.
-              </p>
               
               <div className="hero-buttons">
                 <Link href="/ai-insights" className="btn btn-primary btn-lg">
@@ -155,6 +159,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* NEW: Trust Indicators Section */}
+      <TrustIndicators />
+
+      {/* NEW: Live Data Section */}
+      <LiveDataSection />
 
       {/* AI Features Section */}
       <section className="ai-features-section">
@@ -278,6 +288,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Interactive Demo */}
+      <InteractiveDemo />
+
       {/* Markets Section */}
       <section className="markets-section">
         <div className="container">
@@ -376,6 +389,21 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* NEW: News Section */}
+      <NewsSection />
+
+      {/* NEW: Social Proof Section */}
+      <SocialProofSection />
+
+      {/* NEW: Performance Dashboard */}
+      <PerformanceDashboard />
+
+      {/* NEW: Mobile App Section */}
+      <MobileAppSection />
+
+      {/* NEW: Education Center */}
+      <EducationCenter />
+
       {/* CTA Section */}
       <section className="cta-section">
         <div className="container">
@@ -400,6 +428,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FAQSection />
 
       {/* Footer */}
       <footer className="footer">
