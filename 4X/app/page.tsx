@@ -119,10 +119,9 @@ export default function HomePage() {
           muted 
           loop 
           playsInline
-          poster="/images/hero-poster.jpg"
+          preload="auto"
         >
           <source src="/videos/hero-background.mp4" type="video/mp4" />
-          <source src="/videos/hero-background.webm" type="video/webm" />
           Your browser does not support the video tag.
         </video>
         

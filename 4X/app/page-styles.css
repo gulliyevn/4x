@@ -1614,6 +1614,8 @@
   overflow: hidden;
   margin-top: -15px;
   min-height: 80vh;
+  /* Fallback background если видео не загрузится */
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
 }
 
 /* Hero Video Background */
@@ -1625,6 +1627,9 @@
   height: 100%;
   object-fit: cover;
   z-index: -2;
+  /* Дополнительные стили для лучшей совместимости */
+  background: #1a202c;
+  opacity: 0.8;
 }
 
 /* Hero Video Overlay */
