@@ -112,19 +112,6 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="hero-section">
-        {/* Hero Background Video */}
-        <video 
-          className="hero-video"
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          preload="auto"
-        >
-          <source src="/videos/hero-background.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        
         <div className="container">
           <div className="hero-content">
             <div className="hero-text">

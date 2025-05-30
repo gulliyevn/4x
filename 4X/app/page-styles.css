@@ -1610,38 +1610,11 @@
 /* Enhanced Hero Section */
 .hero-section {
   padding: 7rem 0 8rem; /* увеличено на 2rem: было 5rem 0 6rem */
+  background: url('/images/banner.png') center center/cover no-repeat;
   position: relative;
   overflow: hidden;
   margin-top: -15px;
   min-height: 80vh;
-  /* Fallback background если видео не загрузится */
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
-}
-
-/* Hero Video Background */
-.hero-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -2;
-  /* Дополнительные стили для лучшей совместимости */
-  background: #1a202c;
-  opacity: 0.8;
-}
-
-/* Hero Video Overlay */
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* Темный оверлей для лучшей читаемости текста */
-  z-index: -1;
 }
 
 /* Remove all background decorative elements */
