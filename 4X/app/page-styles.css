@@ -1607,64 +1607,27 @@
   font-size: 0.75rem;
 }
 
-/* Enhanced Hero Section with Video Background */
+/* Enhanced Hero Section */
 .hero-section {
   padding: 7rem 0 8rem; /* увеличено на 2rem: было 5rem 0 6rem */
   position: relative;
   overflow: hidden;
   margin-top: -15px;
   min-height: 80vh;
-  display: flex;
-  align-items: center;
 }
 
-/* Video Background Container */
-.hero-video-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-}
-
+/* Hero Video Background */
 .hero-video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
-  z-index: 1;
-}
-
-/* Video Overlay for better text readability */
-.hero-video-overlay {
-  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(26, 32, 44, 0.7) 0%,
-    rgba(45, 55, 72, 0.6) 50%,
-    rgba(26, 32, 44, 0.8) 100%
-  );
-  z-index: 2;
+  object-fit: cover;
+  z-index: -2;
 }
 
-/* Ensure content is above video */
-.hero-section .container {
-  position: relative;
-  z-index: 3;
-}
-
-/* Fallback background for when video is loading or not supported */
+/* Hero Video Overlay */
 .hero-section::before {
   content: '';
   position: absolute;
@@ -1672,8 +1635,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
-  z-index: 0;
+  background: rgba(0, 0, 0, 0.4); /* Темный оверлей для лучшей читаемости текста */
+  z-index: -1;
 }
 
 /* Remove all background decorative elements */
@@ -3980,40 +3943,5 @@ html:not(.dark-mode) .insight-desc {
   
   .market-stats {
     grid-template-columns: 1fr;
-  }
-}
-
-/* Mobile optimizations for video */
-@media (max-width: 768px) {
-  .hero-video {
-    /* На мобильных устройствах можем скрыть видео для экономии трафика */
-    display: none;
-  }
-  
-  .hero-section {
-    /* Используем градиентный фон на мобильных */
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
-    padding: 4rem 0 5rem;
-  }
-  
-  .hero-video-overlay {
-    /* Усиливаем overlay на мобильных для лучшей читаемости */
-    background: linear-gradient(
-      135deg,
-      rgba(26, 32, 44, 0.8) 0%,
-      rgba(45, 55, 72, 0.7) 50%,
-      rgba(26, 32, 44, 0.9) 100%
-    );
-  }
-}
-
-/* Prefers reduced motion - отключаем видео для пользователей с настройкой accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .hero-video {
-    display: none;
-  }
-  
-  .hero-section {
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
   }
 }
