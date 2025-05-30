@@ -1,0 +1,29 @@
+{
+  "name": "4X Analytics - AI-Powered Trading Platform",
+  "short_name": "4X Analytics",
+  "description": "Professional AI-powered trading platform with advanced market analysis and predictions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a202c",
+  "theme_color": "#00d4aa",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"],
+  "lang": "en"
+} 
