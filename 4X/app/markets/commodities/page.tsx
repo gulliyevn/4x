@@ -4,194 +4,230 @@ import React, { useState } from 'react'
 import Navigation from '../../../src/components/Navigation'
 import Footer from '../../../src/components/Footer'
 
-const ForexPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('major')
+const CommoditiesPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('volume')
   const [viewMode, setViewMode] = useState('grid')
 
-  const categories = ['major', 'minor', 'exotic', 'commodities']
+  const categories = ['all', 'metals', 'energy', 'agriculture', 'livestock']
   const timeframes = ['1H', '4H', '1D', '1W', '1M']
 
-  const forexPairs = [
+  const commoditiesData = [
     {
-      pair: 'EUR/USD',
-      name: 'Euro / US Dollar',
-      price: 1.0845,
-      change: 0.0023,
-      changePercent: 0.21,
-      volume: '$1.2T',
-      spread: 0.8,
-      category: 'major',
-      high24h: 1.0867,
-      low24h: 1.0821,
-      volatility: 'Low',
-      trend: 'Bullish',
-      support: 1.0820,
-      resistance: 1.0870,
+      symbol: 'GOLD',
+      name: 'Gold',
+      price: 2034.50,
+      change: 12.30,
+      changePercent: 0.61,
+      volume: '$45.2B',
+      unit: 'oz',
+      category: 'metals',
+      high24h: 2041.80,
+      low24h: 2018.90,
+      contract: 'GC',
+      exchange: 'COMEX',
       isPositive: true,
       technicalRating: 'Buy',
-      fundamentalRating: 'Neutral',
-      rsi: 58.2,
-      macd: 'Bullish',
-      description: 'Most traded currency pair globally'
+      fundamentalRating: 'Bullish',
+      volatility: 'Medium',
+      seasonality: 'Neutral',
+      inventories: 'Low',
+      description: 'Precious metal safe haven asset'
     },
     {
-      pair: 'GBP/USD',
-      name: 'British Pound / US Dollar',
-      price: 1.2634,
-      change: -0.0045,
-      changePercent: -0.35,
-      volume: '$350B',
-      spread: 1.2,
-      category: 'major',
-      high24h: 1.2689,
-      low24h: 1.2615,
-      volatility: 'Medium',
-      trend: 'Bearish',
-      support: 1.2600,
-      resistance: 1.2700,
+      symbol: 'SILVER',
+      name: 'Silver',
+      price: 24.85,
+      change: -0.45,
+      changePercent: -1.78,
+      volume: '$8.9B',
+      unit: 'oz',
+      category: 'metals',
+      high24h: 25.42,
+      low24h: 24.67,
+      contract: 'SI',
+      exchange: 'COMEX',
       isPositive: false,
       technicalRating: 'Sell',
-      fundamentalRating: 'Bearish',
-      rsi: 42.8,
-      macd: 'Bearish',
-      description: 'Cable - highly volatile major pair'
+      fundamentalRating: 'Neutral',
+      volatility: 'High',
+      seasonality: 'Bearish',
+      inventories: 'Normal',
+      description: 'Industrial and precious metal'
     },
     {
-      pair: 'USD/JPY',
-      name: 'US Dollar / Japanese Yen',
-      price: 149.85,
-      change: 0.67,
-      changePercent: 0.45,
-      volume: '$280B',
-      spread: 0.9,
-      category: 'major',
-      high24h: 150.12,
-      low24h: 149.23,
-      volatility: 'Low',
-      trend: 'Bullish',
-      support: 149.00,
-      resistance: 150.50,
+      symbol: 'CRUDE',
+      name: 'Crude Oil WTI',
+      price: 78.45,
+      change: 1.23,
+      changePercent: 1.59,
+      volume: '$125.8B',
+      unit: 'bbl',
+      category: 'energy',
+      high24h: 79.12,
+      low24h: 77.23,
+      contract: 'CL',
+      exchange: 'NYMEX',
       isPositive: true,
       technicalRating: 'Strong Buy',
       fundamentalRating: 'Bullish',
-      rsi: 65.4,
-      macd: 'Bullish',
-      description: 'Safe haven pair with BoJ intervention risk'
+      volatility: 'High',
+      seasonality: 'Bullish',
+      inventories: 'Low',
+      description: 'West Texas Intermediate crude oil'
     },
     {
-      pair: 'AUD/USD',
-      name: 'Australian Dollar / US Dollar',
-      price: 0.6523,
-      change: 0.0012,
-      changePercent: 0.18,
-      volume: '$180B',
-      spread: 1.1,
-      category: 'major',
-      high24h: 0.6545,
-      low24h: 0.6501,
-      volatility: 'Medium',
-      trend: 'Neutral',
-      support: 0.6500,
-      resistance: 0.6550,
-      isPositive: true,
-      technicalRating: 'Hold',
-      fundamentalRating: 'Neutral',
-      rsi: 52.1,
-      macd: 'Neutral',
-      description: 'Commodity currency sensitive to China'
-    },
-    {
-      pair: 'USD/CAD',
-      name: 'US Dollar / Canadian Dollar',
-      price: 1.3567,
-      change: -0.0023,
-      changePercent: -0.17,
-      volume: '$120B',
-      spread: 1.3,
-      category: 'major',
-      high24h: 1.3598,
-      low24h: 1.3542,
-      volatility: 'Low',
-      trend: 'Bearish',
-      support: 1.3540,
-      resistance: 1.3600,
-      isPositive: false,
-      technicalRating: 'Sell',
-      fundamentalRating: 'Neutral',
-      rsi: 45.7,
-      macd: 'Bearish',
-      description: 'Loonie - oil-correlated currency'
-    },
-    {
-      pair: 'EUR/GBP',
-      name: 'Euro / British Pound',
-      price: 0.8589,
-      change: 0.0034,
-      changePercent: 0.40,
-      volume: '$95B',
-      spread: 1.5,
-      category: 'minor',
-      high24h: 0.8612,
-      low24h: 0.8567,
-      volatility: 'Medium',
-      trend: 'Bullish',
-      support: 0.8560,
-      resistance: 0.8620,
+      symbol: 'NATGAS',
+      name: 'Natural Gas',
+      price: 2.89,
+      change: 0.12,
+      changePercent: 4.33,
+      volume: '$18.7B',
+      unit: 'MMBtu',
+      category: 'energy',
+      high24h: 2.95,
+      low24h: 2.76,
+      contract: 'NG',
+      exchange: 'NYMEX',
       isPositive: true,
       technicalRating: 'Buy',
       fundamentalRating: 'Bullish',
-      rsi: 61.3,
-      macd: 'Bullish',
-      description: 'Cross pair affected by Brexit developments'
+      volatility: 'Very High',
+      seasonality: 'Bullish',
+      inventories: 'Below Average',
+      description: 'Henry Hub natural gas futures'
+    },
+    {
+      symbol: 'WHEAT',
+      name: 'Wheat',
+      price: 645.25,
+      change: -8.75,
+      changePercent: -1.34,
+      volume: '$2.1B',
+      unit: 'bu',
+      category: 'agriculture',
+      high24h: 658.50,
+      low24h: 642.00,
+      contract: 'W',
+      exchange: 'CBOT',
+      isPositive: false,
+      technicalRating: 'Hold',
+      fundamentalRating: 'Neutral',
+      volatility: 'Medium',
+      seasonality: 'Neutral',
+      inventories: 'Normal',
+      description: 'Chicago soft red winter wheat'
+    },
+    {
+      symbol: 'CORN',
+      name: 'Corn',
+      price: 485.50,
+      change: 3.25,
+      changePercent: 0.67,
+      volume: '$3.8B',
+      unit: 'bu',
+      category: 'agriculture',
+      high24h: 489.75,
+      low24h: 481.25,
+      contract: 'C',
+      exchange: 'CBOT',
+      isPositive: true,
+      technicalRating: 'Buy',
+      fundamentalRating: 'Bullish',
+      volatility: 'Medium',
+      seasonality: 'Bullish',
+      inventories: 'Low',
+      description: 'Yellow corn futures contract'
+    },
+    {
+      symbol: 'COPPER',
+      name: 'Copper',
+      price: 3.85,
+      change: 0.08,
+      changePercent: 2.12,
+      volume: '$12.4B',
+      unit: 'lb',
+      category: 'metals',
+      high24h: 3.89,
+      low24h: 3.76,
+      contract: 'HG',
+      exchange: 'COMEX',
+      isPositive: true,
+      technicalRating: 'Strong Buy',
+      fundamentalRating: 'Bullish',
+      volatility: 'Medium',
+      seasonality: 'Neutral',
+      inventories: 'Very Low',
+      description: 'Industrial metal barometer'
+    },
+    {
+      symbol: 'CATTLE',
+      name: 'Live Cattle',
+      price: 175.25,
+      change: -1.50,
+      changePercent: -0.85,
+      volume: '$890M',
+      unit: 'cwt',
+      category: 'livestock',
+      high24h: 177.50,
+      low24h: 174.75,
+      contract: 'LC',
+      exchange: 'CME',
+      isPositive: false,
+      technicalRating: 'Hold',
+      fundamentalRating: 'Neutral',
+      volatility: 'Low',
+      seasonality: 'Neutral',
+      inventories: 'Normal',
+      description: 'Live cattle futures contract'
     }
   ]
 
   const marketStats = {
-    dailyVolume: '$7.5T',
-    activePairs: '180+',
-    majorPairs: 8,
-    minorPairs: 25,
-    exoticPairs: '150+',
-    avgSpread: '0.9 pips'
+    totalVolume: '$285.6B',
+    activeCommodities: '50+',
+    metalsPct: '+1.2%',
+    energyPct: '+2.8%',
+    agriculturePct: '-0.5%',
+    livestockPct: '-0.3%'
   }
 
-  const centralBankData = [
-    { bank: 'Federal Reserve', rate: '5.50%', nextMeeting: '2024-03-20', bias: 'Hawkish' },
-    { bank: 'ECB', rate: '4.50%', nextMeeting: '2024-03-14', bias: 'Neutral' },
-    { bank: 'Bank of England', rate: '5.25%', nextMeeting: '2024-03-21', bias: 'Dovish' },
-    { bank: 'Bank of Japan', rate: '-0.10%', nextMeeting: '2024-03-19', bias: 'Ultra Dovish' }
+  const supplyDemandData = [
+    { commodity: 'Gold', supply: 'Stable', demand: 'High', outlook: 'Bullish' },
+    { commodity: 'Oil', supply: 'Tight', demand: 'Strong', outlook: 'Very Bullish' },
+    { commodity: 'Wheat', supply: 'Adequate', demand: 'Moderate', outlook: 'Neutral' },
+    { commodity: 'Copper', supply: 'Low', demand: 'Very High', outlook: 'Bullish' }
   ]
 
-  const economicEvents = [
-    { time: '08:30', event: 'US Non-Farm Payrolls', impact: 'High', forecast: '200K', previous: '199K' },
-    { time: '10:00', event: 'EUR CPI Flash Estimate', impact: 'High', forecast: '2.8%', previous: '2.9%' },
-    { time: '14:00', event: 'USD Fed Chair Speech', impact: 'Medium', forecast: '-', previous: '-' },
-    { time: '23:50', event: 'JPY BoJ Meeting Minutes', impact: 'Medium', forecast: '-', previous: '-' }
+  const seasonalTrends = [
+    { period: 'Q1', metals: 'Neutral', energy: 'Strong', agriculture: 'Weak' },
+    { period: 'Q2', metals: 'Weak', energy: 'Moderate', agriculture: 'Strong' },
+    { period: 'Q3', metals: 'Strong', energy: 'Weak', agriculture: 'Strong' },
+    { period: 'Q4', metals: 'Strong', energy: 'Strong', agriculture: 'Moderate' }
   ]
 
-  const filteredPairs = forexPairs.filter(pair => {
-    const matchesCategory = selectedCategory === 'all' || pair.category === selectedCategory
-    const matchesSearch = pair.pair.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pair.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCommodities = commoditiesData.filter(commodity => {
+    const matchesCategory = selectedCategory === 'all' || commodity.category === selectedCategory
+    const matchesSearch = commodity.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         commodity.name.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
-  const sortedPairs = [...filteredPairs].sort((a, b) => {
+  const sortedCommodities = [...filteredCommodities].sort((a, b) => {
     switch (sortBy) {
       case 'volume':
-        return parseFloat(b.volume.replace(/[$TB]/g, '')) - parseFloat(a.volume.replace(/[$TB]/g, ''))
+        return parseFloat(b.volume.replace(/[$BM]/g, '')) - parseFloat(a.volume.replace(/[$BM]/g, ''))
       case 'change':
         return Math.abs(b.changePercent) - Math.abs(a.changePercent)
-      case 'spread':
-        return a.spread - b.spread
+      case 'price':
+        return b.price - a.price
       case 'volatility':
-        const volOrder = { 'Low': 1, 'Medium': 2, 'High': 3 }
+        const volOrder = { 'Low': 1, 'Medium': 2, 'High': 3, 'Very High': 4 }
         return volOrder[b.volatility] - volOrder[a.volatility]
       default:
-        return parseFloat(b.volume.replace(/[$TB]/g, '')) - parseFloat(a.volume.replace(/[$TB]/g, ''))
+        return parseFloat(b.volume.replace(/[$BM]/g, '')) - parseFloat(a.volume.replace(/[$BM]/g, ''))
     }
   })
 
@@ -200,60 +236,66 @@ const ForexPage = () => {
     if (rating === 'Buy') return '#06b6d4'
     if (rating === 'Hold') return '#f59e0b'
     if (rating === 'Sell') return '#f97316'
-    if (rating === 'Strong Sell') return '#ef4444'
     return '#6b7280'
   }
 
   const getVolatilityColor = (volatility: string) => {
-    if (volatility === 'High') return '#ef4444'
+    if (volatility === 'Very High') return '#ef4444'
+    if (volatility === 'High') return '#f97316'
     if (volatility === 'Medium') return '#f59e0b'
     return '#10b981'
   }
 
-  const getBiasColor = (bias: string) => {
-    if (bias.includes('Hawkish')) return '#ef4444'
-    if (bias.includes('Dovish')) return '#06b6d4'
-    return '#f59e0b'
+  const getOutlookColor = (outlook: string) => {
+    if (outlook.includes('Bullish')) return '#10b981'
+    if (outlook === 'Neutral') return '#f59e0b'
+    return '#ef4444'
+  }
+
+  const getInventoryColor = (inventory: string) => {
+    if (inventory.includes('Low')) return '#ef4444'
+    if (inventory === 'Normal') return '#f59e0b'
+    return '#10b981'
   }
 
   return (
     <>
       <Navigation />
-      <div className="forex-page">
+      <div className="commodities-page">
         {/* Hero Section */}
-        <section className="forex-hero">
+        <section className="commodities-hero">
           <div className="container">
             <div className="hero-content">
               <div className="hero-badge">
-                <span className="badge-icon">💱</span>
-                <span>Forex Trading</span>
+                <span className="badge-icon">🏗️</span>
+                <span>Commodities</span>
               </div>
               <h1 className="hero-title">
-                Foreign Exchange Markets
-                <span className="gradient-text">100+ Pairs, Central Bank Data</span>
+                Commodity Markets
+                <span className="gradient-text">50+ Commodities, Supply & Demand</span>
               </h1>
               <p className="hero-description">
-                Trade major, minor, and exotic currency pairs with real-time spreads, 
-                central bank insights, and comprehensive market analysis.
+                Trade metals, energy, agriculture, and livestock with real-time pricing, 
+                supply/demand analytics, and seasonal trend insights.
               </p>
               
               {/* Market Stats */}
               <div className="market-stats">
                 <div className="stat-card">
-                  <span className="stat-label">Daily Volume</span>
-                  <span className="stat-value">{marketStats.dailyVolume}</span>
+                  <span className="stat-label">Total Volume</span>
+                  <span className="stat-value">{marketStats.totalVolume}</span>
                 </div>
                 <div className="stat-card">
-                  <span className="stat-label">Active Pairs</span>
-                  <span className="stat-value">{marketStats.activePairs}</span>
+                  <span className="stat-label">Metals</span>
+                  <span className="stat-value positive">{marketStats.metalsPct}</span>
                 </div>
                 <div className="stat-card">
-                  <span className="stat-label">Avg Spread</span>
-                  <span className="stat-value">{marketStats.avgSpread}</span>
+                  <span className="stat-label">Energy</span>
+                  <span className="stat-value positive">{marketStats.energyPct}</span>
                 </div>
                 <div className="stat-card">
-                  <span className="stat-label">Major Pairs</span>
-                  <span className="stat-value">{marketStats.majorPairs}</span>
+                  <span className="stat-label">Agriculture</span>
+                  <span className="stat-value negative">{marketStats.agriculturePct}</span>
                 </div>
               </div>
             </div>
@@ -265,21 +307,19 @@ const ForexPage = () => {
           <div className="container">
             <div className="overview-grid">
               <div className="overview-card">
-                <h3 className="card-title">Central Bank Rates</h3>
-                <div className="bank-rates">
-                  {centralBankData.map((bank, idx) => (
-                    <div key={idx} className="bank-item">
-                      <div className="bank-info">
-                        <span className="bank-name">{bank.bank}</span>
-                        <span className="bank-rate">{bank.rate}</span>
-                      </div>
-                      <div className="bank-details">
-                        <span className="next-meeting">{bank.nextMeeting}</span>
+                <h3 className="card-title">Supply & Demand</h3>
+                <div className="supply-demand-list">
+                  {supplyDemandData.map((item, idx) => (
+                    <div key={idx} className="supply-item">
+                      <div className="commodity-name">{item.commodity}</div>
+                      <div className="supply-details">
+                        <span className="supply-label">Supply: <span className="supply-value">{item.supply}</span></span>
+                        <span className="demand-label">Demand: <span className="demand-value">{item.demand}</span></span>
                         <span 
-                          className="bias"
-                          style={{ color: getBiasColor(bank.bias) }}
+                          className="outlook"
+                          style={{ color: getOutlookColor(item.outlook) }}
                         >
-                          {bank.bias}
+                          {item.outlook}
                         </span>
                       </div>
                     </div>
@@ -288,18 +328,29 @@ const ForexPage = () => {
               </div>
               
               <div className="overview-card">
-                <h3 className="card-title">Economic Calendar</h3>
-                <div className="events-list">
-                  {economicEvents.map((event, idx) => (
-                    <div key={idx} className="event-item">
-                      <div className="event-time">{event.time}</div>
-                      <div className="event-details">
-                        <span className="event-name">{event.event}</span>
-                        <div className="event-data">
-                          <span className={`impact ${event.impact.toLowerCase()}`}>
-                            {event.impact}
+                <h3 className="card-title">Seasonal Trends</h3>
+                <div className="seasonal-grid">
+                  {seasonalTrends.map((trend, idx) => (
+                    <div key={idx} className="seasonal-item">
+                      <div className="period">{trend.period}</div>
+                      <div className="trend-details">
+                        <div className="trend-row">
+                          <span>Metals:</span>
+                          <span className={`trend-value ${trend.metals.toLowerCase()}`}>
+                            {trend.metals}
                           </span>
-                          <span className="forecast">F: {event.forecast}</span>
+                        </div>
+                        <div className="trend-row">
+                          <span>Energy:</span>
+                          <span className={`trend-value ${trend.energy.toLowerCase()}`}>
+                            {trend.energy}
+                          </span>
+                        </div>
+                        <div className="trend-row">
+                          <span>Agriculture:</span>
+                          <span className={`trend-value ${trend.agriculture.toLowerCase()}`}>
+                            {trend.agriculture}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -319,7 +370,7 @@ const ForexPage = () => {
                 <input
                   type="text"
                   className="search-input"
-                  placeholder="Search currency pairs..."
+                  placeholder="Search commodities..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -334,7 +385,7 @@ const ForexPage = () => {
                       className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
                       onClick={() => setSelectedCategory(category)}
                     >
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)}
                     </button>
                   ))}
                 </div>
@@ -364,7 +415,7 @@ const ForexPage = () => {
                 >
                   <option value="volume">Volume</option>
                   <option value="change">Change</option>
-                  <option value="spread">Spread</option>
+                  <option value="price">Price</option>
                   <option value="volatility">Volatility</option>
                 </select>
               </div>
@@ -387,48 +438,53 @@ const ForexPage = () => {
           </div>
         </section>
 
-        {/* Forex Pairs Display */}
-        <section className="forex-section">
+        {/* Commodities Display */}
+        <section className="commodities-section">
           <div className="container">
             <div className="section-header">
-              <h2 className="section-title">Currency Pairs</h2>
+              <h2 className="section-title">Commodity Prices</h2>
               <p className="section-description">
-                {filteredPairs.length} currency pairs available for trading
+                {filteredCommodities.length} commodities available for trading
               </p>
             </div>
 
             {viewMode === 'grid' ? (
-              <div className="forex-grid">
-                {sortedPairs.map((pair, index) => (
-                  <div key={index} className="forex-card">
+              <div className="commodities-grid">
+                {sortedCommodities.map((commodity, index) => (
+                  <div key={index} className="commodity-card">
                     <div className="card-header">
-                      <div className="pair-info">
-                        <span className="pair-symbol">{pair.pair}</span>
-                        <span className="pair-name">{pair.name}</span>
-                        <span className="category-badge">{pair.category}</span>
+                      <div className="commodity-info">
+                        <span className="commodity-symbol">{commodity.symbol}</span>
+                        <span className="commodity-name">{commodity.name}</span>
+                        <div className="commodity-details">
+                          <span className="category-badge">{commodity.category}</span>
+                          <span className="exchange">{commodity.exchange}</span>
+                        </div>
                       </div>
                       <div className="ratings">
                         <span 
                           className="technical-rating"
-                          style={{ color: getTechnicalColor(pair.technicalRating) }}
+                          style={{ color: getTechnicalColor(commodity.technicalRating) }}
                         >
-                          {pair.technicalRating}
+                          {commodity.technicalRating}
                         </span>
                         <span 
                           className="volatility"
-                          style={{ color: getVolatilityColor(pair.volatility) }}
+                          style={{ color: getVolatilityColor(commodity.volatility) }}
                         >
-                          {pair.volatility} Vol
+                          {commodity.volatility}
                         </span>
                       </div>
                     </div>
 
                     <div className="price-section">
                       <div className="current-price">
-                        <span className="price">{pair.price}</span>
-                        <span className={`change ${pair.isPositive ? 'positive' : 'negative'}`}>
-                          {pair.isPositive ? '+' : ''}{pair.change.toFixed(4)} 
-                          ({pair.isPositive ? '+' : ''}{pair.changePercent.toFixed(2)}%)
+                        <span className="price">
+                          ${commodity.price.toLocaleString()}/{commodity.unit}
+                        </span>
+                        <span className={`change ${commodity.isPositive ? 'positive' : 'negative'}`}>
+                          {commodity.isPositive ? '+' : ''}${Math.abs(commodity.change).toFixed(2)} 
+                          ({commodity.isPositive ? '+' : ''}{commodity.changePercent.toFixed(2)}%)
                         </span>
                       </div>
                     </div>
@@ -436,44 +492,41 @@ const ForexPage = () => {
                     <div className="metrics-grid">
                       <div className="metric-item">
                         <span className="metric-label">Volume</span>
-                        <span className="metric-value">{pair.volume}</span>
+                        <span className="metric-value">{commodity.volume}</span>
                       </div>
                       <div className="metric-item">
-                        <span className="metric-label">Spread</span>
-                        <span className="metric-value">{pair.spread} pips</span>
+                        <span className="metric-label">Contract</span>
+                        <span className="metric-value">{commodity.contract}</span>
                       </div>
                       <div className="metric-item">
                         <span className="metric-label">High/Low</span>
                         <span className="metric-value">
-                          {pair.high24h}/{pair.low24h}
+                          {commodity.high24h}/{commodity.low24h}
                         </span>
                       </div>
                       <div className="metric-item">
-                        <span className="metric-label">Trend</span>
-                        <span className={`metric-value ${pair.trend.toLowerCase()}`}>
-                          {pair.trend}
+                        <span className="metric-label">Seasonality</span>
+                        <span className={`metric-value ${commodity.seasonality.toLowerCase()}`}>
+                          {commodity.seasonality}
                         </span>
                       </div>
                     </div>
 
-                    <div className="technical-indicators">
-                      <div className="indicator-row">
-                        <span className="indicator-label">RSI</span>
-                        <span className="indicator-value">{pair.rsi}</span>
-                      </div>
-                      <div className="indicator-row">
-                        <span className="indicator-label">MACD</span>
-                        <span className={`indicator-value ${pair.macd.toLowerCase()}`}>
-                          {pair.macd}
+                    <div className="fundamental-analysis">
+                      <div className="fundamental-row">
+                        <span className="fundamental-label">Inventories</span>
+                        <span 
+                          className="fundamental-value"
+                          style={{ color: getInventoryColor(commodity.inventories) }}
+                        >
+                          {commodity.inventories}
                         </span>
                       </div>
-                      <div className="indicator-row">
-                        <span className="indicator-label">Support</span>
-                        <span className="indicator-value">{pair.support}</span>
-                      </div>
-                      <div className="indicator-row">
-                        <span className="indicator-label">Resistance</span>
-                        <span className="indicator-value">{pair.resistance}</span>
+                      <div className="fundamental-row">
+                        <span className="fundamental-label">Fundamental</span>
+                        <span className={`fundamental-value ${commodity.fundamentalRating.toLowerCase()}`}>
+                          {commodity.fundamentalRating}
+                        </span>
                       </div>
                     </div>
 
@@ -489,49 +542,56 @@ const ForexPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="forex-table">
+              <div className="commodities-table">
                 <div className="table-header">
-                  <div className="header-cell">Pair</div>
+                  <div className="header-cell">Commodity</div>
                   <div className="header-cell">Price</div>
                   <div className="header-cell">Change</div>
                   <div className="header-cell">Volume</div>
-                  <div className="header-cell">Spread</div>
                   <div className="header-cell">Volatility</div>
+                  <div className="header-cell">Inventories</div>
                   <div className="header-cell">Rating</div>
                   <div className="header-cell">Action</div>
                 </div>
-                {sortedPairs.map((pair, index) => (
+                {sortedCommodities.map((commodity, index) => (
                   <div key={index} className="table-row">
-                    <div className="table-cell pair-cell">
-                      <div className="pair-info">
-                        <span className="pair-symbol">{pair.pair}</span>
-                        <span className="pair-name">{pair.name}</span>
+                    <div className="table-cell commodity-cell">
+                      <div className="commodity-info">
+                        <span className="commodity-symbol">{commodity.symbol}</span>
+                        <span className="commodity-name">{commodity.name}</span>
                       </div>
                     </div>
                     <div className="table-cell price-cell">
-                      {pair.price}
+                      ${commodity.price.toLocaleString()}/{commodity.unit}
                     </div>
                     <div className="table-cell change-cell">
-                      <span className={`change ${pair.isPositive ? 'positive' : 'negative'}`}>
-                        {pair.isPositive ? '+' : ''}{pair.changePercent.toFixed(2)}%
+                      <span className={`change ${commodity.isPositive ? 'positive' : 'negative'}`}>
+                        {commodity.isPositive ? '+' : ''}{commodity.changePercent.toFixed(2)}%
                       </span>
                     </div>
-                    <div className="table-cell">{pair.volume}</div>
-                    <div className="table-cell">{pair.spread} pips</div>
+                    <div className="table-cell">{commodity.volume}</div>
                     <div className="table-cell">
                       <span 
                         className="volatility"
-                        style={{ color: getVolatilityColor(pair.volatility) }}
+                        style={{ color: getVolatilityColor(commodity.volatility) }}
                       >
-                        {pair.volatility}
+                        {commodity.volatility}
+                      </span>
+                    </div>
+                    <div className="table-cell">
+                      <span 
+                        className="inventories"
+                        style={{ color: getInventoryColor(commodity.inventories) }}
+                      >
+                        {commodity.inventories}
                       </span>
                     </div>
                     <div className="table-cell rating-cell">
                       <span 
                         className="technical-rating"
-                        style={{ color: getTechnicalColor(pair.technicalRating) }}
+                        style={{ color: getTechnicalColor(commodity.technicalRating) }}
                       >
-                        {pair.technicalRating}
+                        {commodity.technicalRating}
                       </span>
                     </div>
                     <div className="table-cell action-cell">
@@ -547,26 +607,26 @@ const ForexPage = () => {
       <Footer />
 
       <style jsx>{`
-        .forex-page {
+        .commodities-page {
           min-height: 100vh;
           background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
           color: white;
         }
 
-        .forex-hero {
+        .commodities-hero {
           padding: 120px 0 80px;
           position: relative;
           overflow: hidden;
         }
 
-        .forex-hero::before {
+        .commodities-hero::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: radial-gradient(circle at 40% 60%, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+          background: radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
           pointer-events: none;
         }
 
@@ -582,8 +642,8 @@ const ForexPage = () => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(6, 182, 212, 0.1);
-          border: 1px solid rgba(6, 182, 212, 0.3);
+          background: rgba(245, 158, 11, 0.1);
+          border: 1px solid rgba(245, 158, 11, 0.3);
           padding: 8px 16px;
           border-radius: 50px;
           font-size: 14px;
@@ -606,7 +666,7 @@ const ForexPage = () => {
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+          background: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -647,7 +707,15 @@ const ForexPage = () => {
           display: block;
           font-size: 1.2rem;
           font-weight: 600;
-          color: #06b6d4;
+          color: #f59e0b;
+        }
+
+        .stat-value.positive {
+          color: #10b981;
+        }
+
+        .stat-value.negative {
+          color: #ef4444;
         }
 
         .market-overview {
@@ -673,116 +741,96 @@ const ForexPage = () => {
           font-size: 1.2rem;
           font-weight: 600;
           margin-bottom: 16px;
-          color: #06b6d4;
-        }
-
-        .bank-rates {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .bank-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-        }
-
-        .bank-info {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .bank-name {
-          font-weight: 600;
-          color: white;
-        }
-
-        .bank-rate {
-          font-size: 0.9rem;
-          color: #06b6d4;
-          font-weight: 500;
-        }
-
-        .bank-details {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          align-items: flex-end;
-        }
-
-        .next-meeting {
-          font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.7);
-        }
-
-        .bias {
-          font-size: 0.8rem;
-          font-weight: 500;
-        }
-
-        .events-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .event-item {
-          display: flex;
-          gap: 12px;
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-        }
-
-        .event-time {
-          font-weight: 600;
-          color: #06b6d4;
-          min-width: 50px;
-        }
-
-        .event-details {
-          flex: 1;
-        }
-
-        .event-name {
-          display: block;
-          font-weight: 500;
-          margin-bottom: 4px;
-        }
-
-        .event-data {
-          display: flex;
-          gap: 12px;
-          font-size: 0.8rem;
-        }
-
-        .impact {
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-weight: 500;
-        }
-
-        .impact.high {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-        }
-
-        .impact.medium {
-          background: rgba(245, 158, 11, 0.2);
           color: #f59e0b;
         }
 
-        .impact.low {
-          background: rgba(16, 185, 129, 0.2);
+        .supply-demand-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .supply-item {
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+        }
+
+        .commodity-name {
+          font-weight: 600;
+          color: white;
+          margin-bottom: 8px;
+        }
+
+        .supply-details {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 0.9rem;
+        }
+
+        .supply-label,
+        .demand-label {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .supply-value,
+        .demand-value {
+          color: white;
+          font-weight: 500;
+        }
+
+        .outlook {
+          font-weight: 600;
+        }
+
+        .seasonal-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+
+        .seasonal-item {
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+        }
+
+        .period {
+          font-weight: 600;
+          color: #f59e0b;
+          margin-bottom: 8px;
+        }
+
+        .trend-details {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .trend-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.9rem;
+        }
+
+        .trend-value {
+          font-weight: 500;
+        }
+
+        .trend-value.strong {
           color: #10b981;
         }
 
-        .forecast {
+        .trend-value.moderate {
+          color: #f59e0b;
+        }
+
+        .trend-value.weak {
+          color: #ef4444;
+        }
+
+        .trend-value.neutral {
           color: rgba(255, 255, 255, 0.7);
         }
 
@@ -847,8 +895,8 @@ const ForexPage = () => {
 
         .filter-btn:hover,
         .filter-btn.active {
-          background: rgba(6, 182, 212, 0.2);
-          border-color: rgba(6, 182, 212, 0.4);
+          background: rgba(245, 158, 11, 0.2);
+          border-color: rgba(245, 158, 11, 0.4);
         }
 
         .view-controls {
@@ -871,11 +919,11 @@ const ForexPage = () => {
 
         .view-btn.active,
         .view-btn:hover {
-          background: rgba(6, 182, 212, 0.2);
+          background: rgba(245, 158, 11, 0.2);
           color: white;
         }
 
-        .forex-section {
+        .commodities-section {
           padding: 60px 0;
         }
 
@@ -895,13 +943,13 @@ const ForexPage = () => {
           color: rgba(255, 255, 255, 0.8);
         }
 
-        .forex-grid {
+        .commodities-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
           gap: 24px;
         }
 
-        .forex-card {
+        .commodity-card {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 16px;
@@ -910,10 +958,10 @@ const ForexPage = () => {
           backdrop-filter: blur(10px);
         }
 
-        .forex-card:hover {
+        .commodity-card:hover {
           background: rgba(255, 255, 255, 0.08);
           transform: translateY(-4px);
-          border-color: rgba(6, 182, 212, 0.3);
+          border-color: rgba(245, 158, 11, 0.3);
         }
 
         .card-header {
@@ -923,31 +971,42 @@ const ForexPage = () => {
           margin-bottom: 16px;
         }
 
-        .pair-info {
+        .commodity-info {
           flex: 1;
         }
 
-        .pair-symbol {
+        .commodity-symbol {
           font-size: 1.4rem;
           font-weight: 700;
-          color: #06b6d4;
+          color: #f59e0b;
           display: block;
           margin-bottom: 4px;
         }
 
-        .pair-name {
+        .commodity-name {
           font-size: 0.9rem;
           color: rgba(255, 255, 255, 0.7);
           display: block;
           margin-bottom: 8px;
         }
 
+        .commodity-details {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+
         .category-badge {
           font-size: 0.7rem;
           padding: 2px 6px;
-          background: rgba(6, 182, 212, 0.2);
+          background: rgba(245, 158, 11, 0.2);
           border-radius: 4px;
-          color: #06b6d4;
+          color: #f59e0b;
+        }
+
+        .exchange {
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.6);
         }
 
         .ratings {
@@ -978,7 +1037,7 @@ const ForexPage = () => {
         }
 
         .price {
-          font-size: 1.8rem;
+          font-size: 1.6rem;
           font-weight: 700;
         }
 
@@ -1033,40 +1092,44 @@ const ForexPage = () => {
           color: #f59e0b;
         }
 
-        .technical-indicators {
+        .fundamental-analysis {
           margin-bottom: 20px;
           padding: 12px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 8px;
         }
 
-        .indicator-row {
+        .fundamental-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
         }
 
-        .indicator-row:last-child {
+        .fundamental-row:last-child {
           margin-bottom: 0;
         }
 
-        .indicator-label {
+        .fundamental-label {
           font-size: 0.8rem;
           color: rgba(255, 255, 255, 0.7);
         }
 
-        .indicator-value {
+        .fundamental-value {
           font-size: 0.9rem;
           font-weight: 600;
         }
 
-        .indicator-value.bullish {
+        .fundamental-value.bullish {
           color: #10b981;
         }
 
-        .indicator-value.bearish {
+        .fundamental-value.bearish {
           color: #ef4444;
+        }
+
+        .fundamental-value.neutral {
+          color: #f59e0b;
         }
 
         .card-actions {
@@ -1085,14 +1148,14 @@ const ForexPage = () => {
         }
 
         .action-btn.primary {
-          background: linear-gradient(135deg, #06b6d4, #3b82f6);
+          background: linear-gradient(135deg, #f59e0b, #f97316);
           border: none;
           color: white;
         }
 
         .action-btn.primary:hover {
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
         .action-btn.secondary {
@@ -1105,7 +1168,7 @@ const ForexPage = () => {
           background: rgba(255, 255, 255, 0.1);
         }
 
-        .forex-table {
+        .commodities-table {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 16px;
@@ -1114,7 +1177,7 @@ const ForexPage = () => {
 
         .table-header {
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+          grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr;
           gap: 16px;
           padding: 20px 24px;
           background: rgba(255, 255, 255, 0.05);
@@ -1125,7 +1188,7 @@ const ForexPage = () => {
 
         .table-row {
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+          grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr;
           gap: 16px;
           padding: 20px 24px;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -1142,19 +1205,19 @@ const ForexPage = () => {
           font-size: 0.9rem;
         }
 
-        .pair-cell .pair-info {
+        .commodity-cell .commodity-info {
           display: flex;
           flex-direction: column;
           gap: 2px;
         }
 
-        .pair-cell .pair-symbol {
+        .commodity-cell .commodity-symbol {
           font-weight: 600;
-          color: #06b6d4;
+          color: #f59e0b;
           font-size: 1rem;
         }
 
-        .pair-cell .pair-name {
+        .commodity-cell .commodity-name {
           font-size: 0.8rem;
           color: rgba(255, 255, 255, 0.7);
         }
@@ -1177,7 +1240,7 @@ const ForexPage = () => {
 
         .trade-btn {
           padding: 6px 12px;
-          background: linear-gradient(135deg, #06b6d4, #3b82f6);
+          background: linear-gradient(135deg, #f59e0b, #f97316);
           border: none;
           border-radius: 6px;
           color: white;
@@ -1189,7 +1252,7 @@ const ForexPage = () => {
 
         .trade-btn:hover {
           transform: translateY(-1px);
-          box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+          box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
 
         .container {
@@ -1211,12 +1274,16 @@ const ForexPage = () => {
             grid-template-columns: 1fr;
           }
 
+          .seasonal-grid {
+            grid-template-columns: 1fr;
+          }
+
           .filters-container {
             flex-direction: column;
             gap: 16px;
           }
 
-          .forex-grid {
+          .commodities-grid {
             grid-template-columns: 1fr;
           }
 
@@ -1236,4 +1303,4 @@ const ForexPage = () => {
   )
 }
 
-export default ForexPage 
+export default CommoditiesPage 

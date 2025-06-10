@@ -1,213 +1,187 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
+import Navigation from '../../src/components/Navigation'
+import Footer from '../../src/components/Footer'
 
-// News Interfaces
-interface NewsArticle {
-  id: string
-  title: string
-  description: string
-  content: string
-  author: string
-  source: string
-  publishedAt: string
-  imageUrl?: string
-  category: 'market' | 'crypto' | 'forex' | 'stocks' | 'commodities' | 'economy'
-  impact: 'high' | 'medium' | 'low'
-  tags: string[]
-  readTime: number
-}
-
-interface EconomicEvent {
-  id: string
-  title: string
-  description: string
-  date: string
-  time: string
-  currency: string
-  impact: 'high' | 'medium' | 'low'
-  forecast?: string
-  previous?: string
-  actual?: string
-}
-
-// Mock News Data
-const mockNewsArticles: NewsArticle[] = [
-  {
-    id: '1',
-    title: 'Federal Reserve Announces Interest Rate Decision',
-    description: 'The Federal Reserve has announced its latest interest rate decision, maintaining rates at current levels while signaling potential changes ahead.',
-    content: 'In a highly anticipated announcement, the Federal Reserve has decided to maintain interest rates at their current levels...',
-    author: 'Sarah Johnson',
-    source: 'Financial Times',
-    publishedAt: '2024-01-15T10:30:00Z',
-    imageUrl: '/assets/news/fed-announcement.jpg',
-    category: 'economy',
-    impact: 'high',
-    tags: ['Federal Reserve', 'Interest Rates', 'Monetary Policy'],
-    readTime: 5
-  },
-  {
-    id: '2',
-    title: 'Bitcoin Reaches New All-Time High Above $70,000',
-    description: 'Bitcoin has surged to a new all-time high, breaking through the $70,000 resistance level amid institutional adoption.',
-    content: 'Bitcoin has achieved a historic milestone, reaching a new all-time high above $70,000...',
-    author: 'Michael Chen',
-    source: 'CoinDesk',
-    publishedAt: '2024-01-15T08:15:00Z',
-    imageUrl: '/assets/news/bitcoin-ath.jpg',
-    category: 'crypto',
-    impact: 'high',
-    tags: ['Bitcoin', 'Cryptocurrency', 'All-Time High'],
-    readTime: 3
-  },
-  {
-    id: '3',
-    title: 'Apple Reports Strong Q4 Earnings, Stock Surges',
-    description: 'Apple Inc. has reported better-than-expected Q4 earnings, with strong iPhone sales driving revenue growth.',
-    content: 'Apple Inc. delivered impressive fourth-quarter results, beating analyst expectations...',
-    author: 'Jennifer Davis',
-    source: 'Bloomberg',
-    publishedAt: '2024-01-15T06:45:00Z',
-    imageUrl: '/assets/news/apple-earnings.jpg',
-    category: 'stocks',
-    impact: 'medium',
-    tags: ['Apple', 'Earnings', 'Technology'],
-    readTime: 4
-  },
-  {
-    id: '4',
-    title: 'EUR/USD Reaches Parity as ECB Signals Rate Cuts',
-    description: 'The Euro has weakened against the US Dollar, reaching parity levels as the European Central Bank signals potential rate cuts.',
-    content: 'The EUR/USD currency pair has reached parity for the first time in months...',
-    author: 'Robert Wilson',
-    source: 'Reuters',
-    publishedAt: '2024-01-15T05:20:00Z',
-    imageUrl: '/assets/news/eur-usd-parity.jpg',
-    category: 'forex',
-    impact: 'medium',
-    tags: ['EUR/USD', 'ECB', 'Currency'],
-    readTime: 3
-  },
-  {
-    id: '5',
-    title: 'Gold Prices Surge Amid Global Economic Uncertainty',
-    description: 'Gold prices have surged to multi-month highs as investors seek safe-haven assets amid global economic uncertainty.',
-    content: 'Gold has emerged as the preferred safe-haven asset as global economic uncertainty continues...',
-    author: 'Lisa Thompson',
-    source: 'MarketWatch',
-    publishedAt: '2024-01-15T04:10:00Z',
-    imageUrl: '/assets/news/gold-surge.jpg',
-    category: 'commodities',
-    impact: 'medium',
-    tags: ['Gold', 'Safe Haven', 'Commodities'],
-    readTime: 4
-  },
-  {
-    id: '6',
-    title: 'Tesla Stock Jumps on Record Delivery Numbers',
-    description: 'Tesla shares have jumped following the announcement of record quarterly delivery numbers, exceeding analyst expectations.',
-    content: 'Tesla Inc. has announced record quarterly delivery numbers, sending shares higher in pre-market trading...',
-    author: 'David Martinez',
-    source: 'CNBC',
-    publishedAt: '2024-01-15T03:30:00Z',
-    imageUrl: '/assets/news/tesla-deliveries.jpg',
-    category: 'stocks',
-    impact: 'medium',
-    tags: ['Tesla', 'Electric Vehicles', 'Deliveries'],
-    readTime: 3
-  }
-]
-
-// Mock Economic Events
-const mockEconomicEvents: EconomicEvent[] = [
-  {
-    id: '1',
-    title: 'US Non-Farm Payrolls',
-    description: 'Monthly employment data release showing job creation in the US economy',
-    date: '2024-01-16',
-    time: '08:30',
-    currency: 'USD',
-    impact: 'high',
-    forecast: '180K',
-    previous: '175K',
-    actual: '185K'
-  },
-  {
-    id: '2',
-    title: 'ECB Interest Rate Decision',
-    description: 'European Central Bank monetary policy decision and press conference',
-    date: '2024-01-17',
-    time: '12:45',
-    currency: 'EUR',
-    impact: 'high',
-    forecast: '4.50%',
-    previous: '4.50%'
-  },
-  {
-    id: '3',
-    title: 'UK GDP Growth Rate',
-    description: 'Quarterly gross domestic product growth rate for the United Kingdom',
-    date: '2024-01-18',
-    time: '07:00',
-    currency: 'GBP',
-    impact: 'medium',
-    forecast: '0.2%',
-    previous: '0.1%'
-  },
-  {
-    id: '4',
-    title: 'Japan CPI Inflation',
-    description: 'Consumer Price Index inflation data for Japan',
-    date: '2024-01-19',
-    time: '23:30',
-    currency: 'JPY',
-    impact: 'medium',
-    forecast: '2.8%',
-    previous: '2.9%'
-  }
-]
-
-export default function NewsPage() {
+const NewsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedImpact, setSelectedImpact] = useState('all')
+  const [selectedTimeframe, setSelectedTimeframe] = useState('today')
   const [searchTerm, setSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState<'news' | 'calendar'>('news')
+  const [viewMode, setViewMode] = useState('grid')
 
-  const categories = [
-    { id: 'all', name: 'All News', icon: '🌐' },
-    { id: 'market', name: 'Market', icon: '📊' },
-    { id: 'crypto', name: 'Crypto', icon: '₿' },
-    { id: 'forex', name: 'Forex', icon: '💱' },
-    { id: 'stocks', name: 'Stocks', icon: '📈' },
-    { id: 'commodities', name: 'Commodities', icon: '🥇' },
-    { id: 'economy', name: 'Economy', icon: '🏛️' }
+  const categories = ['all', 'markets', 'crypto', 'forex', 'commodities', 'economics', 'earnings']
+  const timeframes = ['today', 'week', 'month']
+
+  const newsData = [
+    {
+      id: 1,
+      title: 'Federal Reserve Signals Potential Rate Cuts in 2024',
+      summary: 'Fed Chair Jerome Powell hints at possible monetary policy easing as inflation shows signs of cooling across major economies.',
+      content: 'In a highly anticipated speech at the Jackson Hole Economic Symposium, Federal Reserve Chair Jerome Powell indicated that the central bank may consider cutting interest rates in 2024 if inflation continues its downward trajectory...',
+      category: 'economics',
+      source: 'Reuters',
+      author: 'Sarah Johnson',
+      publishedAt: '2024-01-15T14:30:00Z',
+      readTime: 4,
+      image: '/api/placeholder/400/250',
+      tags: ['Federal Reserve', 'Interest Rates', 'Monetary Policy'],
+      impact: 'high',
+      sentiment: 'positive',
+      views: 15420,
+      isBreaking: true,
+      relatedSymbols: ['SPY', 'QQQ', 'DXY']
+    },
+    {
+      id: 2,
+      title: 'Bitcoin Surges Past $45,000 on ETF Approval Hopes',
+      summary: 'Cryptocurrency markets rally as investors anticipate potential approval of spot Bitcoin ETFs by the SEC.',
+      content: 'Bitcoin has broken through the $45,000 resistance level following renewed optimism about the Securities and Exchange Commission approving spot Bitcoin exchange-traded funds...',
+      category: 'crypto',
+      source: 'CoinDesk',
+      author: 'Michael Chen',
+      publishedAt: '2024-01-15T12:15:00Z',
+      readTime: 3,
+      image: '/api/placeholder/400/250',
+      tags: ['Bitcoin', 'ETF', 'SEC', 'Cryptocurrency'],
+      impact: 'high',
+      sentiment: 'positive',
+      views: 12850,
+      isBreaking: false,
+      relatedSymbols: ['BTC', 'ETH', 'COIN']
+    },
+    {
+      id: 3,
+      title: 'Oil Prices Jump 3% on Middle East Tensions',
+      summary: 'Crude oil futures spike as geopolitical tensions in the Middle East raise concerns about supply disruptions.',
+      content: 'West Texas Intermediate crude oil futures surged more than 3% in early trading as escalating tensions in the Middle East sparked concerns about potential supply disruptions...',
+      category: 'commodities',
+      source: 'Bloomberg',
+      author: 'David Rodriguez',
+      publishedAt: '2024-01-15T10:45:00Z',
+      readTime: 5,
+      image: '/api/placeholder/400/250',
+      tags: ['Oil', 'Geopolitics', 'Energy', 'Supply Chain'],
+      impact: 'medium',
+      sentiment: 'negative',
+      views: 8930,
+      isBreaking: false,
+      relatedSymbols: ['CL', 'XOM', 'CVX']
+    },
+    {
+      id: 4,
+      title: 'Tesla Reports Record Q4 Deliveries, Stock Soars',
+      summary: 'Electric vehicle giant Tesla exceeds delivery expectations for the fourth quarter, sending shares higher in pre-market trading.',
+      content: 'Tesla Inc. reported record quarterly deliveries of 484,507 vehicles in Q4 2023, surpassing analyst expectations and demonstrating strong demand for electric vehicles...',
+      category: 'earnings',
+      source: 'CNBC',
+      author: 'Lisa Wang',
+      publishedAt: '2024-01-15T09:20:00Z',
+      readTime: 6,
+      image: '/api/placeholder/400/250',
+      tags: ['Tesla', 'Earnings', 'Electric Vehicles', 'Deliveries'],
+      impact: 'high',
+      sentiment: 'positive',
+      views: 18750,
+      isBreaking: false,
+      relatedSymbols: ['TSLA', 'NIO', 'RIVN']
+    },
+    {
+      id: 5,
+      title: 'EUR/USD Reaches 6-Month High on ECB Hawkish Stance',
+      summary: 'The euro strengthens against the dollar as European Central Bank officials signal continued monetary tightening.',
+      content: 'The EUR/USD currency pair climbed to its highest level in six months following hawkish comments from European Central Bank officials who indicated that interest rates may remain elevated...',
+      category: 'forex',
+      source: 'Financial Times',
+      author: 'Emma Thompson',
+      publishedAt: '2024-01-15T08:00:00Z',
+      readTime: 4,
+      image: '/api/placeholder/400/250',
+      tags: ['EUR/USD', 'ECB', 'Forex', 'Monetary Policy'],
+      impact: 'medium',
+      sentiment: 'neutral',
+      views: 6420,
+      isBreaking: false,
+      relatedSymbols: ['EURUSD', 'DXY', 'GBP/USD']
+    },
+    {
+      id: 6,
+      title: 'S&P 500 Hits New All-Time High on Tech Rally',
+      summary: 'Major stock indices reach record levels as technology stocks lead broad market gains amid optimism about AI developments.',
+      content: 'The S&P 500 index closed at a new all-time high yesterday, driven by strong performance in technology stocks as investors remain optimistic about artificial intelligence developments...',
+      category: 'markets',
+      source: 'MarketWatch',
+      author: 'Robert Kim',
+      publishedAt: '2024-01-14T21:30:00Z',
+      readTime: 5,
+      image: '/api/placeholder/400/250',
+      tags: ['S&P 500', 'Technology', 'AI', 'Stock Market'],
+      impact: 'high',
+      sentiment: 'positive',
+      views: 22100,
+      isBreaking: false,
+      relatedSymbols: ['SPY', 'QQQ', 'NVDA', 'MSFT']
+    }
   ]
 
-  const impactLevels = [
-    { id: 'all', name: 'All Impact' },
-    { id: 'high', name: 'High Impact' },
-    { id: 'medium', name: 'Medium Impact' },
-    { id: 'low', name: 'Low Impact' }
-  ]
+  const marketSentiment = {
+    overall: 'Bullish',
+    score: 72,
+    change: '+5.2',
+    indicators: [
+      { name: 'Fear & Greed Index', value: 68, status: 'Greed' },
+      { name: 'VIX', value: 14.2, status: 'Low Volatility' },
+      { name: 'Put/Call Ratio', value: 0.85, status: 'Neutral' },
+      { name: 'News Sentiment', value: 75, status: 'Positive' }
+    ]
+  }
 
-  // Filter news articles
-  const filteredNews = mockNewsArticles.filter(article => {
-    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory
-    const matchesImpact = selectedImpact === 'all' || article.impact === selectedImpact
-    const matchesSearch = searchTerm === '' || 
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  const breakingNews = newsData.filter(news => news.isBreaking)
+  const topStories = newsData.filter(news => !news.isBreaking).slice(0, 3)
+
+  const filteredNews = newsData.filter(news => {
+    const matchesCategory = selectedCategory === 'all' || news.category === selectedCategory
+    const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         news.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         news.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    return matchesCategory && matchesImpact && matchesSearch
+    const now = new Date()
+    const newsDate = new Date(news.publishedAt)
+    const timeDiff = now.getTime() - newsDate.getTime()
+    
+    let matchesTimeframe = true
+    if (selectedTimeframe === 'today') {
+      matchesTimeframe = timeDiff <= 24 * 60 * 60 * 1000
+    } else if (selectedTimeframe === 'week') {
+      matchesTimeframe = timeDiff <= 7 * 24 * 60 * 60 * 1000
+    } else if (selectedTimeframe === 'month') {
+      matchesTimeframe = timeDiff <= 30 * 24 * 60 * 60 * 1000
+    }
+    
+    return matchesCategory && matchesSearch && matchesTimeframe
   })
 
-  // Get time ago string
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString)
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case 'high': return '#ef4444'
+      case 'medium': return '#f59e0b'
+      case 'low': return '#10b981'
+      default: return '#6b7280'
+    }
+  }
+
+  const getSentimentColor = (sentiment: string) => {
+    switch (sentiment) {
+      case 'positive': return '#10b981'
+      case 'negative': return '#ef4444'
+      case 'neutral': return '#f59e0b'
+      default: return '#6b7280'
+    }
+  }
+
+  const formatTimeAgo = (dateString: string) => {
     const now = new Date()
+    const date = new Date(dateString)
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
     
     if (diffInHours < 1) return 'Just now'
@@ -217,382 +191,1010 @@ export default function NewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <section className="bg-white border-b border-neutral-200">
-        <div className="container py-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                Financial News & Analysis
+    <>
+      <Navigation />
+      <div className="news-page">
+        {/* Hero Section */}
+        <section className="news-hero">
+          <div className="container">
+            <div className="hero-content">
+              <div className="hero-badge">
+                <span className="badge-icon">📰</span>
+                <span>News & Analysis</span>
+              </div>
+              <h1 className="hero-title">
+                Financial News & Market Analysis
+                <span className="gradient-text">Real-time Updates, Expert Insights</span>
               </h1>
-              <p className="text-lg text-secondary">
-                Stay informed with the latest market news and economic events
+              <p className="hero-description">
+                Stay informed with breaking financial news, market analysis, and expert commentary 
+                from leading sources worldwide.
               </p>
             </div>
-            
-            {/* Tab Navigation */}
-            <div className="flex bg-neutral-100 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('news')}
-                className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'news'
-                    ? 'bg-white text-primary shadow-sm'
-                    : 'text-secondary hover:text-primary'
-                }`}
-              >
-                📰 News
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'calendar'
-                    ? 'bg-white text-primary shadow-sm'
-                    : 'text-secondary hover:text-primary'
-                }`}
-              >
-                📅 Economic Calendar
-              </button>
+          </div>
+        </section>
+
+        {/* Market Sentiment */}
+        <section className="market-sentiment">
+          <div className="container">
+            <div className="sentiment-card">
+              <div className="sentiment-header">
+                <h3 className="sentiment-title">Market Sentiment</h3>
+                <div className="sentiment-score">
+                  <span className="score-value">{marketSentiment.score}</span>
+                  <span className="score-label">{marketSentiment.overall}</span>
+                  <span className="score-change positive">{marketSentiment.change}</span>
+                </div>
+              </div>
+              <div className="sentiment-indicators">
+                {marketSentiment.indicators.map((indicator, idx) => (
+                  <div key={idx} className="indicator-item">
+                    <span className="indicator-name">{indicator.name}</span>
+                    <span className="indicator-value">{indicator.value}</span>
+                    <span className="indicator-status">{indicator.status}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* News Tab */}
-      {activeTab === 'news' && (
-        <>
-          {/* Filters */}
-          <section className="bg-white border-b border-neutral-200">
-            <div className="container py-6">
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Category Filters */}
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
+        {/* Breaking News */}
+        {breakingNews.length > 0 && (
+          <section className="breaking-news">
+            <div className="container">
+              <h2 className="section-title">
+                <span className="breaking-badge">🔴 BREAKING</span>
+                Breaking News
+              </h2>
+              <div className="breaking-grid">
+                {breakingNews.map((news) => (
+                  <div key={news.id} className="breaking-card">
+                    <div className="breaking-content">
+                      <div className="breaking-meta">
+                        <span className="breaking-source">{news.source}</span>
+                        <span className="breaking-time">{formatTimeAgo(news.publishedAt)}</span>
+                      </div>
+                      <h3 className="breaking-title">{news.title}</h3>
+                      <p className="breaking-summary">{news.summary}</p>
+                      <div className="breaking-tags">
+                        {news.tags.slice(0, 3).map((tag, idx) => (
+                          <span key={idx} className="news-tag">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Filters */}
+        <section className="filters-section">
+          <div className="container">
+            <div className="filters-container">
+              <div className="filter-group">
+                <label className="filter-label">Search</label>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search news..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div className="filter-group">
+                <label className="filter-label">Category</label>
+                <div className="filter-buttons">
+                  {categories.map(category => (
                     <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`btn btn-sm ${
-                        selectedCategory === category.id 
-                          ? 'btn-primary' 
-                          : 'btn-ghost border border-neutral-300'
-                      }`}
+                      key={category}
+                      className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(category)}
                     >
-                      <span className="mr-2">{category.icon}</span>
-                      {category.name}
+                      {category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)}
                     </button>
                   ))}
                 </div>
-                
-                {/* Search and Impact Filter */}
-                <div className="flex flex-col sm:flex-row gap-4 lg:ml-auto">
-                  {/* Search */}
-                  <div className="relative">
-                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input
-                      type="text"
-                      placeholder="Search news..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus-ring w-full sm:w-64"
-                    />
-                  </div>
-                  
-                  {/* Impact Filter */}
-                  <select
-                    value={selectedImpact}
-                    onChange={(e) => setSelectedImpact(e.target.value)}
-                    className="px-4 py-2 border border-neutral-300 rounded-lg focus-ring"
-                  >
-                    {impactLevels.map((level) => (
-                      <option key={level.id} value={level.id}>
-                        {level.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* News Articles */}
-          <section className="section">
-            <div className="container">
-              {/* Featured Article */}
-              {filteredNews.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-primary mb-6">Featured Story</h2>
-                  <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
-                    <div className="grid lg:grid-cols-2 gap-0">
-                      <div className="h-64 lg:h-auto bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="text-6xl mb-4">📰</div>
-                          <p className="text-secondary">Featured Image</p>
-                        </div>
-                      </div>
-                      <div className="p-8">
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            filteredNews[0].impact === 'high' ? 'bg-danger/10 text-danger' :
-                            filteredNews[0].impact === 'medium' ? 'bg-warning/10 text-warning' :
-                            'bg-neutral-100 text-neutral-600'
-                          }`}>
-                            {filteredNews[0].impact.toUpperCase()} IMPACT
-                          </span>
-                          <span className="text-sm text-tertiary">{getTimeAgo(filteredNews[0].publishedAt)}</span>
-                        </div>
-                        
-                        <h3 className="text-2xl font-bold text-primary mb-4">
-                          {filteredNews[0].title}
-                        </h3>
-                        
-                        <p className="text-secondary mb-6 leading-relaxed">
-                          {filteredNews[0].description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-sm text-tertiary">
-                            <span>By {filteredNews[0].author}</span>
-                            <span>•</span>
-                            <span>{filteredNews[0].source}</span>
-                            <span>•</span>
-                            <span>{filteredNews[0].readTime} min read</span>
-                          </div>
-                          
-                          <button className="btn btn-primary">
-                            Read Full Article
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* News Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredNews.slice(1).map((article) => (
-                  <div key={article.id} className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow">
-                    {/* Article Image */}
-                    <div className="h-48 bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">
-                          {article.category === 'crypto' ? '₿' :
-                           article.category === 'forex' ? '💱' :
-                           article.category === 'stocks' ? '📈' :
-                           article.category === 'commodities' ? '🥇' :
-                           article.category === 'economy' ? '🏛️' : '📊'}
-                        </div>
-                        <p className="text-xs text-secondary">{article.category}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Article Content */}
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          article.impact === 'high' ? 'bg-danger/10 text-danger' :
-                          article.impact === 'medium' ? 'bg-warning/10 text-warning' :
-                          'bg-neutral-100 text-neutral-600'
-                        }`}>
-                          {article.impact.toUpperCase()}
-                        </span>
-                        <span className="text-xs text-tertiary">{getTimeAgo(article.publishedAt)}</span>
-                      </div>
-                      
-                      <h3 className="text-lg font-semibold text-primary mb-3 line-clamp-2">
-                        {article.title}
-                      </h3>
-                      
-                      <p className="text-secondary text-sm mb-4 line-clamp-3">
-                        {article.description}
-                      </p>
-                      
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {article.tags.slice(0, 2).map((tag) => (
-                          <span key={tag} className="px-2 py-1 text-xs bg-neutral-100 text-neutral-600 rounded">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-xs text-tertiary">
-                        <span>{article.source}</span>
-                        <span>{article.readTime} min read</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
 
-              {/* No Results */}
-              {filteredNews.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">No news found</h3>
-                  <p className="text-secondary">Try adjusting your search or filter criteria</p>
+              <div className="filter-group">
+                <label className="filter-label">Time</label>
+                <div className="filter-buttons">
+                  {timeframes.map(tf => (
+                    <button
+                      key={tf}
+                      className={`filter-btn ${selectedTimeframe === tf ? 'active' : ''}`}
+                      onClick={() => setSelectedTimeframe(tf)}
+                    >
+                      {tf.charAt(0).toUpperCase() + tf.slice(1)}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
-          </section>
-        </>
-      )}
+              </div>
 
-      {/* Economic Calendar Tab */}
-      {activeTab === 'calendar' && (
-        <section className="section">
+              <div className="view-controls">
+                <button 
+                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                >
+                  Grid
+                </button>
+                <button 
+                  className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  List
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* News Content */}
+        <section className="news-content">
           <div className="container">
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
-              {/* Calendar Header */}
-              <div className="bg-neutral-50 px-6 py-4 border-b border-neutral-200">
-                <div className="grid grid-cols-12 gap-4 text-sm font-medium text-secondary">
-                  <div className="col-span-2">Time</div>
-                  <div className="col-span-1">Currency</div>
-                  <div className="col-span-1">Impact</div>
-                  <div className="col-span-4">Event</div>
-                  <div className="col-span-1 text-center">Forecast</div>
-                  <div className="col-span-1 text-center">Previous</div>
-                  <div className="col-span-2 text-center">Actual</div>
+            <div className="content-layout">
+              {/* Main News */}
+              <div className="main-news">
+                <div className="section-header">
+                  <h2 className="section-title">Latest News</h2>
+                  <p className="section-description">
+                    {filteredNews.length} articles found
+                  </p>
                 </div>
+
+                {viewMode === 'grid' ? (
+                  <div className="news-grid">
+                    {filteredNews.map((news) => (
+                      <article key={news.id} className="news-card">
+                        <div className="news-image">
+                          <img src={news.image} alt={news.title} />
+                          <div className="news-category">{news.category}</div>
+                        </div>
+                        <div className="news-content">
+                          <div className="news-meta">
+                            <span className="news-source">{news.source}</span>
+                            <span className="news-time">{formatTimeAgo(news.publishedAt)}</span>
+                            <span className="news-read-time">{news.readTime} min read</span>
+                          </div>
+                          <h3 className="news-title">{news.title}</h3>
+                          <p className="news-summary">{news.summary}</p>
+                          <div className="news-footer">
+                            <div className="news-tags">
+                              {news.tags.slice(0, 2).map((tag, idx) => (
+                                <span key={idx} className="news-tag">{tag}</span>
+                              ))}
+                            </div>
+                            <div className="news-metrics">
+                              <span 
+                                className="news-impact"
+                                style={{ color: getImpactColor(news.impact) }}
+                              >
+                                {news.impact} impact
+                              </span>
+                              <span className="news-views">{news.views.toLocaleString()} views</span>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="news-list">
+                    {filteredNews.map((news) => (
+                      <article key={news.id} className="news-list-item">
+                        <div className="list-image">
+                          <img src={news.image} alt={news.title} />
+                        </div>
+                        <div className="list-content">
+                          <div className="list-header">
+                            <div className="list-meta">
+                              <span className="news-source">{news.source}</span>
+                              <span className="news-category">{news.category}</span>
+                              <span className="news-time">{formatTimeAgo(news.publishedAt)}</span>
+                            </div>
+                            <div className="list-metrics">
+                              <span 
+                                className="news-impact"
+                                style={{ color: getImpactColor(news.impact) }}
+                              >
+                                {news.impact}
+                              </span>
+                              <span 
+                                className="news-sentiment"
+                                style={{ color: getSentimentColor(news.sentiment) }}
+                              >
+                                {news.sentiment}
+                              </span>
+                            </div>
+                          </div>
+                          <h3 className="list-title">{news.title}</h3>
+                          <p className="list-summary">{news.summary}</p>
+                          <div className="list-footer">
+                            <div className="news-tags">
+                              {news.tags.slice(0, 3).map((tag, idx) => (
+                                <span key={idx} className="news-tag">{tag}</span>
+                              ))}
+                            </div>
+                            <span className="news-views">{news.views.toLocaleString()} views</span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </div>
-              
-              {/* Calendar Events */}
-              <div className="divide-y divide-neutral-200">
-                {mockEconomicEvents.map((event) => (
-                  <div key={event.id} className="px-6 py-4 hover:bg-neutral-50 transition-colors">
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                      {/* Time */}
-                      <div className="col-span-2">
-                        <div className="font-medium text-primary">{event.time}</div>
-                        <div className="text-sm text-secondary">{new Date(event.date).toLocaleDateString()}</div>
+
+              {/* Sidebar */}
+              <div className="news-sidebar">
+                {/* Top Stories */}
+                <div className="sidebar-card">
+                  <h3 className="sidebar-title">Top Stories</h3>
+                  <div className="top-stories">
+                    {topStories.map((story, idx) => (
+                      <div key={story.id} className="story-item">
+                        <span className="story-rank">{idx + 1}</span>
+                        <div className="story-content">
+                          <h4 className="story-title">{story.title}</h4>
+                          <div className="story-meta">
+                            <span className="story-source">{story.source}</span>
+                            <span className="story-time">{formatTimeAgo(story.publishedAt)}</span>
+                          </div>
+                        </div>
                       </div>
-                      
-                      {/* Currency */}
-                      <div className="col-span-1">
-                        <span className="px-2 py-1 text-xs font-bold bg-neutral-100 text-neutral-700 rounded">
-                          {event.currency}
-                        </span>
-                      </div>
-                      
-                      {/* Impact */}
-                      <div className="col-span-1">
-                        <div className={`w-3 h-3 rounded-full ${
-                          event.impact === 'high' ? 'bg-danger' :
-                          event.impact === 'medium' ? 'bg-warning' :
-                          'bg-neutral-400'
-                        }`}></div>
-                      </div>
-                      
-                      {/* Event */}
-                      <div className="col-span-4">
-                        <div className="font-semibold text-primary">{event.title}</div>
-                        <div className="text-sm text-secondary">{event.description}</div>
-                      </div>
-                      
-                      {/* Forecast */}
-                      <div className="col-span-1 text-center">
-                        <span className="text-sm text-secondary">{event.forecast || '-'}</span>
-                      </div>
-                      
-                      {/* Previous */}
-                      <div className="col-span-1 text-center">
-                        <span className="text-sm text-secondary">{event.previous || '-'}</span>
-                      </div>
-                      
-                      {/* Actual */}
-                      <div className="col-span-2 text-center">
-                        {event.actual ? (
-                          <span className={`text-sm font-medium ${
-                            event.forecast && parseFloat(event.actual) > parseFloat(event.forecast) 
-                              ? 'text-success' 
-                              : event.forecast && parseFloat(event.actual) < parseFloat(event.forecast)
-                              ? 'text-danger'
-                              : 'text-primary'
-                          }`}>
-                            {event.actual}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-tertiary">Pending</span>
-                        )}
-                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Trending Topics */}
+                <div className="sidebar-card">
+                  <h3 className="sidebar-title">Trending Topics</h3>
+                  <div className="trending-topics">
+                    {['Federal Reserve', 'Bitcoin ETF', 'AI Stocks', 'Oil Prices', 'Tesla Earnings', 'EUR/USD'].map((topic, idx) => (
+                      <span key={idx} className="trending-tag">#{topic}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Market Movers */}
+                <div className="sidebar-card">
+                  <h3 className="sidebar-title">Market Movers</h3>
+                  <div className="market-movers">
+                    <div className="mover-item">
+                      <span className="mover-symbol">TSLA</span>
+                      <span className="mover-change positive">+8.5%</span>
+                    </div>
+                    <div className="mover-item">
+                      <span className="mover-symbol">BTC</span>
+                      <span className="mover-change positive">+12.3%</span>
+                    </div>
+                    <div className="mover-item">
+                      <span className="mover-symbol">CL</span>
+                      <span className="mover-change positive">+3.2%</span>
+                    </div>
+                    <div className="mover-item">
+                      <span className="mover-symbol">NVDA</span>
+                      <span className="mover-change negative">-2.1%</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Calendar Legend */}
-            <div className="mt-6 bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-              <h3 className="font-semibold text-primary mb-4">Impact Legend</h3>
-              <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-danger"></div>
-                  <span className="text-sm text-secondary">High Impact - Major market moving events</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-warning"></div>
-                  <span className="text-sm text-secondary">Medium Impact - Moderate market influence</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-neutral-400"></div>
-                  <span className="text-sm text-secondary">Low Impact - Minor market influence</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
-      )}
+      </div>
+      <Footer />
 
-      {/* Market Sentiment */}
-      <section className="section bg-white">
-        <div className="container">
-          <h3 className="text-xl font-semibold text-primary mb-6">Market Sentiment</h3>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Fear & Greed Index */}
-            <div className="trading-card text-center">
-              <h4 className="font-semibold text-primary mb-4">Fear & Greed Index</h4>
-              <div className="relative w-32 h-32 mx-auto mb-4">
-                <div className="w-full h-full rounded-full bg-gradient-to-r from-danger via-warning to-success flex items-center justify-center">
-                  <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">65</div>
-                      <div className="text-xs text-secondary">Greed</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-secondary">Market showing signs of greed</p>
-            </div>
-            
-            {/* VIX Index */}
-            <div className="trading-card text-center">
-              <h4 className="font-semibold text-primary mb-4">VIX Volatility Index</h4>
-              <div className="text-4xl font-bold text-primary mb-2">18.45</div>
-              <div className="text-sm text-success mb-4">-2.3% from yesterday</div>
-              <p className="text-sm text-secondary">Low volatility environment</p>
-            </div>
-            
-            {/* Market Breadth */}
-            <div className="trading-card text-center">
-              <h4 className="font-semibold text-primary mb-4">Market Breadth</h4>
-              <div className="flex justify-center gap-4 mb-4">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-success">1,247</div>
-                  <div className="text-xs text-secondary">Advancing</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-danger">856</div>
-                  <div className="text-xs text-secondary">Declining</div>
-                </div>
-              </div>
-              <p className="text-sm text-secondary">Positive market breadth</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      <style jsx>{`
+        .news-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+          color: white;
+        }
+
+        .news-hero {
+          padding: 120px 0 80px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .news-hero::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        .hero-content {
+          text-align: center;
+          max-width: 900px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 2;
+        }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          padding: 8px 16px;
+          border-radius: 50px;
+          font-size: 14px;
+          margin-bottom: 24px;
+          backdrop-filter: blur(10px);
+        }
+
+        .badge-icon {
+          font-size: 16px;
+        }
+
+        .hero-title {
+          font-size: 3.5rem;
+          font-weight: 700;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .gradient-text {
+          background: linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-size: 0.8em;
+        }
+
+        .hero-description {
+          font-size: 1.2rem;
+          color: rgba(255, 255, 255, 0.8);
+          margin-bottom: 40px;
+          line-height: 1.6;
+        }
+
+        .market-sentiment {
+          padding: 40px 0;
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sentiment-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 24px;
+          backdrop-filter: blur(10px);
+        }
+
+        .sentiment-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .sentiment-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #3b82f6;
+        }
+
+        .sentiment-score {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .score-value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #10b981;
+        }
+
+        .score-label {
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+
+        .score-change {
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+
+        .score-change.positive {
+          color: #10b981;
+        }
+
+        .sentiment-indicators {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+
+        .indicator-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+        }
+
+        .indicator-name {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .indicator-value {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #3b82f6;
+        }
+
+        .indicator-status {
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        .breaking-news {
+          padding: 40px 0;
+        }
+
+        .section-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .breaking-badge {
+          font-size: 0.8rem;
+          padding: 4px 8px;
+          background: rgba(239, 68, 68, 0.2);
+          border-radius: 4px;
+          color: #ef4444;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+
+        .breaking-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 24px;
+        }
+
+        .breaking-card {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 16px;
+          padding: 24px;
+          backdrop-filter: blur(10px);
+        }
+
+        .breaking-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+          font-size: 0.9rem;
+        }
+
+        .breaking-source {
+          font-weight: 600;
+          color: #ef4444;
+        }
+
+        .breaking-time {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .breaking-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 12px;
+          line-height: 1.4;
+        }
+
+        .breaking-summary {
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.5;
+          margin-bottom: 16px;
+        }
+
+        .breaking-tags {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .filters-section {
+          padding: 40px 0;
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        .filters-container {
+          display: flex;
+          gap: 20px;
+          align-items: end;
+          flex-wrap: wrap;
+        }
+
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .filter-label {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+
+        .search-input {
+          padding: 10px 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: white;
+          font-size: 0.9rem;
+          min-width: 200px;
+        }
+
+        .search-input::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .filter-btn {
+          padding: 8px 16px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: white;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+          background: rgba(59, 130, 246, 0.2);
+          border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .view-controls {
+          display: flex;
+          gap: 4px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          padding: 4px;
+        }
+
+        .view-btn {
+          padding: 8px 16px;
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.7);
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .view-btn.active,
+        .view-btn:hover {
+          background: rgba(59, 130, 246, 0.2);
+          color: white;
+        }
+
+        .news-content {
+          padding: 60px 0;
+        }
+
+        .content-layout {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 40px;
+        }
+
+        .main-news {
+          min-width: 0;
+        }
+
+        .section-header {
+          margin-bottom: 32px;
+        }
+
+        .section-description {
+          font-size: 1.1rem;
+          color: rgba(255, 255, 255, 0.8);
+          margin-top: 8px;
+        }
+
+        .news-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          gap: 24px;
+        }
+
+        .news-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          overflow: hidden;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+        }
+
+        .news-card:hover {
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-4px);
+          border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .news-image {
+          position: relative;
+          height: 200px;
+          overflow: hidden;
+        }
+
+        .news-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .news-category {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          padding: 4px 8px;
+          background: rgba(59, 130, 246, 0.8);
+          color: white;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          text-transform: capitalize;
+        }
+
+        .news-content {
+          padding: 20px;
+        }
+
+        .news-meta {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 12px;
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .news-source {
+          font-weight: 600;
+          color: #3b82f6;
+        }
+
+        .news-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-bottom: 12px;
+        }
+
+        .news-summary {
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.5;
+          margin-bottom: 16px;
+          font-size: 0.9rem;
+        }
+
+        .news-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .news-tags {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+
+        .news-tag {
+          padding: 2px 6px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        .news-metrics {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          align-items: flex-end;
+          font-size: 0.8rem;
+        }
+
+        .news-impact {
+          font-weight: 500;
+          text-transform: capitalize;
+        }
+
+        .news-views {
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        .news-list {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .news-list-item {
+          display: flex;
+          gap: 20px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 20px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+        }
+
+        .news-list-item:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .list-image {
+          width: 120px;
+          height: 80px;
+          border-radius: 8px;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .list-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .list-content {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .list-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .list-meta {
+          display: flex;
+          gap: 12px;
+          font-size: 0.8rem;
+        }
+
+        .list-metrics {
+          display: flex;
+          gap: 8px;
+          font-size: 0.8rem;
+        }
+
+        .list-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-bottom: 8px;
+        }
+
+        .list-summary {
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.5;
+          margin-bottom: 12px;
+          font-size: 0.9rem;
+        }
+
+        .list-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .news-sidebar {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .sidebar-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 20px;
+          backdrop-filter: blur(10px);
+        }
+
+        .sidebar-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 16px;
+          color: #3b82f6;
+        }
+
+        .top-stories {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .story-item {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+
+        .story-rank {
+          width: 24px;
+          height: 24px;
+          background: #3b82f6;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: 600;
+          flex-shrink: 0;
+        }
+
+        .story-content {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .story-title {
+          font-size: 0.9rem;
+          font-weight: 500;
+          line-height: 1.3;
+          margin-bottom: 4px;
+        }
+
+        .story-meta {
+          display: flex;
+          gap: 8px;
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        .trending-topics {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .trending-tag {
+          padding: 6px 10px;
+          background: rgba(59, 130, 246, 0.2);
+          border-radius: 6px;
+          font-size: 0.8rem;
+          color: #3b82f6;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .trending-tag:hover {
+          background: rgba(59, 130, 246, 0.3);
+        }
+
+        .market-movers {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .mover-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 6px;
+        }
+
+        .mover-symbol {
+          font-weight: 600;
+          color: #3b82f6;
+        }
+
+        .mover-change {
+          font-weight: 500;
+        }
+
+        .mover-change.positive {
+          color: #10b981;
+        }
+
+        .mover-change.negative {
+          color: #ef4444;
+        }
+
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 2.5rem;
+          }
+
+          .sentiment-header {
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+          }
+
+          .sentiment-indicators {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .breaking-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .filters-container {
+            flex-direction: column;
+            gap: 16px;
+          }
+
+          .content-layout {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+
+          .news-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .news-list-item {
+            flex-direction: column;
+          }
+
+          .list-image {
+            width: 100%;
+            height: 150px;
+          }
+        }
+      `}</style>
+    </>
   )
-} 
+}
+
+export default NewsPage 
