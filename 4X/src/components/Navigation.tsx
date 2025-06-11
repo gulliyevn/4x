@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuthStore } from '@/stores/authStore'
 import Image from 'next/image'
 
 const Navigation = () => {
+  const { user, isAuthenticated, logout } = useAuthStore()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -435,10 +437,74 @@ const Navigation = () => {
               </span>
             </button>
 
-            {/* Login Button */}
-            <Link href="/auth/login" className="btn btn-primary btn-sm">
-              Login
-            </Link>
+            {/* Login/Profile Button */}
+            {isAuthenticated ? (
+              <div className="nav-item" 
+                onMouseEnter={() => handleDropdownEnter('profile')}
+                onMouseLeave={handleDropdownLeave}
+              >
+                <button className="nav-button">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-white">
+                        {user?.firstName?.charAt(0) || user?.name?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium">
+                      {user?.firstName || user?.name || 'User'}
+                    </span>
+                  </div>
+                </button>
+                <div className={`dropdown-menu ${activeDropdown === 'profile' ? 'show' : ''}`}>
+                  <Link href="/profile" className="dropdown-item">
+                    <span className="dropdown-icon">👤</span>
+                    <div>
+                      <span className="dropdown-title">Profile</span>
+                      <span className="dropdown-desc">Manage your account</span>
+                    </div>
+                  </Link>
+                  <Link href="/dashboard" className="dropdown-item">
+                    <span className="dropdown-icon">📊</span>
+                    <div>
+                      <span className="dropdown-title">Dashboard</span>
+                      <span className="dropdown-desc">Trading overview</span>
+                    </div>
+                  </Link>
+                  <Link href="/portfolio" className="dropdown-item">
+                    <span className="dropdown-icon">💼</span>
+                    <div>
+                      <span className="dropdown-title">Portfolio</span>
+                      <span className="dropdown-desc">View your investments</span>
+                    </div>
+                  </Link>
+                  <Link href="/trading" className="dropdown-item">
+                    <span className="dropdown-icon">📊</span>
+                    <div>
+                      <span className="dropdown-title">Live Trading</span>
+                      <span className="dropdown-desc">Start trading now</span>
+                    </div>
+                  </Link>
+                  <Link href="/wallet" className="dropdown-item">
+                    <span className="dropdown-icon">💰</span>
+                    <div>
+                      <span className="dropdown-title">Wallet</span>
+                      <span className="dropdown-desc">Manage funds</span>
+                    </div>
+                  </Link>
+                  <button onClick={logout} className="dropdown-item">
+                    <span className="dropdown-icon">🚪</span>
+                    <div>
+                      <span className="dropdown-title">Sign Out</span>
+                      <span className="dropdown-desc">Logout from account</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link href="/auth/login" className="btn btn-primary btn-sm">
+                Login
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button 
@@ -487,12 +553,47 @@ const Navigation = () => {
               Education
             </Link>
           </div>
-          <div className="mobile-menu-item">
-            <Link href="/auth/login" className="mobile-menu-link" onClick={toggleMenu}>
-              <span className="mobile-menu-icon">🔐</span>
-              Login
-            </Link>
-          </div>
+          {isAuthenticated ? (
+            <>
+              <div className="mobile-menu-item">
+                <Link href="/profile" className="mobile-menu-link" onClick={toggleMenu}>
+                  <span className="mobile-menu-icon">👤</span>
+                  Profile
+                </Link>
+              </div>
+                             <div className="mobile-menu-item">
+                 <Link href="/dashboard" className="mobile-menu-link" onClick={toggleMenu}>
+                   <span className="mobile-menu-icon">📊</span>
+                   Dashboard
+                 </Link>
+               </div>
+               <div className="mobile-menu-item">
+                 <Link href="/trading" className="mobile-menu-link" onClick={toggleMenu}>
+                   <span className="mobile-menu-icon">💹</span>
+                   Trading
+                 </Link>
+               </div>
+               <div className="mobile-menu-item">
+                 <Link href="/wallet" className="mobile-menu-link" onClick={toggleMenu}>
+                   <span className="mobile-menu-icon">💰</span>
+                   Wallet
+                 </Link>
+               </div>
+              <div className="mobile-menu-item">
+                <button onClick={() => { logout(); toggleMenu(); }} className="mobile-menu-link w-full text-left">
+                  <span className="mobile-menu-icon">🚪</span>
+                  Sign Out
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mobile-menu-item">
+              <Link href="/auth/login" className="mobile-menu-link" onClick={toggleMenu}>
+                <span className="mobile-menu-icon">🔐</span>
+                Login
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

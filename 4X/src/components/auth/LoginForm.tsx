@@ -77,18 +77,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     setShowPassword(!showPassword)
   }
 
-  const handleDemoLogin = () => {
-    const credentials: LoginCredentials = {
-      email: demoCredentials.email,
-      password: demoCredentials.password,
-      rememberMe: true
+  const handleDemoLogin = async () => {
+    try {
+      clearError()
+      const credentials: LoginCredentials = {
+        email: demoCredentials.email,
+        password: demoCredentials.password,
+        rememberMe: true
+      }
+      
+      await login(credentials)
+      setLoginSuccess(true)
+      onSuccess?.()
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Demo login failed:', error)
     }
-    
-    onSubmit({ 
-      email: credentials.email, 
-      password: credentials.password,
-      rememberMe: credentials.rememberMe 
-    })
   }
 
   return (

@@ -1,644 +1,704 @@
-import Link from 'next/link';
-import Navigation from '../../src/components/Navigation';
+'use client'
+
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import Navigation from '@/components/Navigation'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { useToastContext } from '@/components/ToastProvider'
+import { 
+  GraduationCap, 
+  BookOpen, 
+  Video, 
+  FileText,
+  Users,
+  Clock,
+  Star,
+  Search,
+  Filter,
+  Play,
+  Download,
+  CheckCircle,
+  TrendingUp,
+  BarChart3,
+  DollarSign,
+  Shield,
+  Zap,
+  Target,
+  Award,
+  ArrowRight,
+  ExternalLink
+} from 'lucide-react'
+
+interface Course {
+  id: string
+  title: string
+  description: string
+  level: 'beginner' | 'intermediate' | 'advanced'
+  duration: string
+  lessons: number
+  students: number
+  rating: number
+  price: number
+  instructor: string
+  category: string
+  thumbnail: string
+  tags: string[]
+  isPopular?: boolean
+  isFree?: boolean
+}
+
+interface Article {
+  id: string
+  title: string
+  excerpt: string
+  category: string
+  readTime: string
+  author: string
+  publishedAt: string
+  thumbnail: string
+  tags: string[]
+}
 
 export default function EducationPage() {
+  const { success } = useToastContext()
+  const [activeTab, setActiveTab] = useState('courses')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedLevel, setSelectedLevel] = useState('all')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+
+  const courses: Course[] = [
+    {
+      id: '1',
+      title: 'Complete Forex Trading Masterclass',
+      description: 'Learn forex trading from scratch with our comprehensive course covering technical analysis, fundamental analysis, and risk management.',
+      level: 'beginner',
+      duration: '12 hours',
+      lessons: 45,
+      students: 15420,
+      rating: 4.8,
+      price: 199,
+      instructor: 'John Smith',
+      category: 'Forex',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['Forex', 'Technical Analysis', 'Risk Management'],
+      isPopular: true
+    },
+    {
+      id: '2',
+      title: 'Advanced Cryptocurrency Trading',
+      description: 'Master cryptocurrency trading with advanced strategies, DeFi protocols, and portfolio management techniques.',
+      level: 'advanced',
+      duration: '8 hours',
+      lessons: 32,
+      students: 8930,
+      rating: 4.9,
+      price: 299,
+      instructor: 'Sarah Chen',
+      category: 'Cryptocurrency',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['Crypto', 'DeFi', 'Portfolio Management']
+    },
+    {
+      id: '3',
+      title: 'Stock Market Fundamentals',
+      description: 'Understanding stock markets, company analysis, and long-term investment strategies for building wealth.',
+      level: 'beginner',
+      duration: '10 hours',
+      lessons: 38,
+      students: 12340,
+      rating: 4.7,
+      price: 0,
+      instructor: 'Michael Rodriguez',
+      category: 'Stocks',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['Stocks', 'Fundamental Analysis', 'Investment'],
+      isFree: true
+    },
+    {
+      id: '4',
+      title: 'Options Trading Strategies',
+      description: 'Learn advanced options trading strategies including spreads, straddles, and hedging techniques.',
+      level: 'intermediate',
+      duration: '6 hours',
+      lessons: 24,
+      students: 6780,
+      rating: 4.6,
+      price: 149,
+      instructor: 'Emily Watson',
+      category: 'Options',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['Options', 'Derivatives', 'Hedging']
+    },
+    {
+      id: '5',
+      title: 'AI Trading Algorithms',
+      description: 'Build and deploy AI-powered trading algorithms using machine learning and quantitative analysis.',
+      level: 'advanced',
+      duration: '15 hours',
+      lessons: 52,
+      students: 4560,
+      rating: 4.9,
+      price: 399,
+      instructor: 'Dr. Alex Johnson',
+      category: 'AI Trading',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['AI', 'Machine Learning', 'Algorithms'],
+      isPopular: true
+    },
+    {
+      id: '6',
+      title: 'Risk Management Essentials',
+      description: 'Master risk management techniques to protect your capital and maximize trading performance.',
+      level: 'intermediate',
+      duration: '4 hours',
+      lessons: 18,
+      students: 9870,
+      rating: 4.8,
+      price: 99,
+      instructor: 'Lisa Park',
+      category: 'Risk Management',
+      thumbnail: '/api/placeholder/300/200',
+      tags: ['Risk Management', 'Psychology', 'Capital Protection']
+    }
+  ]
+
+  const articles: Article[] = [
+    {
+      id: '1',
+      title: 'Understanding Market Volatility: A Comprehensive Guide',
+      excerpt: 'Learn how to navigate volatile markets and turn uncertainty into opportunity with proven strategies.',
+      category: 'Market Analysis',
+      readTime: '8 min read',
+      author: 'John Smith',
+      publishedAt: '2024-01-15',
+      thumbnail: '/api/placeholder/400/250',
+      tags: ['Volatility', 'Market Analysis', 'Strategy']
+    },
+    {
+      id: '2',
+      title: 'The Psychology of Trading: Mastering Your Emotions',
+      excerpt: 'Discover how to control emotions, avoid common psychological traps, and develop a winning mindset.',
+      category: 'Trading Psychology',
+      readTime: '12 min read',
+      author: 'Dr. Sarah Chen',
+      publishedAt: '2024-01-12',
+      thumbnail: '/api/placeholder/400/250',
+      tags: ['Psychology', 'Emotions', 'Mindset']
+    },
+    {
+      id: '3',
+      title: 'DeFi Yield Farming: Opportunities and Risks',
+      excerpt: 'Explore the world of decentralized finance and learn how to maximize yields while managing risks.',
+      category: 'DeFi',
+      readTime: '10 min read',
+      author: 'Michael Rodriguez',
+      publishedAt: '2024-01-10',
+      thumbnail: '/api/placeholder/400/250',
+      tags: ['DeFi', 'Yield Farming', 'Cryptocurrency']
+    },
+    {
+      id: '4',
+      title: 'Technical Analysis: Chart Patterns That Work',
+      excerpt: 'Master the most reliable chart patterns and technical indicators for better trading decisions.',
+      category: 'Technical Analysis',
+      readTime: '15 min read',
+      author: 'Emily Watson',
+      publishedAt: '2024-01-08',
+      thumbnail: '/api/placeholder/400/250',
+      tags: ['Technical Analysis', 'Chart Patterns', 'Indicators']
+    }
+  ]
+
+  const categories = [
+    { id: 'all', label: 'All Categories' },
+    { id: 'forex', label: 'Forex' },
+    { id: 'stocks', label: 'Stocks' },
+    { id: 'cryptocurrency', label: 'Cryptocurrency' },
+    { id: 'options', label: 'Options' },
+    { id: 'ai-trading', label: 'AI Trading' },
+    { id: 'risk-management', label: 'Risk Management' }
+  ]
+
+  const levels = [
+    { id: 'all', label: 'All Levels' },
+    { id: 'beginner', label: 'Beginner' },
+    { id: 'intermediate', label: 'Intermediate' },
+    { id: 'advanced', label: 'Advanced' }
+  ]
+
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel
+    const matchesCategory = selectedCategory === 'all' || 
+                           course.category.toLowerCase().replace(' ', '-') === selectedCategory
+    
+    return matchesSearch && matchesLevel && matchesCategory
+  })
+
+  const handleEnrollCourse = (courseTitle: string, price: number) => {
+    if (price === 0) {
+      success('Enrolled Successfully! 🎉', `You've been enrolled in "${courseTitle}" for free`)
+    } else {
+      success('Redirecting to Payment...', `Enrolling in "${courseTitle}" - $${price}`)
+    }
+  }
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100'
+    }
+  }
+
   return (
-    <div className="page-container">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation />
       
-      {/* Education Header */}
-      <section className="education-header">
-        <div className="container">
-          <div className="education-title-section">
-            <h1 className="education-title">
-              📚 Trading Academy
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <GraduationCap className="h-12 w-12 text-blue-600 mr-4" />
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+              Trading Education
             </h1>
-            <p className="education-subtitle">
-              Master trading and market analysis with our comprehensive educational platform featuring AI-powered learning, expert courses, and hands-on practice
-            </p>
-            <div className="education-stats">
-              <div className="stat-item">
-                <span className="stat-number">50,000+</span>
-                <span className="stat-label">Students</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">200+</span>
-                <span className="stat-label">Courses</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">95%</span>
-                <span className="stat-label">Success Rate</span>
-              </div>
-            </div>
           </div>
-        </div>
-      </section>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Master the markets with our comprehensive trading education platform. 
+            Learn from industry experts and accelerate your trading journey.
+          </p>
+        </motion.div>
 
-      {/* Learning Paths */}
-      <section className="learning-paths-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Choose Your Learning Path</h2>
-            <p className="section-subtitle">
-              Structured learning paths designed for different experience levels
-            </p>
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-12"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { icon: <Users className="h-8 w-8 text-blue-500" />, value: '50,000+', label: 'Students' },
+              { icon: <BookOpen className="h-8 w-8 text-green-500" />, value: '200+', label: 'Courses' },
+              { icon: <Award className="h-8 w-8 text-yellow-500" />, value: '4.8/5', label: 'Rating' },
+              { icon: <Clock className="h-8 w-8 text-purple-500" />, value: '1000+', label: 'Hours' }
+            ].map((stat, index) => (
+              <Card key={index} className="p-6 text-center hover-lift">
+                <div className="flex justify-center mb-3">
+                  {stat.icon}
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  {stat.label}
+                </div>
+              </Card>
+            ))}
           </div>
+        </motion.div>
 
-          <div className="learning-paths-grid">
-            {/* Beginner Path */}
-            <Link href="/education/beginner" className="learning-path-card">
-              <div className="path-header">
-                <div className="path-level beginner">Beginner</div>
-                <div className="path-duration">4-6 weeks</div>
-              </div>
-              <h3 className="path-title">Trading Fundamentals</h3>
-              <p className="path-description">
-                Start your trading journey with essential concepts, market basics, and risk management principles.
-              </p>
-              <div className="path-curriculum">
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📖</span>
-                  <span className="curriculum-text">Market Basics & Terminology</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📊</span>
-                  <span className="curriculum-text">Chart Reading Fundamentals</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🛡️</span>
-                  <span className="curriculum-text">Risk Management Essentials</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🧠</span>
-                  <span className="curriculum-text">Trading Psychology</span>
-                </div>
-              </div>
-              <div className="path-stats">
-                <div className="path-stat">
-                  <span className="stat-value">12</span>
-                  <span className="stat-label">Courses</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">24h</span>
-                  <span className="stat-label">Content</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">Free</span>
-                  <span className="stat-label">Access</span>
-                </div>
-              </div>
-            </Link>
-
-            {/* Intermediate Path */}
-            <Link href="/education/intermediate" className="learning-path-card">
-              <div className="path-header">
-                <div className="path-level intermediate">Intermediate</div>
-                <div className="path-duration">6-8 weeks</div>
-              </div>
-              <h3 className="path-title">Technical Analysis Mastery</h3>
-              <p className="path-description">
-                Deep dive into technical analysis, chart patterns, indicators, and advanced trading strategies.
-              </p>
-              <div className="path-curriculum">
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📈</span>
-                  <span className="curriculum-text">Advanced Chart Patterns</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🔢</span>
-                  <span className="curriculum-text">Technical Indicators</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📊</span>
-                  <span className="curriculum-text">Volume Analysis</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🎯</span>
-                  <span className="curriculum-text">Trading Strategies</span>
-                </div>
-              </div>
-              <div className="path-stats">
-                <div className="path-stat">
-                  <span className="stat-value">18</span>
-                  <span className="stat-label">Courses</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">36h</span>
-                  <span className="stat-label">Content</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">$49</span>
-                  <span className="stat-label">Monthly</span>
-                </div>
-              </div>
-            </Link>
-
-            {/* Advanced Path */}
-            <Link href="/education/advanced" className="learning-path-card">
-              <div className="path-header">
-                <div className="path-level advanced">Advanced</div>
-                <div className="path-duration">8-12 weeks</div>
-              </div>
-              <h3 className="path-title">Professional Trading</h3>
-              <p className="path-description">
-                Master advanced concepts including options, derivatives, portfolio management, and institutional strategies.
-              </p>
-              <div className="path-curriculum">
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📋</span>
-                  <span className="curriculum-text">Options & Derivatives</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">💼</span>
-                  <span className="curriculum-text">Portfolio Management</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🏛️</span>
-                  <span className="curriculum-text">Institutional Strategies</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">⚖️</span>
-                  <span className="curriculum-text">Risk Models</span>
-                </div>
-              </div>
-              <div className="path-stats">
-                <div className="path-stat">
-                  <span className="stat-value">25</span>
-                  <span className="stat-label">Courses</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">50h</span>
-                  <span className="stat-label">Content</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">$99</span>
-                  <span className="stat-label">Monthly</span>
-                </div>
-              </div>
-            </Link>
-
-            {/* AI Trading Path */}
-            <Link href="/education/ai-trading" className="learning-path-card featured">
-              <div className="path-header">
-                <div className="path-level ai">AI Trading</div>
-                <div className="path-duration">10-14 weeks</div>
-              </div>
-              <h3 className="path-title">AI & Algorithmic Trading</h3>
-              <p className="path-description">
-                Learn cutting-edge AI trading techniques, machine learning models, and algorithmic strategy development.
-              </p>
-              <div className="path-curriculum">
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🤖</span>
-                  <span className="curriculum-text">Machine Learning for Trading</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">🧠</span>
-                  <span className="curriculum-text">Neural Networks</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">📊</span>
-                  <span className="curriculum-text">Quantitative Analysis</span>
-                </div>
-                <div className="curriculum-item">
-                  <span className="curriculum-icon">⚡</span>
-                  <span className="curriculum-text">Algorithm Development</span>
-                </div>
-              </div>
-              <div className="path-stats">
-                <div className="path-stat">
-                  <span className="stat-value">30</span>
-                  <span className="stat-label">Courses</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">60h</span>
-                  <span className="stat-label">Content</span>
-                </div>
-                <div className="path-stat">
-                  <span className="stat-value">$149</span>
-                  <span className="stat-label">Monthly</span>
-                </div>
-              </div>
-            </Link>
+        {/* Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-8"
+        >
+          <div className="flex flex-wrap gap-2 justify-center">
+            {[
+              { id: 'courses', label: 'Courses', icon: <Video className="h-4 w-4" /> },
+              { id: 'articles', label: 'Articles', icon: <FileText className="h-4 w-4" /> },
+              { id: 'webinars', label: 'Webinars', icon: <Users className="h-4 w-4" /> },
+              { id: 'tools', label: 'Tools', icon: <BarChart3 className="h-4 w-4" /> }
+            ].map((tab) => (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? 'primary' : 'outline'}
+                onClick={() => setActiveTab(tab.id)}
+                className="hover-scale"
+              >
+                {tab.icon}
+                <span className="ml-2">{tab.label}</span>
+              </Button>
+            ))}
           </div>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Featured Courses */}
-      <section className="featured-courses-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Featured Courses</h2>
-            <p className="section-subtitle">
-              Popular courses chosen by our community
-            </p>
-          </div>
+        {/* Courses Tab */}
+        {activeTab === 'courses' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Search and Filters */}
+            <Card className="p-6 mb-8">
+              <div className="flex flex-col lg:flex-row gap-4 items-center">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    placeholder="Search courses..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={selectedLevel}
+                    onChange={(e) => setSelectedLevel(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {levels.map((level) => (
+                      <option key={level.id} value={level.id}>
+                        {level.label}
+                      </option>
+                    ))}
+                  </select>
 
-          <div className="courses-grid">
-            <div className="course-card">
-              <div className="course-image">
-                <div className="course-badge">Bestseller</div>
-                <div className="course-icon">📊</div>
-              </div>
-              <div className="course-content">
-                <h3 className="course-title">Complete Technical Analysis</h3>
-                <p className="course-instructor">By Sarah Johnson, CFA</p>
-                <p className="course-description">
-                  Master technical analysis from basics to advanced patterns and indicators.
-                </p>
-                <div className="course-meta">
-                  <div className="course-rating">
-                    <span className="rating-stars">⭐⭐⭐⭐⭐</span>
-                    <span className="rating-score">4.9 (2,341)</span>
-                  </div>
-                  <div className="course-duration">12 hours</div>
-                </div>
-                <div className="course-price">
-                  <span className="price-current">$79</span>
-                  <span className="price-original">$129</span>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="course-card">
-              <div className="course-image">
-                <div className="course-badge">New</div>
-                <div className="course-icon">🤖</div>
-              </div>
-              <div className="course-content">
-                <h3 className="course-title">AI Trading Strategies</h3>
-                <p className="course-instructor">By Dr. Michael Chen</p>
-                <p className="course-description">
-                  Learn to build and deploy AI-powered trading algorithms.
-                </p>
-                <div className="course-meta">
-                  <div className="course-rating">
-                    <span className="rating-stars">⭐⭐⭐⭐⭐</span>
-                    <span className="rating-score">4.8 (856)</span>
-                  </div>
-                  <div className="course-duration">18 hours</div>
-                </div>
-                <div className="course-price">
-                  <span className="price-current">$149</span>
-                  <span className="price-original">$199</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="course-card">
-              <div className="course-image">
-                <div className="course-badge">Popular</div>
-                <div className="course-icon">💰</div>
-              </div>
-              <div className="course-content">
-                <h3 className="course-title">Risk Management Mastery</h3>
-                <p className="course-instructor">By Robert Williams</p>
-                <p className="course-description">
-                  Essential risk management techniques for consistent profitability.
-                </p>
-                <div className="course-meta">
-                  <div className="course-rating">
-                    <span className="rating-stars">⭐⭐⭐⭐⭐</span>
-                    <span className="rating-score">4.9 (1,567)</span>
-                  </div>
-                  <div className="course-duration">8 hours</div>
-                </div>
-                <div className="course-price">
-                  <span className="price-current">$59</span>
-                  <span className="price-original">$99</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="course-card">
-              <div className="course-image">
-                <div className="course-badge">Expert</div>
-                <div className="course-icon">📈</div>
-              </div>
-              <div className="course-content">
-                <h3 className="course-title">Options Trading Strategies</h3>
-                <p className="course-instructor">By Lisa Thompson</p>
-                <p className="course-description">
-                  Advanced options strategies for income generation and hedging.
-                </p>
-                <div className="course-meta">
-                  <div className="course-rating">
-                    <span className="rating-stars">⭐⭐⭐⭐⭐</span>
-                    <span className="rating-score">4.7 (923)</span>
-                  </div>
-                  <div className="course-duration">15 hours</div>
-                </div>
-                <div className="course-price">
-                  <span className="price-current">$119</span>
-                  <span className="price-original">$179</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI-Powered Learning */}
-      <section className="ai-learning-section">
-        <div className="container">
-          <div className="ai-learning-content">
-            <div className="ai-learning-text">
-              <h2 className="section-title">🤖 AI-Powered Personalized Learning</h2>
-              <p className="section-subtitle">
-                Our AI tutor adapts to your learning style and pace for optimal results
-              </p>
-              <div className="ai-features">
-                <div className="ai-feature">
-                  <div className="ai-feature-icon">🎯</div>
-                  <div className="ai-feature-content">
-                    <h3 className="ai-feature-title">Personalized Curriculum</h3>
-                    <p className="ai-feature-description">
-                      AI analyzes your progress and customizes learning paths
-                    </p>
-                  </div>
-                </div>
-                <div className="ai-feature">
-                  <div className="ai-feature-icon">💬</div>
-                  <div className="ai-feature-content">
-                    <h3 className="ai-feature-title">24/7 AI Tutor</h3>
-                    <p className="ai-feature-description">
-                      Get instant answers and explanations anytime
-                    </p>
-                  </div>
-                </div>
-                <div className="ai-feature">
-                  <div className="ai-feature-icon">📊</div>
-                  <div className="ai-feature-content">
-                    <h3 className="ai-feature-title">Progress Analytics</h3>
-                    <p className="ai-feature-description">
-                      Track your learning with detailed performance metrics
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <Link href="/education/ai-tutor" className="btn btn-primary btn-lg">
-                Try AI Tutor
-              </Link>
-            </div>
-            <div className="ai-learning-visual">
-              <div className="ai-chat-demo">
-                <div className="chat-header">
-                  <div className="chat-avatar">🤖</div>
-                  <div className="chat-info">
-                    <div className="chat-name">AI Trading Tutor</div>
-                    <div className="chat-status">Online</div>
-                  </div>
-                </div>
-                <div className="chat-messages">
-                  <div className="chat-message ai">
-                    <div className="message-content">
-                      Hi! I noticed you're learning about support and resistance. Would you like me to explain how to identify these levels on a chart?
+            {/* Courses Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCourses.map((course, index) => (
+                <motion.div
+                  key={course.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="overflow-hidden hover-lift interactive-card h-full relative">
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                      {course.isPopular && (
+                        <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100">
+                          <Star className="h-3 w-3 mr-1" />
+                          Popular
+                        </Badge>
+                      )}
+                      {course.isFree && (
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                          Free
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                  <div className="chat-message user">
-                    <div className="message-content">
-                      Yes, please! I'm having trouble spotting them.
+
+                    {/* Thumbnail */}
+                    <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                      <Play className="h-16 w-16 text-white opacity-80" />
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                     </div>
-                  </div>
-                  <div className="chat-message ai">
-                    <div className="message-content">
-                      Great! Support levels are price points where buying interest is strong enough to prevent further decline. Let me show you with a visual example...
+
+                    <div className="p-6">
+                      {/* Level Badge */}
+                      <Badge className={`mb-3 ${getLevelColor(course.level)}`}>
+                        {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
+                      </Badge>
+
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        {course.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                        {course.description}
+                      </p>
+
+                      {/* Course Info */}
+                      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {course.duration}
+                        </div>
+                        <div className="flex items-center">
+                          <BookOpen className="h-4 w-4 mr-1" />
+                          {course.lessons} lessons
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          {course.students.toLocaleString()}
+                        </div>
+                      </div>
+
+                      {/* Rating */}
+                      <div className="flex items-center mb-4">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < Math.floor(course.rating)
+                                  ? 'text-yellow-400 fill-current'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                          {course.rating} ({course.students.toLocaleString()} students)
+                        </span>
+                      </div>
+
+                      {/* Instructor */}
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                        By {course.instructor}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {course.tags.map((tag) => (
+                          <Badge key={tag} className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100 text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      {/* Price and Enroll */}
+                      <div className="flex items-center justify-between">
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          {course.price === 0 ? 'Free' : `$${course.price}`}
+                        </div>
+                        <Button
+                          onClick={() => handleEnrollCourse(course.title, course.price)}
+                          className="hover-scale"
+                        >
+                          {course.price === 0 ? 'Enroll Free' : 'Enroll Now'}
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="chat-input">
-                  <input type="text" placeholder="Ask me anything about trading..." />
-                  <button>Send</button>
-                </div>
-              </div>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        )}
 
-      {/* Live Learning */}
-      <section className="live-learning-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Live Learning Events</h2>
-            <p className="section-subtitle">
-              Join live webinars, workshops, and trading sessions
+        {/* Articles Tab */}
+        {activeTab === 'articles' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {articles.map((article, index) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="overflow-hidden hover-lift interactive-card h-full">
+                    {/* Thumbnail */}
+                    <div className="h-48 bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center">
+                      <FileText className="h-16 w-16 text-white opacity-80" />
+                    </div>
+
+                    <div className="p-6">
+                      <Badge className="mb-3 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                        {article.category}
+                      </Badge>
+
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        {article.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        {article.excerpt}
+                      </p>
+
+                      {/* Article Info */}
+                      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        <span>{article.readTime}</span>
+                        <span>By {article.author}</span>
+                        <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {article.tags.map((tag) => (
+                          <Badge key={tag} className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100 text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <Button variant="outline" className="w-full hover-scale">
+                        Read Article
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                      </Button>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Webinars Tab */}
+        {activeTab === 'webinars' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center py-12"
+          >
+            <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Live Webinars Coming Soon
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Join our expert-led webinars for real-time market analysis and trading strategies.
             </p>
-          </div>
+            <Button>
+              Get Notified
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </motion.div>
+        )}
 
-          <div className="live-events-grid">
-            <div className="live-event-card">
-              <div className="event-header">
-                <div className="event-type">Live Webinar</div>
-                <div className="event-time">Today, 3:00 PM EST</div>
-              </div>
-              <h3 className="event-title">Market Analysis: Fed Decision Impact</h3>
-              <p className="event-speaker">with Chief Analyst John Smith</p>
-              <p className="event-description">
-                Analyze the potential market impact of the upcoming Federal Reserve decision.
-              </p>
-              <div className="event-stats">
-                <span className="event-attendees">1,247 registered</span>
-                <span className="event-duration">60 minutes</span>
-              </div>
-              <button className="btn btn-primary">Join Live</button>
+        {/* Tools Tab */}
+        {activeTab === 'tools' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: 'Position Size Calculator',
+                  description: 'Calculate optimal position sizes based on your risk tolerance',
+                  icon: <Target className="h-8 w-8 text-blue-500" />,
+                  category: 'Risk Management'
+                },
+                {
+                  title: 'Profit/Loss Calculator',
+                  description: 'Calculate potential profits and losses for your trades',
+                  icon: <DollarSign className="h-8 w-8 text-green-500" />,
+                  category: 'Trading Tools'
+                },
+                {
+                  title: 'Economic Calendar',
+                  description: 'Stay updated with important economic events and announcements',
+                  icon: <Clock className="h-8 w-8 text-purple-500" />,
+                  category: 'Market Data'
+                },
+                {
+                  title: 'Market Screener',
+                  description: 'Find trading opportunities with our advanced market screener',
+                  icon: <Search className="h-8 w-8 text-orange-500" />,
+                  category: 'Analysis'
+                },
+                {
+                  title: 'Risk/Reward Calculator',
+                  description: 'Analyze risk-to-reward ratios for better trade planning',
+                  icon: <Shield className="h-8 w-8 text-red-500" />,
+                  category: 'Risk Management'
+                },
+                {
+                  title: 'Trading Journal',
+                  description: 'Track and analyze your trading performance over time',
+                  icon: <BookOpen className="h-8 w-8 text-indigo-500" />,
+                  category: 'Performance'
+                }
+              ].map((tool, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="p-6 hover-lift interactive-card h-full">
+                    <div className="flex items-center mb-4">
+                      {tool.icon}
+                      <Badge className="ml-auto bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                        {tool.category}
+                      </Badge>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {tool.title}
+                    </h3>
+                    
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      {tool.description}
+                    </p>
+
+                    <Button variant="outline" className="w-full hover-scale">
+                      Use Tool
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
+          </motion.div>
+        )}
 
-            <div className="live-event-card">
-              <div className="event-header">
-                <div className="event-type">Workshop</div>
-                <div className="event-time">Tomorrow, 2:00 PM EST</div>
-              </div>
-              <h3 className="event-title">AI Trading Bot Development</h3>
-              <p className="event-speaker">with Dr. Sarah Chen</p>
-              <p className="event-description">
-                Hands-on workshop building your first AI trading algorithm.
-              </p>
-              <div className="event-stats">
-                <span className="event-attendees">89 registered</span>
-                <span className="event-duration">120 minutes</span>
-              </div>
-              <button className="btn btn-secondary">Register</button>
-            </div>
-
-            <div className="live-event-card">
-              <div className="event-header">
-                <div className="event-type">Trading Session</div>
-                <div className="event-time">Friday, 9:30 AM EST</div>
-              </div>
-              <h3 className="event-title">Live Trading: Market Open</h3>
-              <p className="event-speaker">with Pro Trader Mike Johnson</p>
-              <p className="event-description">
-                Watch and learn from live trading during market opening.
-              </p>
-              <div className="event-stats">
-                <span className="event-attendees">567 registered</span>
-                <span className="event-duration">90 minutes</span>
-              </div>
-              <button className="btn btn-secondary">Register</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Learning Resources */}
-      <section className="learning-resources-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Learning Resources</h2>
-            <p className="section-subtitle">
-              Comprehensive resources to support your trading education
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mt-16"
+        >
+          <Card className="p-8 md:p-12 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+            <GraduationCap className="h-16 w-16 mx-auto mb-6 opacity-90" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Start Your Trading Education Today
+            </h2>
+            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+              Join thousands of successful traders who have transformed their financial future 
+              through our comprehensive education platform.
             </p>
-          </div>
-
-          <div className="resources-grid">
-            <Link href="/education/ebooks" className="resource-card">
-              <div className="resource-icon">📚</div>
-              <h3 className="resource-title">E-Books & Guides</h3>
-              <p className="resource-description">
-                Comprehensive trading guides and strategy books
-              </p>
-              <div className="resource-count">50+ Books</div>
-            </Link>
-
-            <Link href="/education/videos" className="resource-card">
-              <div className="resource-icon">🎥</div>
-              <h3 className="resource-title">Video Library</h3>
-              <p className="resource-description">
-                Extensive collection of trading tutorials and analysis
-              </p>
-              <div className="resource-count">500+ Videos</div>
-            </Link>
-
-            <Link href="/education/podcasts" className="resource-card">
-              <div className="resource-icon">🎧</div>
-              <h3 className="resource-title">Trading Podcasts</h3>
-              <p className="resource-description">
-                Weekly podcasts with market experts and traders
-              </p>
-              <div className="resource-count">100+ Episodes</div>
-            </Link>
-
-            <Link href="/education/glossary" className="resource-card">
-              <div className="resource-icon">📖</div>
-              <h3 className="resource-title">Trading Glossary</h3>
-              <p className="resource-description">
-                Complete dictionary of trading terms and concepts
-              </p>
-              <div className="resource-count">1000+ Terms</div>
-            </Link>
-
-            <Link href="/tools/calculators" className="resource-card">
-              <div className="resource-icon">🧮</div>
-              <h3 className="resource-title">Trading Calculators</h3>
-              <p className="resource-description">
-                Essential calculators for risk and position sizing
-              </p>
-              <div className="resource-count">15+ Tools</div>
-            </Link>
-
-            <Link href="/tools/backtesting" className="resource-card">
-              <div className="resource-icon">⏮️</div>
-              <h3 className="resource-title">Strategy Tester</h3>
-              <p className="resource-description">
-                Test your strategies with historical market data
-              </p>
-              <div className="resource-count">10+ Years Data</div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Certifications */}
-      <section className="certifications-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Professional Certifications</h2>
-            <p className="section-subtitle">
-              Earn recognized certifications to advance your trading career
-            </p>
-          </div>
-
-          <div className="certifications-grid">
-            <div className="certification-card">
-              <div className="cert-badge">
-                <div className="cert-icon">🏆</div>
-              </div>
-              <h3 className="cert-title">Certified Technical Analyst</h3>
-              <p className="cert-description">
-                Master technical analysis and earn industry recognition
-              </p>
-              <div className="cert-requirements">
-                <div className="cert-requirement">Complete 15 courses</div>
-                <div className="cert-requirement">Pass final exam (80%+)</div>
-                <div className="cert-requirement">Submit portfolio analysis</div>
-              </div>
-              <div className="cert-stats">
-                <span className="cert-duration">3-4 months</span>
-                <span className="cert-holders">2,341 certified</span>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-white text-blue-600 hover:bg-gray-100 hover-scale"
+              >
+                Browse Free Courses
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-blue-600 hover-scale"
+              >
+                View All Courses
+              </Button>
             </div>
-
-            <div className="certification-card">
-              <div className="cert-badge">
-                <div className="cert-icon">🤖</div>
-              </div>
-              <h3 className="cert-title">AI Trading Specialist</h3>
-              <p className="cert-description">
-                Become certified in AI and algorithmic trading strategies
-              </p>
-              <div className="cert-requirements">
-                <div className="cert-requirement">Complete AI trading path</div>
-                <div className="cert-requirement">Build working algorithm</div>
-                <div className="cert-requirement">Demonstrate proficiency</div>
-              </div>
-              <div className="cert-stats">
-                <span className="cert-duration">4-6 months</span>
-                <span className="cert-holders">567 certified</span>
-              </div>
-            </div>
-
-            <div className="certification-card">
-              <div className="cert-badge">
-                <div className="cert-icon">💼</div>
-              </div>
-              <h3 className="cert-title">Risk Management Professional</h3>
-              <p className="cert-description">
-                Specialize in professional risk management techniques
-              </p>
-              <div className="cert-requirements">
-                <div className="cert-requirement">Complete risk courses</div>
-                <div className="cert-requirement">Case study analysis</div>
-                <div className="cert-requirement">Practical assessment</div>
-              </div>
-              <div className="cert-stats">
-                <span className="cert-duration">2-3 months</span>
-                <span className="cert-holders">1,234 certified</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="container">
-          <div className="cta-content">
-            <h2 className="cta-title">Start Your Trading Education Journey</h2>
-            <p className="cta-subtitle">
-              Join thousands of successful traders who learned with our platform
-            </p>
-            <div className="cta-buttons">
-              <Link href="/auth/register" className="btn btn-primary btn-lg">
-                Start Learning Free
-              </Link>
-              <Link href="/education/courses" className="btn btn-secondary btn-lg">
-                Browse All Courses
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+          </Card>
+        </motion.div>
+      </div>
     </div>
-  );
+  )
 } 

@@ -5,15 +5,18 @@
  * designed for the 4X trading platform with various loading states.
  */
 
+'use client'
+
 import React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { Loader2, TrendingUp, BarChart3, Activity } from 'lucide-react'
 
 export interface LoadingProps {
   /**
    * The type of loading indicator
    */
-  type?: 'spinner' | 'dots' | 'bars' | 'pulse'
+  type?: 'spinner' | 'dots' | 'bars' | 'pulse' | 'trading'
   
   /**
    * The size of the loading indicator
@@ -69,6 +72,13 @@ const loadingSizes = {
   md: 'w-6 h-6',
   lg: 'w-8 h-8',
   xl: 'w-12 h-12',
+}
+
+const textSizes = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg'
 }
 
 // Circular Spinner Component
@@ -429,3 +439,61 @@ export const PortfolioCardLoading: React.FC = () => (
 )
 
 export default Loading 
+
+// Full page loading overlay
+interface LoadingOverlayProps {
+  isVisible: boolean
+  text?: string
+  variant?: LoadingProps['type']
+}
+
+export function LoadingOverlay({ isVisible, text = "Loading...", variant = 'trading' }: LoadingOverlayProps) {
+  if (!isVisible) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] flex items-center justify-center"
+    >
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-200 dark:border-gray-700"
+      >
+        <Loading size="xl" type={variant} text={text} />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// Skeleton loading components
+export function SkeletonCard({ className = '' }: { className?: string }) {
+  return (
+    <div className={`animate-pulse ${className}`}>
+      <div className="bg-gray-200 dark:bg-gray-700 rounded-lg h-48 w-full"></div>
+      <div className="mt-4 space-y-2">
+        <div className="bg-gray-200 dark:bg-gray-700 rounded h-4 w-3/4"></div>
+        <div className="bg-gray-200 dark:bg-gray-700 rounded h-4 w-1/2"></div>
+      </div>
+    </div>
+  )
+}
+
+export function SkeletonText({ lines = 3, className = '' }: { lines?: number; className?: string }) {
+  return (
+    <div className={`animate-pulse space-y-2 ${className}`}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <div
+          key={i}
+          className={`bg-gray-200 dark:bg-gray-700 rounded h-4 ${
+            i === lines - 1 ? 'w-2/3' : 'w-full'
+          }`}
+        />
+      ))}
+    </div>
+  )
+} 

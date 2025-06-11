@@ -1,10 +1,37 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import Navigation from '@/components/Navigation'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { Input } from '@/components/ui/Input'
+import { useToastContext } from '@/components/ToastProvider'
+import { 
+  Building2, 
+  Star, 
+  Shield, 
+  TrendingUp,
+  Globe,
+  Award,
+  Users,
+  DollarSign,
+  Search,
+  Filter,
+  ExternalLink,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Zap,
+  Clock,
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle
+} from 'lucide-react'
 
-// Broker Data Interface
-interface BrokerData {
+interface Broker {
   id: string
   name: string
   logo: string
@@ -13,487 +40,576 @@ interface BrokerData {
   minDeposit: number
   spreads: string
   leverage: string
-  platforms: string[]
   regulation: string[]
-  assets: string[]
   features: string[]
   pros: string[]
   cons: string[]
-  bonus: string
+  website: string
   founded: number
   headquarters: string
-  isRecommended: boolean
-  category: 'forex' | 'stocks' | 'crypto' | 'multi'
+  instruments: number
+  platforms: string[]
+  support: {
+    phone: boolean
+    email: boolean
+    chat: boolean
+    hours: string
+  }
+  accountTypes: {
+    name: string
+    minDeposit: number
+    features: string[]
+  }[]
+  isRecommended?: boolean
+  isSponsored?: boolean
 }
 
-// Mock Broker Data
-const mockBrokerData: BrokerData[] = [
-  {
-    id: 'ic-markets',
-    name: 'IC Markets',
-    logo: '🏆',
-    rating: 4.8,
-    reviews: 2847,
-    minDeposit: 200,
-    spreads: 'From 0.0 pips',
-    leverage: 'Up to 1:500',
-    platforms: ['MetaTrader 4', 'MetaTrader 5', 'cTrader'],
-    regulation: ['ASIC', 'CySEC', 'FSA'],
-    assets: ['Forex', 'Indices', 'Commodities', 'Crypto'],
-    features: ['ECN Trading', 'Raw Spreads', 'Expert Advisors', 'Copy Trading'],
-    pros: ['Ultra-low spreads', 'Fast execution', 'Multiple regulations', 'Professional tools'],
-    cons: ['High minimum deposit', 'Complex for beginners'],
-    bonus: 'No deposit bonus',
-    founded: 2007,
-    headquarters: 'Sydney, Australia',
-    isRecommended: true,
-    category: 'forex'
-  },
-  {
-    id: 'etoro',
-    name: 'eToro',
-    logo: '🌟',
-    rating: 4.6,
-    reviews: 5234,
-    minDeposit: 50,
-    spreads: 'From 1.0 pips',
-    leverage: 'Up to 1:30',
-    platforms: ['eToro Platform', 'Mobile App'],
-    regulation: ['CySEC', 'FCA', 'ASIC'],
-    assets: ['Stocks', 'Crypto', 'ETFs', 'Forex'],
-    features: ['Social Trading', 'Copy Trading', 'Zero Commission Stocks', 'CryptoPortfolio'],
-    pros: ['Social trading pioneer', 'User-friendly', 'Zero commission stocks', 'Regulated'],
-    cons: ['Limited research tools', 'Withdrawal fees'],
-    bonus: 'Up to $1000 welcome bonus',
-    founded: 2007,
-    headquarters: 'Tel Aviv, Israel',
-    isRecommended: true,
-    category: 'multi'
-  },
-  {
-    id: 'binance',
-    name: 'Binance',
-    logo: '₿',
-    rating: 4.5,
-    reviews: 8921,
-    minDeposit: 10,
-    spreads: '0.1% trading fee',
-    leverage: 'Up to 1:125',
-    platforms: ['Binance Platform', 'Binance Pro', 'Mobile App'],
-    regulation: ['Multiple jurisdictions'],
-    assets: ['Crypto', 'Futures', 'Options', 'NFTs'],
-    features: ['Spot Trading', 'Futures', 'Staking', 'DeFi', 'NFT Marketplace'],
-    pros: ['Largest crypto exchange', 'Low fees', 'Wide selection', 'Advanced features'],
-    cons: ['Regulatory concerns', 'Complex interface', 'Limited fiat options'],
-    bonus: '20% trading fee discount',
-    founded: 2017,
-    headquarters: 'Global',
-    isRecommended: true,
-    category: 'crypto'
-  },
-  {
-    id: 'interactive-brokers',
-    name: 'Interactive Brokers',
-    logo: '📊',
-    rating: 4.7,
-    reviews: 3456,
-    minDeposit: 0,
-    spreads: 'From $0.005/share',
-    leverage: 'Up to 1:4',
-    platforms: ['Trader Workstation', 'IBKR Mobile', 'WebTrader'],
-    regulation: ['SEC', 'FINRA', 'CFTC', 'FCA'],
-    assets: ['Stocks', 'Options', 'Futures', 'Forex', 'Bonds'],
-    features: ['Global Markets', 'Low Commissions', 'Advanced Tools', 'Portfolio Margin'],
-    pros: ['Global market access', 'Low costs', 'Professional platform', 'Strong regulation'],
-    cons: ['Complex for beginners', 'Inactivity fees', 'Steep learning curve'],
-    bonus: 'No account fees for $100K+',
-    founded: 1978,
-    headquarters: 'Greenwich, USA',
-    isRecommended: true,
-    category: 'stocks'
-  },
-  {
-    id: 'plus500',
-    name: 'Plus500',
-    logo: '⚡',
-    rating: 4.2,
-    reviews: 4567,
-    minDeposit: 100,
-    spreads: 'Variable spreads',
-    leverage: 'Up to 1:30',
-    platforms: ['Plus500 Platform', 'Mobile App'],
-    regulation: ['FCA', 'CySEC', 'ASIC', 'MAS'],
-    assets: ['CFDs', 'Forex', 'Stocks', 'Crypto', 'Commodities'],
-    features: ['CFD Trading', 'Risk Management', 'Real-time Alerts', 'Demo Account'],
-    pros: ['Simple platform', 'No commission', 'Good mobile app', 'Regulated'],
-    cons: ['CFDs only', 'Limited research', 'Overnight fees'],
-    bonus: 'Welcome bonus up to $50',
-    founded: 2008,
-    headquarters: 'Haifa, Israel',
-    isRecommended: false,
-    category: 'forex'
-  },
-  {
-    id: 'td-ameritrade',
-    name: 'TD Ameritrade',
-    logo: '🇺🇸',
-    rating: 4.6,
-    reviews: 2890,
-    minDeposit: 0,
-    spreads: '$0 stock trades',
-    leverage: 'Up to 1:4',
-    platforms: ['thinkorswim', 'TD Ameritrade Mobile', 'Web Platform'],
-    regulation: ['SEC', 'FINRA', 'SIPC'],
-    assets: ['Stocks', 'ETFs', 'Options', 'Futures', 'Forex'],
-    features: ['Commission-free trades', 'Advanced charting', 'Education', 'Research'],
-    pros: ['No commission stocks', 'Excellent education', 'Professional tools', 'US regulated'],
-    cons: ['US residents only', 'Complex platform', 'Options fees'],
-    bonus: 'Free trades + $100 bonus',
-    founded: 1975,
-    headquarters: 'Omaha, USA',
-    isRecommended: true,
-    category: 'stocks'
-  }
-]
-
 export default function BrokersPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [sortBy, setSortBy] = useState<'rating' | 'reviews' | 'minDeposit'>('rating')
-  const [showOnlyRecommended, setShowOnlyRecommended] = useState(false)
+  const { success } = useToastContext()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedFilter, setSelectedFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('rating')
 
-  const categories = [
-    { id: 'all', name: 'All Brokers', icon: '🌐' },
-    { id: 'forex', name: 'Forex', icon: '💱' },
-    { id: 'stocks', name: 'Stocks', icon: '📈' },
-    { id: 'crypto', name: 'Crypto', icon: '₿' },
-    { id: 'multi', name: 'Multi-Asset', icon: '📊' }
+  const brokers: Broker[] = [
+    {
+      id: '1',
+      name: 'MetaTrader Pro',
+      logo: '/api/placeholder/80/80',
+      rating: 4.8,
+      reviews: 15420,
+      minDeposit: 100,
+      spreads: 'From 0.1 pips',
+      leverage: 'Up to 1:500',
+      regulation: ['FCA', 'CySEC', 'ASIC'],
+      features: ['ECN Trading', 'Copy Trading', 'Mobile App', 'Expert Advisors'],
+      pros: [
+        'Tight spreads and low commissions',
+        'Advanced trading platforms',
+        'Strong regulatory oversight',
+        'Excellent customer support'
+      ],
+      cons: [
+        'Higher minimum deposit for some accounts',
+        'Limited educational resources'
+      ],
+      website: 'https://metatraderpro.com',
+      founded: 2010,
+      headquarters: 'London, UK',
+      instruments: 300,
+      platforms: ['MetaTrader 4', 'MetaTrader 5', 'WebTrader', 'Mobile App'],
+      support: {
+        phone: true,
+        email: true,
+        chat: true,
+        hours: '24/5'
+      },
+      accountTypes: [
+        {
+          name: 'Standard',
+          minDeposit: 100,
+          features: ['Variable spreads', 'No commission', 'All instruments']
+        },
+        {
+          name: 'ECN',
+          minDeposit: 500,
+          features: ['Raw spreads', 'Low commission', 'Direct market access']
+        },
+        {
+          name: 'VIP',
+          minDeposit: 10000,
+          features: ['Tightest spreads', 'Priority support', 'Personal manager']
+        }
+      ],
+      isRecommended: true
+    },
+    {
+      id: '2',
+      name: 'TradeFX Global',
+      logo: '/api/placeholder/80/80',
+      rating: 4.6,
+      reviews: 8930,
+      minDeposit: 50,
+      spreads: 'From 0.2 pips',
+      leverage: 'Up to 1:400',
+      regulation: ['FCA', 'ASIC'],
+      features: ['Social Trading', 'Automated Trading', 'Risk Management', 'Analytics'],
+      pros: [
+        'Low minimum deposit',
+        'User-friendly platform',
+        'Good educational content',
+        'Multiple payment methods'
+      ],
+      cons: [
+        'Higher spreads on some pairs',
+        'Limited advanced features'
+      ],
+      website: 'https://tradefxglobal.com',
+      founded: 2015,
+      headquarters: 'Sydney, Australia',
+      instruments: 250,
+      platforms: ['TradeFX Platform', 'MetaTrader 4', 'Mobile App'],
+      support: {
+        phone: true,
+        email: true,
+        chat: true,
+        hours: '24/7'
+      },
+      accountTypes: [
+        {
+          name: 'Starter',
+          minDeposit: 50,
+          features: ['Basic features', 'Educational resources', 'Demo account']
+        },
+        {
+          name: 'Professional',
+          minDeposit: 1000,
+          features: ['Advanced tools', 'Lower spreads', 'Priority support']
+        }
+      ],
+      isSponsored: true
+    },
+    {
+      id: '3',
+      name: 'AlphaTrading',
+      logo: '/api/placeholder/80/80',
+      rating: 4.4,
+      reviews: 12340,
+      minDeposit: 200,
+      spreads: 'From 0.3 pips',
+      leverage: 'Up to 1:300',
+      regulation: ['CySEC', 'BaFin'],
+      features: ['Algorithmic Trading', 'Portfolio Management', 'Research Tools', 'API Access'],
+      pros: [
+        'Advanced algorithmic trading',
+        'Comprehensive research tools',
+        'Strong security measures',
+        'Institutional-grade platform'
+      ],
+      cons: [
+        'Higher learning curve',
+        'Limited beginner resources'
+      ],
+      website: 'https://alphatrading.com',
+      founded: 2008,
+      headquarters: 'Frankfurt, Germany',
+      instruments: 400,
+      platforms: ['AlphaTrader Pro', 'MetaTrader 5', 'API Trading'],
+      support: {
+        phone: true,
+        email: true,
+        chat: false,
+        hours: '24/5'
+      },
+      accountTypes: [
+        {
+          name: 'Classic',
+          minDeposit: 200,
+          features: ['Standard features', 'Basic research', 'Mobile access']
+        },
+        {
+          name: 'Premium',
+          minDeposit: 2000,
+          features: ['Advanced analytics', 'API access', 'Dedicated support']
+        }
+      ]
+    },
+    {
+      id: '4',
+      name: 'SwiftBroker',
+      logo: '/api/placeholder/80/80',
+      rating: 4.2,
+      reviews: 6780,
+      minDeposit: 25,
+      spreads: 'From 0.4 pips',
+      leverage: 'Up to 1:200',
+      regulation: ['FCA'],
+      features: ['Copy Trading', 'Social Features', 'Mobile Trading', 'Education'],
+      pros: [
+        'Very low minimum deposit',
+        'Great for beginners',
+        'Strong educational platform',
+        'Active trading community'
+      ],
+      cons: [
+        'Limited advanced features',
+        'Higher spreads',
+        'Fewer instruments'
+      ],
+      website: 'https://swiftbroker.com',
+      founded: 2018,
+      headquarters: 'London, UK',
+      instruments: 150,
+      platforms: ['SwiftTrader', 'Mobile App', 'WebTrader'],
+      support: {
+        phone: false,
+        email: true,
+        chat: true,
+        hours: '24/5'
+      },
+      accountTypes: [
+        {
+          name: 'Basic',
+          minDeposit: 25,
+          features: ['Basic trading', 'Educational content', 'Community access']
+        },
+        {
+          name: 'Advanced',
+          minDeposit: 500,
+          features: ['Advanced tools', 'Lower fees', 'Priority support']
+        }
+      ]
+    }
   ]
 
-  // Filter and sort data
-  const filteredData = mockBrokerData
-    .filter(broker => {
-      const matchesCategory = selectedCategory === 'all' || broker.category === selectedCategory
-      const matchesRecommended = !showOnlyRecommended || broker.isRecommended
-      return matchesCategory && matchesRecommended
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'reviews':
-          return b.reviews - a.reviews
-        case 'minDeposit':
-          return a.minDeposit - b.minDeposit
-        default:
-          return b.rating - a.rating
-      }
-    })
+  const filters = [
+    { id: 'all', label: 'All Brokers' },
+    { id: 'recommended', label: 'Recommended' },
+    { id: 'low-deposit', label: 'Low Minimum Deposit' },
+    { id: 'regulated', label: 'Highly Regulated' },
+    { id: 'advanced', label: 'Advanced Features' }
+  ]
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <span key={i} className={i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}>
-        ⭐
-      </span>
-    ))
+  const filteredBrokers = brokers.filter(broker => {
+    const matchesSearch = broker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         broker.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesFilter = selectedFilter === 'all' ||
+                         (selectedFilter === 'recommended' && broker.isRecommended) ||
+                         (selectedFilter === 'low-deposit' && broker.minDeposit <= 100) ||
+                         (selectedFilter === 'regulated' && broker.regulation.length >= 3) ||
+                         (selectedFilter === 'advanced' && broker.instruments >= 300)
+    
+    return matchesSearch && matchesFilter
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'rating': return b.rating - a.rating
+      case 'deposit': return a.minDeposit - b.minDeposit
+      case 'reviews': return b.reviews - a.reviews
+      default: return 0
+    }
+  })
+
+  const handleVisitBroker = (brokerName: string, website: string) => {
+    success('Redirecting...', `Opening ${brokerName} in a new tab`)
+    window.open(website, '_blank')
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <section className="bg-white border-b border-neutral-200">
-        <div className="container py-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl">🏦</span>
-                <h1 className="text-3xl md:text-4xl font-bold text-primary">
-                  Top Rated Brokers
-                </h1>
-              </div>
-              <p className="text-lg text-secondary">
-                Compare and choose the best trading brokers with detailed reviews and ratings
-              </p>
-            </div>
-            
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{mockBrokerData.length}</div>
-                <div className="text-sm text-secondary">Brokers Listed</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-success">
-                  {mockBrokerData.filter(b => b.isRecommended).length}
-                </div>
-                <div className="text-sm text-secondary">Recommended</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {(mockBrokerData.reduce((sum, b) => sum + b.rating, 0) / mockBrokerData.length).toFixed(1)}
-                </div>
-                <div className="text-sm text-secondary">Avg Rating</div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation />
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <Building2 className="h-12 w-12 text-blue-600 mr-4" />
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+              Broker Comparison
+            </h1>
           </div>
-        </div>
-      </section>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Compare and choose from the world's leading forex and CFD brokers. 
+            Find the perfect trading partner for your investment goals.
+          </p>
+        </motion.div>
 
-      {/* Filters */}
-      <section className="bg-white border-b border-neutral-200">
-        <div className="container py-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`btn btn-sm ${
-                    selectedCategory === category.id 
-                      ? 'btn-primary' 
-                      : 'btn-ghost border border-neutral-300'
-                  }`}
-                >
-                  <span className="mr-2">{category.icon}</span>
-                  {category.name}
-                </button>
-              ))}
-            </div>
-            
-            {/* Sort and Filter Options */}
-            <div className="flex flex-col sm:flex-row gap-4 lg:ml-auto">
-              {/* Recommended Filter */}
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={showOnlyRecommended}
-                  onChange={(e) => setShowOnlyRecommended(e.target.checked)}
-                  className="rounded border-neutral-300 focus-ring"
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-8"
+        >
+          <Card className="p-6">
+            <div className="flex flex-col lg:flex-row gap-4 items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Search brokers, features, or platforms..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
                 />
-                <span className="text-sm">Recommended Only</span>
-              </label>
+              </div>
               
-              {/* Sort */}
+              <div className="flex flex-wrap gap-2">
+                {filters.map((filter) => (
+                  <Button
+                    key={filter.id}
+                    variant={selectedFilter === filter.id ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedFilter(filter.id)}
+                    className="hover-scale"
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
+
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'rating' | 'reviews' | 'minDeposit')}
-                className="px-4 py-2 border border-neutral-300 rounded-lg focus-ring"
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="rating">Sort by Rating</option>
+                <option value="deposit">Sort by Min Deposit</option>
                 <option value="reviews">Sort by Reviews</option>
-                <option value="minDeposit">Sort by Min Deposit</option>
               </select>
             </div>
-          </div>
-        </div>
-      </section>
+          </Card>
+        </motion.div>
 
-      {/* Broker Cards */}
-      <section className="section">
-        <div className="container">
-          <div className="grid gap-6">
-            {filteredData.map((broker) => (
-              <div key={broker.id} className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  <div className="grid lg:grid-cols-12 gap-6">
-                    {/* Broker Info */}
-                    <div className="lg:col-span-4">
-                      <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl flex items-center justify-center text-2xl">
-                          {broker.logo}
+        {/* Brokers Grid */}
+        <div className="space-y-6">
+          {filteredBrokers.map((broker, index) => (
+            <motion.div
+              key={broker.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 * index }}
+            >
+              <Card className="p-6 md:p-8 hover-lift interactive-card relative overflow-hidden">
+                {/* Badges */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  {broker.isRecommended && (
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                      <Award className="h-3 w-3 mr-1" />
+                      Recommended
+                    </Badge>
+                  )}
+                  {broker.isSponsored && (
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                      <Zap className="h-3 w-3 mr-1" />
+                      Sponsored
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Broker Info */}
+                  <div className="lg:col-span-2">
+                    <div className="flex items-start space-x-4 mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                        {broker.name.substring(0, 2)}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                          {broker.name}
+                        </h3>
+                        <div className="flex items-center space-x-4 mb-2">
+                          <div className="flex items-center">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < Math.floor(broker.rating)
+                                      ? 'text-yellow-400 fill-current'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                              {broker.rating} ({broker.reviews.toLocaleString()} reviews)
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-primary">{broker.name}</h3>
-                            {broker.isRecommended && (
-                              <span className="bg-success text-white text-xs px-2 py-1 rounded-full">
-                                Recommended
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex">{renderStars(broker.rating)}</div>
-                            <span className="font-semibold text-primary">{broker.rating}</span>
-                            <span className="text-sm text-secondary">({broker.reviews} reviews)</span>
-                          </div>
-                          <p className="text-sm text-secondary">
-                            Founded {broker.founded} • {broker.headquarters}
-                          </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {broker.regulation.map((reg) => (
+                            <Badge key={reg} className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                              <Shield className="h-3 w-3 mr-1" />
+                              {reg}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                     </div>
 
                     {/* Key Features */}
-                    <div className="lg:col-span-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="text-sm text-secondary mb-1">Min Deposit</div>
-                          <div className="font-semibold text-primary">
-                            ${broker.minDeposit === 0 ? 'No minimum' : broker.minDeposit.toLocaleString()}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-secondary mb-1">Spreads</div>
-                          <div className="font-semibold text-primary">{broker.spreads}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-secondary mb-1">Leverage</div>
-                          <div className="font-semibold text-primary">{broker.leverage}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-secondary mb-1">Regulation</div>
-                          <div className="font-semibold text-primary">
-                            {broker.regulation.slice(0, 2).join(', ')}
-                            {broker.regulation.length > 2 && ' +more'}
-                          </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Key Features</h4>
+                        <div className="space-y-2">
+                          {broker.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      
-                      {/* Assets */}
-                      <div className="mt-4">
-                        <div className="text-sm text-secondary mb-2">Trading Assets</div>
-                        <div className="flex flex-wrap gap-1">
-                          {broker.assets.map((asset) => (
-                            <span key={asset} className="bg-neutral-100 text-neutral-700 text-xs px-2 py-1 rounded">
-                              {asset}
-                            </span>
-                          ))}
+
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Trading Details</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Min Deposit:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">${broker.minDeposit}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Spreads:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{broker.spreads}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Leverage:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{broker.leverage}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Instruments:</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{broker.instruments}+</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="lg:col-span-3 flex flex-col gap-3">
-                      {broker.bonus && (
-                        <div className="bg-accent-primary/10 text-accent-primary text-sm p-3 rounded-lg text-center">
-                          🎁 {broker.bonus}
-                        </div>
-                      )}
-                      <Link 
-                        href={`/brokers/${broker.id}`}
-                        className="btn btn-primary w-full"
-                      >
-                        View Details
-                      </Link>
-                      <Link 
-                        href={`/brokers/compare?brokers=${broker.id}`}
-                        className="btn btn-secondary w-full"
-                      >
-                        Compare
-                      </Link>
+                    {/* Pros and Cons */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold text-green-600 dark:text-green-400 mb-3 flex items-center">
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Pros
+                        </h4>
+                        <ul className="space-y-1">
+                          {broker.pros.map((pro, idx) => (
+                            <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start">
+                              <span className="text-green-500 mr-2">•</span>
+                              {pro}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center">
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Cons
+                        </h4>
+                        <ul className="space-y-1">
+                          {broker.cons.map((con, idx) => (
+                            <li key={idx} className="text-sm text-gray-600 dark:text-gray-300 flex items-start">
+                              <span className="text-red-500 mr-2">•</span>
+                              {con}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Expandable Details */}
-                  <div className="mt-6 pt-6 border-t border-neutral-200">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Pros */}
-                      <div>
-                        <h4 className="font-semibold text-success mb-3 flex items-center gap-2">
-                          <span>✅</span> Pros
-                        </h4>
-                        <ul className="space-y-1">
-                          {broker.pros.slice(0, 3).map((pro, index) => (
-                            <li key={index} className="text-sm text-secondary">• {pro}</li>
-                          ))}
-                        </ul>
+                  {/* Action Panel */}
+                  <div className="lg:col-span-1">
+                    <Card className="p-6 bg-gray-50 dark:bg-gray-800 border-0">
+                      <div className="text-center mb-6">
+                        <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                          {broker.rating}/5
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Overall Rating</p>
                       </div>
-                      
-                      {/* Cons */}
-                      <div>
-                        <h4 className="font-semibold text-danger mb-3 flex items-center gap-2">
-                          <span>❌</span> Cons
-                        </h4>
-                        <ul className="space-y-1">
-                          {broker.cons.slice(0, 3).map((con, index) => (
-                            <li key={index} className="text-sm text-secondary">• {con}</li>
-                          ))}
-                        </ul>
+
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-300">Founded:</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{broker.founded}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-300">Headquarters:</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{broker.headquarters}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-300">Support:</span>
+                          <div className="flex space-x-1">
+                            {broker.support.phone && <Phone className="h-4 w-4 text-green-500" />}
+                            {broker.support.email && <Mail className="h-4 w-4 text-blue-500" />}
+                            {broker.support.chat && <MessageCircle className="h-4 w-4 text-purple-500" />}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+
+                      <div className="space-y-3">
+                        <Button
+                          onClick={() => handleVisitBroker(broker.name, broker.website)}
+                          className="w-full hover-scale"
+                          size="lg"
+                        >
+                          Visit Broker
+                          <ExternalLink className="h-4 w-4 ml-2" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full hover-scale"
+                          size="lg"
+                        >
+                          Compare
+                        </Button>
+                      </div>
+
+                      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-3">Account Types</h5>
+                        <div className="space-y-2">
+                          {broker.accountTypes.map((account, idx) => (
+                            <div key={idx} className="text-sm">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-gray-900 dark:text-white">{account.name}</span>
+                                <span className="text-blue-600 dark:text-blue-400">${account.minDeposit}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Card>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </Card>
+            </motion.div>
+          ))}
         </div>
-      </section>
 
-      {/* Broker Comparison Tool */}
-      <section className="section bg-white">
-        <div className="container">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-primary mb-4">
-              Compare Brokers Side by Side
-            </h2>
-            <p className="text-lg text-secondary">
-              Get detailed comparisons of features, fees, and regulations
+        {/* No Results */}
+        {filteredBrokers.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <AlertTriangle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No brokers found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Try adjusting your search criteria or filters
             </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Compare Tool */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">⚖️</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Broker Comparison</h3>
-              <p className="text-secondary mb-6">
-                Compare up to 3 brokers side by side with detailed feature analysis
-              </p>
-              <Link href="/brokers/compare" className="btn btn-primary">
-                Compare Brokers
-              </Link>
-            </div>
+          </motion.div>
+        )}
 
-            {/* Reviews */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">💬</span>
+        {/* Disclaimer */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mt-12"
+        >
+          <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Risk Warning</h4>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                  Trading forex and CFDs involves significant risk and may not be suitable for all investors. 
+                  Past performance is not indicative of future results. Please ensure you fully understand 
+                  the risks involved and seek independent advice if necessary. The information provided is 
+                  for educational purposes only and should not be considered as investment advice.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">User Reviews</h3>
-              <p className="text-secondary mb-6">
-                Read authentic reviews from real traders and share your experience
-              </p>
-              <Link href="/brokers/reviews" className="btn btn-primary">
-                Read Reviews
-              </Link>
             </div>
-
-            {/* Educational Content */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">🎓</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Broker Guide</h3>
-              <p className="text-secondary mb-6">
-                Learn how to choose the right broker for your trading needs
-              </p>
-              <Link href="/tutorial" className="btn btn-primary">
-                Learn More
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="section bg-gradient-to-r from-primary to-primary-light text-white">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Find Your Perfect Broker
-          </h2>
-          <p className="text-lg mb-8 opacity-90">
-            Compare features, read reviews, and choose the broker that fits your trading style
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/brokers/compare" className="btn bg-white text-primary hover:bg-neutral-100 btn-lg">
-              Compare Brokers
-            </Link>
-            <Link href="/tutorial" className="btn btn-ghost border-white text-white hover:bg-white hover:text-primary btn-lg">
-              Broker Guide
-            </Link>
-          </div>
-        </div>
-      </section>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   )
 } 

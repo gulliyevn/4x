@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono, Poppins } from 'next/font/google'
 import './globals.css'
 import './page-styles.css'
 import './enhanced-styles.css'
+import './responsive-styles.css'
+import { ToastProvider } from '../src/components/ToastProvider'
 
 // Основной шрифт для интерфейса - Inter (отличная читаемость, современный)
 const inter = Inter({ 
@@ -161,7 +163,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-inter">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   )

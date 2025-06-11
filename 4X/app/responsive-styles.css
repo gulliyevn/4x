@@ -1,0 +1,654 @@
+/* ==========================================================================
+   RESPONSIVE STYLES FOR 4X ANALYTICS
+   ========================================================================== */
+
+/* Mobile First Approach - Base styles for mobile devices */
+
+/* ==========================================================================
+   MOBILE STYLES (320px - 767px)
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  /* Container adjustments */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Typography mobile adjustments */
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h2 {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h3 {
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Grid mobile adjustments */
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .md\\:grid-cols-2,
+  .md\\:grid-cols-3,
+  .md\\:grid-cols-4,
+  .lg\\:grid-cols-2,
+  .lg\\:grid-cols-3,
+  .lg\\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Card mobile styles */
+  .card,
+  [class*="card"] {
+    margin: 0.5rem 0 !important;
+    padding: 1rem !important;
+  }
+
+  /* Button mobile styles */
+  .btn,
+  button {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .flex.gap-4 button,
+  .flex.gap-2 button {
+    width: auto !important;
+    flex: 1 !important;
+  }
+
+  /* Navigation mobile */
+  .hidden.md\\:flex {
+    display: none !important;
+  }
+
+  .md\\:hidden {
+    display: block !important;
+  }
+
+  /* Text alignment mobile */
+  .text-center {
+    text-align: center !important;
+  }
+
+  /* Spacing mobile */
+  .p-8 {
+    padding: 1rem !important;
+  }
+
+  .p-6 {
+    padding: 1rem !important;
+  }
+
+  .py-8 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .py-12 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .mb-12 {
+    margin-bottom: 2rem !important;
+  }
+
+  .mb-16 {
+    margin-bottom: 2rem !important;
+  }
+
+  .mb-20 {
+    margin-bottom: 3rem !important;
+  }
+
+  /* Form mobile styles */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    width: 100% !important;
+  }
+
+  /* Table mobile - convert to cards */
+  .table-responsive {
+    display: block !important;
+  }
+
+  .table-responsive thead {
+    display: none !important;
+  }
+
+  .table-responsive tbody,
+  .table-responsive tr,
+  .table-responsive td {
+    display: block !important;
+  }
+
+  .table-responsive tr {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .table-responsive td {
+    border: none !important;
+    padding: 0.25rem 0 !important;
+  }
+
+  /* Hide desktop elements */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Show mobile elements */
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* Trading chart mobile */
+  .trading-chart,
+  [class*="chart"] {
+    height: 250px !important;
+  }
+
+  /* Stats grid mobile */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Modal mobile */
+  .modal {
+    margin: 1rem !important;
+    max-height: calc(100vh - 2rem) !important;
+  }
+
+  /* Flex direction mobile */
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+
+  .lg\\:flex-row {
+    flex-direction: column !important;
+  }
+
+  /* Text size mobile */
+  .text-4xl,
+  .text-5xl,
+  .text-6xl {
+    font-size: 2rem !important;
+  }
+
+  .text-3xl {
+    font-size: 1.75rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem !important;
+  }
+
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+}
+
+/* ==========================================================================
+   TABLET STYLES (768px - 1023px)
+   ========================================================================== */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
+  /* Grid tablet adjustments */
+  .lg\\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lg\\:grid-cols-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Typography tablet */
+  h1 {
+    font-size: 2.5rem !important;
+  }
+
+  h2 {
+    font-size: 2rem !important;
+  }
+
+  /* Hide mobile-only elements */
+  .mobile-only {
+    display: none !important;
+  }
+
+  /* Show tablet elements */
+  .tablet-only {
+    display: block !important;
+  }
+
+  /* Chart tablet */
+  .trading-chart,
+  [class*="chart"] {
+    height: 350px !important;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP STYLES (1024px+)
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Hide mobile/tablet elements */
+  .mobile-only,
+  .tablet-only {
+    display: none !important;
+  }
+
+  /* Show desktop elements */
+  .desktop-only {
+    display: block !important;
+  }
+
+  /* Chart desktop */
+  .trading-chart,
+  [class*="chart"] {
+    height: 500px !important;
+  }
+}
+
+/* ==========================================================================
+   LARGE DESKTOP STYLES (1440px+)
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px !important;
+  }
+
+  .xl\\:grid-cols-5 {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .xl\\:grid-cols-6 {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   COMPONENT-SPECIFIC RESPONSIVE STYLES
+   ========================================================================== */
+
+/* Navigation responsive */
+@media (max-width: 767px) {
+  .nav-mobile {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  .nav-mobile.dark {
+    background: rgba(17, 24, 39, 0.95) !important;
+  }
+
+  .mobile-menu {
+    position: fixed !important;
+    top: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: white !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+    z-index: 40 !important;
+  }
+
+  .mobile-menu.open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-menu.dark {
+    background: rgb(17, 24, 39) !important;
+  }
+}
+
+/* Card responsive */
+.card-responsive {
+  padding: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  .card-responsive {
+    padding: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-responsive {
+    padding: 2rem !important;
+  }
+}
+
+/* Button responsive */
+@media (max-width: 767px) {
+  .btn-responsive {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .btn-group-responsive {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .btn-group-responsive .btn {
+    width: 100% !important;
+  }
+}
+
+/* Form responsive */
+.form-responsive {
+  display: grid !important;
+  gap: 1rem !important;
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 768px) {
+  .form-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Stats responsive */
+.stats-responsive {
+  display: grid !important;
+  gap: 1rem !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+@media (min-width: 768px) {
+  .stats-responsive {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* Text responsive */
+.text-responsive-sm {
+  font-size: 0.875rem !important;
+}
+
+.text-responsive-base {
+  font-size: 1rem !important;
+}
+
+.text-responsive-lg {
+  font-size: 1.125rem !important;
+}
+
+@media (min-width: 768px) {
+  .text-responsive-sm {
+    font-size: 1rem !important;
+  }
+
+  .text-responsive-base {
+    font-size: 1.125rem !important;
+  }
+
+  .text-responsive-lg {
+    font-size: 1.25rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-sm {
+    font-size: 1.125rem !important;
+  }
+
+  .text-responsive-base {
+    font-size: 1.25rem !important;
+  }
+
+  .text-responsive-lg {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Touch-friendly hover states */
+  .hover\\:scale-105:active {
+    transform: scale(0.98) !important;
+  }
+
+  .hover\\:shadow-lg:active {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Larger touch targets */
+  button,
+  .btn,
+  a {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* Remove hover effects */
+  .hover\\:bg-gray-50:hover {
+    background-color: transparent !important;
+  }
+
+  .hover\\:text-blue-600:hover {
+    color: inherit !important;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================================================== */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: high) {
+  .border {
+    border-width: 2px !important;
+  }
+
+  .shadow {
+    box-shadow: 0 0 0 2px currentColor !important;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+  /* Hide interactive elements */
+  .no-print,
+  nav,
+  .sidebar,
+  .floating-button,
+  .modal,
+  .tooltip,
+  button,
+  .btn {
+    display: none !important;
+  }
+
+  /* Optimize for print */
+  body {
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  .container {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid !important;
+  }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Responsive visibility */
+.show-mobile {
+  display: block !important;
+}
+
+.show-tablet {
+  display: none !important;
+}
+
+.show-desktop {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .show-mobile {
+    display: none !important;
+  }
+
+  .show-tablet {
+    display: block !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .show-tablet {
+    display: none !important;
+  }
+
+  .show-desktop {
+    display: block !important;
+  }
+}
+
+/* Responsive spacing */
+.space-responsive {
+  margin: 0.5rem !important;
+}
+
+@media (min-width: 768px) {
+  .space-responsive {
+    margin: 1rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .space-responsive {
+    margin: 1.5rem !important;
+  }
+}
+
+/* Responsive padding */
+.pad-responsive {
+  padding: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  .pad-responsive {
+    padding: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pad-responsive {
+    padding: 2rem !important;
+  }
+}
+
+/* Responsive flex */
+.flex-responsive {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row !important;
+    gap: 2rem !important;
+  }
+}
+
+/* Responsive grid */
+.grid-responsive {
+  display: grid !important;
+  gap: 1rem !important;
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 2rem !important;
+  }
+} 

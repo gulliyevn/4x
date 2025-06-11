@@ -12,6 +12,9 @@ import PerformanceDashboard from '../src/components/sections/PerformanceDashboar
 import MobileAppSection from '../src/components/sections/MobileAppSection'
 import InteractiveDemo from '../src/components/sections/InteractiveDemo'
 import EducationCenter from '../src/components/sections/EducationCenter'
+import { DemoToggle } from '../src/components/DemoToggle'
+import { DemoFloatingButton } from '../src/components/DemoFloatingButton'
+import { TradingNotifications } from '../src/components/TradingNotifications'
 import './page-styles.css'
 import './enhanced-styles.css'
 
@@ -127,36 +130,55 @@ export default function HomePage() {
               </h1>
               
               <div className="hero-buttons">
-                <Link href="/ai-insights" className="btn btn-primary btn-lg">
+                <Link href="/ai-insights" className="btn btn-primary btn-lg btn-enhanced hover-scale animate-slide-up">
                   <span className="btn-icon">🤖</span>
                   Start AI Analysis
                 </Link>
-                <Link href="/education" className="btn btn-secondary btn-lg">
+                <Link href="/education" className="btn btn-secondary btn-lg btn-enhanced hover-scale animate-slide-up">
                   <span className="btn-icon">📚</span>
                   Learn Trading
                 </Link>
               </div>
               
               <div className="hero-stats">
-                <div className="stat-item">
-                  <span className="stat-number">94.7%</span>
+                <div className="stat-item stagger-item hover-lift">
+                  <span className="stat-number animate-glow-pulse">94.7%</span>
                   <span className="stat-label">AI Accuracy</span>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-number">100K+</span>
+                <div className="stat-item stagger-item hover-lift">
+                  <span className="stat-number animate-bounce-gentle">100K+</span>
                   <span className="stat-label">Active Users</span>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-number">$2.5B+</span>
+                <div className="stat-item stagger-item hover-lift">
+                  <span className="stat-number animate-float">$2.5B+</span>
                   <span className="stat-label">Volume Analyzed</span>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-number">24/7</span>
+                <div className="stat-item stagger-item hover-lift">
+                  <span className="stat-number animate-wiggle">24/7</span>
                   <span className="stat-label">AI Monitoring</span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Demo Toggle Section */}
+      <section className="demo-section py-16 demo-section-gradient relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full opacity-10 blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-tr from-indigo-400 to-cyan-400 rounded-full opacity-10 blur-3xl"></div>
+        </div>
+        <div className="container max-w-6xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              <span className="demo-text-shimmer">Experience Risk-Free Trading</span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Try our complete trading platform with virtual funds. No risk, all features, real market data.
+            </p>
+          </div>
+          <DemoToggle />
         </div>
       </section>
 
@@ -485,6 +507,12 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Demo Floating Button */}
+      <DemoFloatingButton />
+      
+      {/* Trading Notifications */}
+      <TradingNotifications />
     </div>
   )
 } 

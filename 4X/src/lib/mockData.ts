@@ -102,6 +102,118 @@ export const demoCredentials = {
   password: 'demo123'
 }
 
+// Additional test users for development
+export const testUsers: User[] = [
+  mockUser, // Demo user
+  {
+    id: 'test-user-1',
+    email: 'test@4xtrading.com',
+    name: 'Test User',
+    firstName: 'Test',
+    lastName: 'User',
+    avatar: 'https://ui-avatars.com/api/?name=Test+User',
+    role: UserRole.USER,
+    status: AccountStatus.ACTIVE,
+    premiumStatus: true,
+    emailVerified: true,
+    twoFactorEnabled: false,
+    timezone: 'UTC',
+    locale: 'en',
+    preferredCurrency: 'USD',
+    termsAccepted: true,
+    termsAcceptedAt: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    lastLoginAt: new Date('2024-01-01'),
+    lastSeenAt: new Date('2024-01-01'),
+    failedLoginAttempts: 0,
+    accountType: AccountType.PRO,
+    isEmailVerified: true,
+    isPhoneVerified: true,
+    preferences: {
+      theme: 'dark',
+      notifications: {
+        email: true,
+        push: true,
+        sms: true,
+        priceAlerts: true,
+        news: true,
+        system: true
+      },
+      trading: {
+        defaultLeverage: 2,
+        confirmTrades: false,
+        autoClose: true
+      },
+      dashboard: {
+        defaultChartInterval: '4h',
+        widgets: ['portfolio', 'market-overview', 'news', 'watchlist'],
+        layout: 'list'
+      },
+      language: 'en',
+      timezone: 'UTC',
+      currency: 'USD'
+    }
+  },
+  {
+    id: 'admin-user-1',
+    email: 'admin@4xtrading.com',
+    name: 'Admin User',
+    firstName: 'Admin',
+    lastName: 'User',
+    avatar: 'https://ui-avatars.com/api/?name=Admin+User',
+    role: UserRole.ADMIN,
+    status: AccountStatus.ACTIVE,
+    premiumStatus: true,
+    emailVerified: true,
+    twoFactorEnabled: true,
+    timezone: 'UTC',
+    locale: 'en',
+    preferredCurrency: 'USD',
+    termsAccepted: true,
+    termsAcceptedAt: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    lastLoginAt: new Date('2024-01-01'),
+    lastSeenAt: new Date('2024-01-01'),
+    failedLoginAttempts: 0,
+    accountType: AccountType.ENTERPRISE,
+    isEmailVerified: true,
+    isPhoneVerified: true,
+    preferences: {
+      theme: 'dark',
+      notifications: {
+        email: true,
+        push: true,
+        sms: true,
+        priceAlerts: true,
+        news: true,
+        system: true
+      },
+      trading: {
+        defaultLeverage: 5,
+        confirmTrades: true,
+        autoClose: false
+      },
+      dashboard: {
+        defaultChartInterval: '1h',
+        widgets: ['portfolio', 'market-overview', 'news', 'watchlist', 'admin-panel'],
+        layout: 'grid'
+      },
+      language: 'en',
+      timezone: 'UTC',
+      currency: 'USD'
+    }
+  }
+]
+
+// Test credentials for development
+export const testCredentials = [
+  { email: 'demo@4xtrading.com', password: 'demo123' },
+  { email: 'test@4xtrading.com', password: 'test123' },
+  { email: 'admin@4xtrading.com', password: 'admin123' }
+]
+
 /**
  * Generate realistic price with trend (deterministic)
  */

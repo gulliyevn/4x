@@ -21,10 +21,13 @@ import type {
 import type { ApiResponse } from '@/types/api'
 import { api } from '@/lib/api'
 import { env, DEMO_MODE } from '@/lib/env'
-import { demoCredentials, mockUser } from '@/lib/mockData'
+import { demoCredentials, mockUser, testUsers, testCredentials } from '@/lib/mockData'
 import { UserRole } from '@/types/auth'
 
 interface AuthStore extends AuthState {
+  // Demo mode state
+  isDemoMode: boolean
+  
   // Actions
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
@@ -35,6 +38,11 @@ interface AuthStore extends AuthState {
   clearError: () => void
   checkAuthStatus: () => Promise<void>
   updateLastActivity: () => void
+  
+  // Demo actions
+  enableDemoMode: () => void
+  disableDemoMode: () => void
+  demoLogin: () => void
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
@@ -77,25 +85,31 @@ export const useAuthStore = create<AuthStore>()(
         tokenExpiresAt: null,
         rememberMe: false,
         lastActivity: null,
+        isDemoMode: env.NEXT_PUBLIC_DEMO_MODE || false,
 
         // Actions
         login: async (credentials: LoginCredentials) => {
           set({ isLoading: true, error: null })
           
           try {
-            // Check if demo mode is enabled and credentials match
-            if (env.NEXT_PUBLIC_DEMO_MODE && 
-                credentials.email === demoCredentials.email && 
-                credentials.password === demoCredentials.password) {
-              // Demo login - no API call needed
-              set({
-                user: mockUser,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null
-              })
-              
-              return
+            // Check if credentials match any test user (for demo/development)
+            const testCredential = testCredentials.find(
+              cred => cred.email === credentials.email && cred.password === credentials.password
+            )
+            
+            if (testCredential) {
+              const testUser = testUsers.find(user => user.email === credentials.email)
+              if (testUser) {
+                // Test user login - no API call needed
+                set({
+                  user: testUser,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                  lastActivity: new Date()
+                })
+                return
+              }
             }
 
             // Only make API calls in production mode
@@ -334,6 +348,40 @@ export const useAuthStore = create<AuthStore>()(
 
         updateLastActivity: () => {
           set((state) => {
+            state.lastActivity = new Date()
+          })
+        },
+
+        // Demo mode actions
+        enableDemoMode: () => {
+          set((state) => {
+            state.isDemoMode = true
+          })
+        },
+
+        disableDemoMode: () => {
+          set((state) => {
+            state.isDemoMode = false
+            // Logout when disabling demo mode
+            if (state.user && state.user.email === demoCredentials.email) {
+              state.user = null
+              state.isAuthenticated = false
+              state.accessToken = null
+              state.refreshToken = null
+              state.tokenExpiresAt = null
+              state.lastActivity = null
+              state.error = null
+            }
+          })
+        },
+
+        demoLogin: () => {
+          set((state) => {
+            state.user = mockUser
+            state.isAuthenticated = true
+            state.isLoading = false
+            state.error = null
+            state.isDemoMode = true
             state.lastActivity = new Date()
           })
         },

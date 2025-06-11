@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useAuthStore } from '@/stores/authStore'
+import { DemoToggle } from '@/components/DemoToggle'
+import { DemoFloatingButton } from '@/components/DemoFloatingButton'
 
 // Dashboard Interfaces
 interface QuickStat {
@@ -156,6 +159,7 @@ const mockNotifications: Notification[] = [
 export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
   const [showAllNotifications, setShowAllNotifications] = useState(false)
+  const { user, isDemoMode } = useAuthStore()
 
   const timeframes = ['1D', '1W', '1M', '3M', '1Y']
 
@@ -164,18 +168,46 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Demo Mode Indicator */}
+      {isDemoMode && (
+        <section className="demo-mode-indicator py-4 relative overflow-hidden">
+          <div className="container">
+            <div className="flex items-center justify-center text-white text-sm font-medium">
+              <div className="flex items-center space-x-3">
+                <div className="demo-pulse-dot w-3 h-3 rounded-full"></div>
+                <span className="font-semibold text-lg">🧪 Demo Mode Active</span>
+                <span className="text-blue-100">|</span>
+                <span className="text-blue-100">Trading with virtual funds</span>
+                <div className="demo-pulse-dot w-3 h-3 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Demo Toggle Section */}
+      <section className="py-8 demo-section-gradient border-b border-gray-200 dark:border-gray-700">
+        <div className="container max-w-5xl mx-auto px-4">
+          <DemoToggle />
+        </div>
+      </section>
+
         {/* Header */}
       <section className="bg-white border-b border-neutral-200">
         <div className="container py-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                Welcome back, Trader! 👋
-          </h1>
+                Welcome back, {user?.firstName || 'Trader'}! 👋
+                {isDemoMode && <span className="text-blue-600"> (Demo)</span>}
+              </h1>
               <p className="text-lg text-secondary">
-                Here's what's happening with your investments today
-          </p>
-        </div>
+                {isDemoMode 
+                  ? "You're exploring with virtual funds - try all features risk-free!"
+                  : "Here's what's happening with your investments today"
+                }
+              </p>
+            </div>
 
             {/* Quick Actions */}
             <div className="flex gap-4">
@@ -541,6 +573,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
+
+      {/* Demo Floating Button */}
+      <DemoFloatingButton />
     </div>
   )
 } 

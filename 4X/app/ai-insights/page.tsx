@@ -1,913 +1,427 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Navigation from '../../src/components/Navigation'
-import Footer from '../../src/components/Footer'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Navigation from '@/components/Navigation'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { AnimatedCounter, AnimatedPercentage } from '@/components/ui/AnimatedCounter'
+import { EnhancedLoading } from '@/components/ui/EnhancedLoading'
+import { 
+  Brain, 
+  TrendingUp, 
+  TrendingDown, 
+  Target, 
+  Zap, 
+  Eye,
+  BarChart3,
+  PieChart,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Sparkles,
+  ArrowRight
+} from 'lucide-react'
 
-interface PredictionData {
-  symbol: string
-  price: number
-  prediction: number
+interface AIInsight {
+  id: string
+  type: 'bullish' | 'bearish' | 'neutral' | 'alert'
+  asset: string
   confidence: number
-  direction: 'up' | 'down' | 'neutral'
+  prediction: string
   timeframe: string
+  reasoning: string[]
+  impact: 'high' | 'medium' | 'low'
+  timestamp: Date
 }
 
-interface SentimentData {
-  symbol: string
-  sentiment: number
-  volume: number
-  mentions: number
-  trend: 'bullish' | 'bearish' | 'neutral'
+interface MarketSentiment {
+  overall: number
+  fear_greed: number
+  volatility: number
+  momentum: number
 }
 
-const AIDashboard = () => {
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [activeTab, setActiveTab] = useState('predictions')
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
-  const [activeMetric, setActiveMetric] = useState('accuracy')
-  const [isLoading, setIsLoading] = useState(true)
-  
-  const [predictions, setPredictions] = useState<PredictionData[]>([
-    { symbol: 'AAPL', price: 189.45, prediction: 195.20, confidence: 87, direction: 'up', timeframe: '1D' },
-    { symbol: 'TSLA', price: 234.56, prediction: 228.90, confidence: 92, direction: 'down', timeframe: '1D' },
-    { symbol: 'MSFT', price: 378.90, prediction: 385.40, confidence: 78, direction: 'up', timeframe: '1D' },
-    { symbol: 'GOOGL', price: 142.30, prediction: 145.80, confidence: 83, direction: 'up', timeframe: '1D' },
-    { symbol: 'AMZN', price: 156.78, prediction: 152.40, confidence: 76, direction: 'down', timeframe: '1D' },
-    { symbol: 'NVDA', price: 498.32, prediction: 510.75, confidence: 89, direction: 'up', timeframe: '1D' }
-  ])
-
-  const [sentimentData, setSentimentData] = useState<SentimentData[]>([
-    { symbol: 'BTC', sentiment: 0.75, volume: 2.4, mentions: 15420, trend: 'bullish' },
-    { symbol: 'ETH', sentiment: 0.62, volume: 1.8, mentions: 8930, trend: 'bullish' },
-    { symbol: 'AAPL', sentiment: 0.45, volume: 3.2, mentions: 12340, trend: 'neutral' },
-    { symbol: 'TSLA', sentiment: -0.32, volume: 2.1, mentions: 9870, trend: 'bearish' },
-    { symbol: 'SPY', sentiment: 0.28, volume: 4.5, mentions: 6540, trend: 'neutral' },
-    { symbol: 'QQQ', sentiment: 0.51, volume: 2.9, mentions: 4320, trend: 'bullish' }
-  ])
-
-  const [aiMetrics, setAiMetrics] = useState({
-    accuracy: 94.7,
-    totalPredictions: 1247893,
-    successfulTrades: 87.3,
-    riskScore: 23.4,
-    marketCoverage: 98.2,
-    dataPoints: 2.5
+export default function AIInsightsPage() {
+  const [insights, setInsights] = useState<AIInsight[]>([])
+  const [sentiment, setSentiment] = useState<MarketSentiment>({
+    overall: 72,
+    fear_greed: 68,
+    volatility: 45,
+    momentum: 78
   })
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
+    // Simulate loading AI insights
+    const loadInsights = async () => {
+      setIsLoading(true)
       
-      // Simulate real-time updates
-      setPredictions(prev => prev.map(p => ({
-        ...p,
-        price: p.price + (Math.random() - 0.5) * 2,
-        confidence: Math.max(60, Math.min(95, p.confidence + (Math.random() - 0.5) * 5))
-      })))
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const mockInsights: AIInsight[] = [
+        {
+          id: '1',
+          type: 'bullish',
+          asset: 'BTC/USD',
+          confidence: 87.5,
+          prediction: 'Strong upward momentum expected',
+          timeframe: '24h',
+          reasoning: [
+            'Technical indicators show bullish divergence',
+            'Volume spike indicates institutional buying',
+            'Support level at $42,000 holding strong',
+            'RSI oversold conditions suggest reversal'
+          ],
+          impact: 'high',
+          timestamp: new Date()
+        },
+        {
+          id: '2',
+          type: 'bearish',
+          asset: 'EUR/USD',
+          confidence: 73.2,
+          prediction: 'Potential downside pressure',
+          timeframe: '4h',
+          reasoning: [
+            'ECB dovish stance weighing on EUR',
+            'US dollar strength continues',
+            'Breaking below key support at 1.0850',
+            'Economic data showing weakness'
+          ],
+          impact: 'medium',
+          timestamp: new Date()
+        },
+        {
+          id: '3',
+          type: 'alert',
+          asset: 'AAPL',
+          confidence: 91.3,
+          prediction: 'High volatility expected',
+          timeframe: '2h',
+          reasoning: [
+            'Earnings announcement in 2 hours',
+            'Options activity unusually high',
+            'Analyst upgrades/downgrades pending',
+            'Market makers positioning for big move'
+          ],
+          impact: 'high',
+          timestamp: new Date()
+        },
+        {
+          id: '4',
+          type: 'neutral',
+          asset: 'Gold',
+          confidence: 65.8,
+          prediction: 'Sideways consolidation likely',
+          timeframe: '1D',
+          reasoning: [
+            'Range-bound between $1,950-$2,000',
+            'Fed policy uncertainty',
+            'Mixed economic signals',
+            'Technical indicators neutral'
+          ],
+          impact: 'low',
+          timestamp: new Date()
+        }
+      ]
+      
+      setInsights(mockInsights)
+      setIsLoading(false)
+    }
 
-      setSentimentData(prev => prev.map(s => ({
-        ...s,
-        sentiment: Math.max(-1, Math.min(1, s.sentiment + (Math.random() - 0.5) * 0.1)),
-        mentions: s.mentions + Math.floor((Math.random() - 0.5) * 100)
-      })))
-    }, 5000)
+    loadInsights()
+  }, [selectedTimeframe])
 
-    return () => clearInterval(timer)
-  }, [])
-
-  const formatPrice = (price: number) => price.toFixed(2)
-  const formatChange = (current: number, predicted: number) => {
-    const change = predicted - current
-    const percent = (change / current) * 100
-    return {
-      value: change.toFixed(2),
-      percent: percent.toFixed(2),
-      isPositive: change >= 0
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'bullish': return <TrendingUp className="h-5 w-5 text-green-500" />
+      case 'bearish': return <TrendingDown className="h-5 w-5 text-red-500" />
+      case 'alert': return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+      default: return <Activity className="h-5 w-5 text-blue-500" />
     }
   }
 
-  const getSentimentColor = (sentiment: number) => {
-    if (sentiment > 0.3) return 'text-green-500'
-    if (sentiment < -0.3) return 'text-red-500'
-    return 'text-yellow-500'
+  const getInsightColor = (type: string) => {
+    switch (type) {
+      case 'bullish': return 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+      case 'bearish': return 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+      case 'alert': return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800'
+      default: return 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
+    }
   }
 
-  const getSentimentLabel = (sentiment: number) => {
-    if (sentiment > 0.3) return 'Bullish'
-    if (sentiment < -0.3) return 'Bearish'
-    return 'Neutral'
+  const timeframes = ['1H', '4H', '1D', '1W', '1M']
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="text-center">
+            <EnhancedLoading 
+              variant="trading" 
+              size="xl" 
+              text="AI is analyzing market data..."
+            />
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="mt-4 text-gray-600 dark:text-gray-300"
+            >
+              Processing millions of data points...
+            </motion.p>
+          </div>
+        </div>
+      </div>
+    )
   }
-
-  const metrics = [
-    {
-      id: 'accuracy',
-      title: 'Prediction Accuracy',
-      value: '94.7%',
-      change: '+2.3%',
-      trend: 'up',
-      icon: '🎯',
-      description: 'AI model accuracy over the last 30 days'
-    },
-    {
-      id: 'signals',
-      title: 'Active Signals',
-      value: '1,247',
-      change: '+156',
-      trend: 'up',
-      icon: '📡',
-      description: 'Currently active trading signals'
-    },
-    {
-      id: 'patterns',
-      title: 'Patterns Detected',
-      value: '89',
-      change: '+12',
-      trend: 'up',
-      icon: '🔍',
-      description: 'Chart patterns identified today'
-    },
-    {
-      id: 'sentiment',
-      title: 'Market Sentiment',
-      value: 'Bullish',
-      change: 'Strong',
-      trend: 'up',
-      icon: '📊',
-      description: 'Overall market sentiment analysis'
-    }
-  ]
-
-  const aiFeatures = [
-    {
-      title: 'Neural Network Analysis',
-      description: 'Deep learning models analyze market patterns with unprecedented accuracy',
-      icon: '🧠',
-      status: 'Active',
-      performance: '96.2%'
-    },
-    {
-      title: 'Sentiment Processing',
-      description: 'Real-time analysis of news, social media, and market sentiment',
-      icon: '💭',
-      status: 'Active',
-      performance: '91.8%'
-    },
-    {
-      title: 'Risk Modeling',
-      description: 'Advanced VaR and stress testing for portfolio protection',
-      icon: '🛡️',
-      status: 'Active',
-      performance: '94.5%'
-    },
-    {
-      title: 'Pattern Recognition',
-      description: 'Automated detection of 50+ technical analysis patterns',
-      icon: '🎯',
-      status: 'Active',
-      performance: '89.3%'
-    }
-  ]
-
-  const recentPredictions = [
-    {
-      symbol: 'AAPL',
-      prediction: 'Bullish',
-      confidence: 94,
-      target: '$185.50',
-      timeframe: '5 days',
-      status: 'Active'
-    },
-    {
-      symbol: 'TSLA',
-      prediction: 'Bearish',
-      confidence: 87,
-      target: '$220.00',
-      timeframe: '3 days',
-      status: 'Active'
-    },
-    {
-      symbol: 'NVDA',
-      prediction: 'Bullish',
-      confidence: 92,
-      target: '$480.00',
-      timeframe: '7 days',
-      status: 'Active'
-    },
-    {
-      symbol: 'MSFT',
-      prediction: 'Neutral',
-      confidence: 78,
-      target: '$340.00',
-      timeframe: '10 days',
-      status: 'Monitoring'
-    }
-  ]
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation />
-      <div className="ai-dashboard-page">
-        {/* Hero Section */}
-        <section className="ai-hero">
-          <div className="container">
-            <div className="ai-hero-content">
-              <div className="ai-hero-badge">
-                <span className="badge-icon">🤖</span>
-                <span>AI Intelligence Dashboard</span>
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <Brain className="h-12 w-12 text-blue-600 mr-4 animate-pulse" />
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+              AI Market Intelligence
+            </h1>
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Advanced artificial intelligence analyzing global markets in real-time to provide 
+            you with actionable trading insights and predictions.
+          </p>
+        </motion.div>
+
+        {/* Market Sentiment Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-12"
+        >
+          <Card className="p-6 md:p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <Zap className="h-6 w-6 text-yellow-500 mr-2" />
+                Market Sentiment Analysis
+              </h2>
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Live
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <AnimatedPercentage
+                  percentage={sentiment.overall}
+                  label="Overall Sentiment"
+                  color="blue"
+                  size="lg"
+                />
               </div>
-              <h1 className="ai-hero-title">
-                Comprehensive AI Analytics
-                <span className="gradient-text">Powered by Machine Learning</span>
-              </h1>
-              <p className="ai-hero-description">
-                Monitor your AI-powered trading systems with real-time analytics, 
-                performance metrics, and intelligent insights that drive profitable decisions.
-              </p>
-              <div className="ai-hero-stats">
-                <div className="stat-item">
-                  <span className="stat-number">94.7%</span>
-                  <span className="stat-label">Accuracy Rate</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-number">1.2M+</span>
-                  <span className="stat-label">Predictions Made</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-number">24/7</span>
-                  <span className="stat-label">Market Monitoring</span>
-                </div>
+              <div className="text-center">
+                <AnimatedPercentage
+                  percentage={sentiment.fear_greed}
+                  label="Fear & Greed Index"
+                  color="green"
+                  size="lg"
+                  delay={0.2}
+                />
+              </div>
+              <div className="text-center">
+                <AnimatedPercentage
+                  percentage={sentiment.volatility}
+                  label="Volatility Index"
+                  color="orange"
+                  size="lg"
+                  delay={0.4}
+                />
+              </div>
+              <div className="text-center">
+                <AnimatedPercentage
+                  percentage={sentiment.momentum}
+                  label="Market Momentum"
+                  color="purple"
+                  size="lg"
+                  delay={0.6}
+                />
               </div>
             </div>
-          </div>
-        </section>
+          </Card>
+        </motion.div>
 
-        {/* Metrics Overview */}
-        <section className="metrics-section">
-          <div className="container">
-            <div className="metrics-grid">
-              {metrics.map((metric) => (
-                <div 
-                  key={metric.id}
-                  className={`metric-card ${activeMetric === metric.id ? 'active' : ''}`}
-                  onClick={() => setActiveMetric(metric.id)}
+        {/* Timeframe Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-8"
+        >
+          <div className="flex flex-wrap items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              AI Trading Insights
+            </h2>
+            <div className="flex space-x-2">
+              {timeframes.map((timeframe) => (
+                <Button
+                  key={timeframe}
+                  variant={selectedTimeframe === timeframe ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedTimeframe(timeframe)}
+                  className="hover-scale"
                 >
-                  <div className="metric-header">
-                    <span className="metric-icon">{metric.icon}</span>
-                    <div className="metric-trend">
-                      <span className={`trend-indicator ${metric.trend}`}>
-                        {metric.trend === 'up' ? '↗' : '↘'}
-                      </span>
-                      <span className="trend-value">{metric.change}</span>
-                    </div>
-                  </div>
-                  <div className="metric-content">
-                    <h3 className="metric-value">{metric.value}</h3>
-                    <p className="metric-title">{metric.title}</p>
-                    <p className="metric-description">{metric.description}</p>
-                  </div>
-                </div>
+                  {timeframe}
+                </Button>
               ))}
             </div>
           </div>
-        </section>
+        </motion.div>
 
-        {/* AI Features */}
-        <section className="ai-features-section">
-          <div className="container">
-            <div className="section-header">
-              <h2 className="section-title">AI Engine Status</h2>
-              <p className="section-description">
-                Real-time monitoring of our advanced AI systems
-              </p>
-            </div>
-            <div className="features-grid">
-              {aiFeatures.map((feature, index) => (
-                <div key={index} className="feature-card">
-                  <div className="feature-header">
-                    <div className="feature-icon">{feature.icon}</div>
-                    <div className="feature-status">
-                      <span className={`status-indicator ${feature.status.toLowerCase()}`}>
-                        {feature.status}
-                      </span>
-                      <span className="performance-score">{feature.performance}</span>
+        {/* AI Insights Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          {insights.map((insight, index) => (
+            <motion.div
+              key={insight.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 * index }}
+            >
+              <Card className={`p-6 border-2 hover-lift interactive-card ${getInsightColor(insight.type)}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    {getInsightIcon(insight.type)}
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        {insight.asset}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {insight.timeframe} • {insight.impact.toUpperCase()} Impact
+                      </p>
                     </div>
                   </div>
-                  <div className="feature-content">
-                    <h3 className="feature-title">{feature.title}</h3>
-                    <p className="feature-description">{feature.description}</p>
-                  </div>
-                  <div className="feature-progress">
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ width: feature.performance }}
-                      ></div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      <AnimatedCounter
+                        value={insight.confidence}
+                        suffix="%"
+                        decimals={1}
+                        delay={0.5 + index * 0.1}
+                      />
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Confidence</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Recent Predictions */}
-        <section className="predictions-section">
-          <div className="container">
-            <div className="section-header">
-              <h2 className="section-title">Recent AI Predictions</h2>
-              <p className="section-description">
-                Latest predictions from our neural network models
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    {insight.prediction}
+                  </h4>
+                  <div className="space-y-2">
+                    {insight.reasoning.map((reason, idx) => (
+                      <div key={idx} className="flex items-start space-x-2">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                    <Clock className="h-4 w-4" />
+                    <span>{insight.timestamp.toLocaleTimeString()}</span>
+                  </div>
+                  <Button size="sm" variant="outline" className="hover-scale">
+                    <Eye className="h-4 w-4 mr-1" />
+                    View Details
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* AI Performance Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <Card className="p-6 md:p-8 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 border-0 shadow-xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                AI Performance Metrics
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Real-time performance of our AI trading algorithms
               </p>
             </div>
-            <div className="predictions-table">
-              <div className="table-header">
-                <div className="header-cell">Symbol</div>
-                <div className="header-cell">Prediction</div>
-                <div className="header-cell">Confidence</div>
-                <div className="header-cell">Target</div>
-                <div className="header-cell">Timeframe</div>
-                <div className="header-cell">Status</div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <Target className="h-8 w-8 text-green-500" />
+                </div>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                  <AnimatedCounter value={94.7} suffix="%" decimals={1} delay={1} />
+                </div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  Prediction Accuracy
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Last 30 days
+                </p>
               </div>
-              {recentPredictions.map((prediction, index) => (
-                <div key={index} className="table-row">
-                  <div className="table-cell symbol-cell">
-                    <span className="symbol">{prediction.symbol}</span>
-                  </div>
-                  <div className="table-cell">
-                    <span className={`prediction ${prediction.prediction.toLowerCase()}`}>
-                      {prediction.prediction}
-                    </span>
-                  </div>
-                  <div className="table-cell">
-                    <div className="confidence-bar">
-                      <div 
-                        className="confidence-fill" 
-                        style={{ width: `${prediction.confidence}%` }}
-                      ></div>
-                      <span className="confidence-text">{prediction.confidence}%</span>
-                    </div>
-                  </div>
-                  <div className="table-cell target-cell">
-                    {prediction.target}
-                  </div>
-                  <div className="table-cell">
-                    {prediction.timeframe}
-                  </div>
-                  <div className="table-cell">
-                    <span className={`status ${prediction.status.toLowerCase()}`}>
-                      {prediction.status}
-                    </span>
-                  </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <BarChart3 className="h-8 w-8 text-blue-500" />
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                  <AnimatedCounter value={2847} delay={1.2} />
+                </div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  Signals Generated
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  This week
+                </p>
+              </div>
 
-        {/* Quick Actions */}
-        <section className="quick-actions-section">
-          <div className="container">
-            <div className="section-header">
-              <h2 className="section-title">Quick Actions</h2>
-              <p className="section-description">
-                Access key AI features and tools
-              </p>
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <Sparkles className="h-8 w-8 text-purple-500" />
+                </div>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                  <AnimatedCounter value={127} delay={1.4} />
+                </div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  Markets Analyzed
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Real-time
+                </p>
+              </div>
             </div>
-            <div className="actions-grid">
-              <a href="/ai-insights/predictions" className="action-card">
-                <div className="action-icon">🔮</div>
-                <h3 className="action-title">Price Predictions</h3>
-                <p className="action-description">View detailed price forecasts</p>
-                <span className="action-arrow">→</span>
-              </a>
-              <a href="/ai-insights/sentiment-analysis" className="action-card">
-                <div className="action-icon">📊</div>
-                <h3 className="action-title">Sentiment Analysis</h3>
-                <p className="action-description">Real-time market sentiment</p>
-                <span className="action-arrow">→</span>
-              </a>
-              <a href="/ai-insights/pattern-recognition" className="action-card">
-                <div className="action-icon">🎯</div>
-                <h3 className="action-title">Pattern Recognition</h3>
-                <p className="action-description">Detect chart patterns</p>
-                <span className="action-arrow">→</span>
-              </a>
-              <a href="/ai-insights/trading-signals" className="action-card">
-                <div className="action-icon">📡</div>
-                <h3 className="action-title">Trading Signals</h3>
-                <p className="action-description">AI-generated signals</p>
-                <span className="action-arrow">→</span>
-              </a>
-            </div>
-          </div>
-        </section>
+          </Card>
+        </motion.div>
       </div>
-      <Footer />
-
-      <style jsx>{`
-        .ai-dashboard-page {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-          color: white;
-        }
-
-        .ai-hero {
-          padding: 120px 0 80px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .ai-hero::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-          pointer-events: none;
-        }
-
-        .ai-hero-content {
-          text-align: center;
-          max-width: 800px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 2;
-        }
-
-        .ai-hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(59, 130, 246, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.3);
-          padding: 8px 16px;
-          border-radius: 50px;
-          font-size: 14px;
-          margin-bottom: 24px;
-          backdrop-filter: blur(10px);
-        }
-
-        .badge-icon {
-          font-size: 16px;
-        }
-
-        .ai-hero-title {
-          font-size: 3.5rem;
-          font-weight: 700;
-          line-height: 1.1;
-          margin-bottom: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .gradient-text {
-          background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-size: 0.8em;
-        }
-
-        .ai-hero-description {
-          font-size: 1.2rem;
-          color: rgba(255, 255, 255, 0.8);
-          margin-bottom: 40px;
-          line-height: 1.6;
-        }
-
-        .ai-hero-stats {
-          display: flex;
-          justify-content: center;
-          gap: 60px;
-          margin-top: 40px;
-        }
-
-        .stat-item {
-          text-align: center;
-        }
-
-        .stat-number {
-          display: block;
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: #3b82f6;
-          margin-bottom: 8px;
-        }
-
-        .stat-label {
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.7);
-        }
-
-        .metrics-section {
-          padding: 80px 0;
-        }
-
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 24px;
-        }
-
-        .metric-card {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 24px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
-        }
-
-        .metric-card:hover,
-        .metric-card.active {
-          background: rgba(59, 130, 246, 0.1);
-          border-color: rgba(59, 130, 246, 0.3);
-          transform: translateY(-4px);
-        }
-
-        .metric-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .metric-icon {
-          font-size: 2rem;
-        }
-
-        .metric-trend {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .trend-indicator {
-          font-size: 1.2rem;
-        }
-
-        .trend-indicator.up {
-          color: #10b981;
-        }
-
-        .trend-indicator.down {
-          color: #ef4444;
-        }
-
-        .trend-value {
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-
-        .metric-value {
-          font-size: 2.5rem;
-          font-weight: 700;
-          margin-bottom: 8px;
-          color: #3b82f6;
-        }
-
-        .metric-title {
-          font-size: 1.1rem;
-          font-weight: 600;
-          margin-bottom: 8px;
-        }
-
-        .metric-description {
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.7);
-          line-height: 1.4;
-        }
-
-        .ai-features-section {
-          padding: 80px 0;
-          background: rgba(0, 0, 0, 0.2);
-        }
-
-        .section-header {
-          text-align: center;
-          margin-bottom: 60px;
-        }
-
-        .section-title {
-          font-size: 2.5rem;
-          font-weight: 700;
-          margin-bottom: 16px;
-        }
-
-        .section-description {
-          font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.8);
-        }
-
-        .features-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-        }
-
-        .feature-card {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 24px;
-          transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-          background: rgba(255, 255, 255, 0.08);
-          transform: translateY(-4px);
-        }
-
-        .feature-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .feature-icon {
-          font-size: 2rem;
-        }
-
-        .feature-status {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 4px;
-        }
-
-        .status-indicator {
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .status-indicator.active {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-        }
-
-        .performance-score {
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #3b82f6;
-        }
-
-        .feature-title {
-          font-size: 1.2rem;
-          font-weight: 600;
-          margin-bottom: 8px;
-        }
-
-        .feature-description {
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.7);
-          line-height: 1.5;
-          margin-bottom: 16px;
-        }
-
-        .feature-progress {
-          margin-top: 16px;
-        }
-
-        .progress-bar {
-          width: 100%;
-          height: 6px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          overflow: hidden;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-          border-radius: 3px;
-          transition: width 0.3s ease;
-        }
-
-        .predictions-section {
-          padding: 80px 0;
-        }
-
-        .predictions-table {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          overflow: hidden;
-        }
-
-        .table-header {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1fr;
-          gap: 16px;
-          padding: 20px 24px;
-          background: rgba(255, 255, 255, 0.05);
-          font-weight: 600;
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.8);
-        }
-
-        .table-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1fr;
-          gap: 16px;
-          padding: 20px 24px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          transition: background 0.2s ease;
-        }
-
-        .table-row:hover {
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        .table-cell {
-          display: flex;
-          align-items: center;
-        }
-
-        .symbol {
-          font-weight: 600;
-          color: #3b82f6;
-        }
-
-        .prediction {
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .prediction.bullish {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-        }
-
-        .prediction.bearish {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-        }
-
-        .prediction.neutral {
-          background: rgba(156, 163, 175, 0.2);
-          color: #9ca3af;
-        }
-
-        .confidence-bar {
-          position: relative;
-          width: 100%;
-          height: 20px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          overflow: hidden;
-        }
-
-        .confidence-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-          border-radius: 10px;
-          transition: width 0.3s ease;
-        }
-
-        .confidence-text {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: white;
-        }
-
-        .target-cell {
-          font-weight: 600;
-          color: #06b6d4;
-        }
-
-        .status {
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .status.active {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-        }
-
-        .status.monitoring {
-          background: rgba(245, 158, 11, 0.2);
-          color: #f59e0b;
-        }
-
-        .quick-actions-section {
-          padding: 80px 0;
-          background: rgba(0, 0, 0, 0.2);
-        }
-
-        .actions-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 24px;
-        }
-
-        .action-card {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 24px;
-          text-decoration: none;
-          color: white;
-          transition: all 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .action-card:hover {
-          background: rgba(59, 130, 246, 0.1);
-          border-color: rgba(59, 130, 246, 0.3);
-          transform: translateY(-4px);
-        }
-
-        .action-icon {
-          font-size: 2.5rem;
-          margin-bottom: 16px;
-        }
-
-        .action-title {
-          font-size: 1.2rem;
-          font-weight: 600;
-          margin-bottom: 8px;
-        }
-
-        .action-description {
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.7);
-          margin-bottom: 16px;
-        }
-
-        .action-arrow {
-          position: absolute;
-          top: 24px;
-          right: 24px;
-          font-size: 1.2rem;
-          color: #3b82f6;
-          transition: transform 0.3s ease;
-        }
-
-        .action-card:hover .action-arrow {
-          transform: translateX(4px);
-        }
-
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 24px;
-        }
-
-        @media (max-width: 768px) {
-          .ai-hero-title {
-            font-size: 2.5rem;
-          }
-
-          .ai-hero-stats {
-            flex-direction: column;
-            gap: 24px;
-          }
-
-          .metrics-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .features-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .table-header,
-          .table-row {
-            grid-template-columns: 1fr;
-            gap: 8px;
-          }
-
-          .table-cell {
-            justify-content: space-between;
-            padding: 8px 0;
-          }
-
-          .actions-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-    </>
+    </div>
   )
-}
-
-export default AIDashboard 
+} 

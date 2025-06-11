@@ -1,450 +1,443 @@
 'use client'
 
-import React from 'react'
-import Link from 'next/link'
+import { motion } from 'framer-motion'
+import Navigation from '@/components/Navigation'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { 
+  Target, 
+  Users, 
+  Award, 
+  TrendingUp,
+  Globe,
+  Shield,
+  Zap,
+  Heart,
+  Star,
+  CheckCircle,
+  ArrowRight,
+  Linkedin,
+  Twitter,
+  Github,
+  Mail
+} from 'lucide-react'
 
 // Team Member Interface
 interface TeamMember {
   name: string
-  position: string
-  avatar: string
+  role: string
   bio: string
-  linkedin?: string
-  twitter?: string
+  image: string
+  social: {
+    linkedin?: string
+    twitter?: string
+    github?: string
+    email?: string
+  }
 }
 
 // Company Stats Interface
-interface CompanyStat {
-  value: string
+interface Stat {
+  value: number
   label: string
-  icon: string
+  suffix?: string
+  prefix?: string
+  decimals?: number
 }
 
 export default function AboutPage() {
   // Company Statistics
-  const companyStats: CompanyStat[] = [
-    { value: '500K+', label: 'Active Traders', icon: '👥' },
-    { value: '$2.5B+', label: 'Trading Volume', icon: '💰' },
-    { value: '150+', label: 'Countries', icon: '🌍' },
-    { value: '99.9%', label: 'Uptime', icon: '⚡' },
-    { value: '24/7', label: 'Support', icon: '🛟' },
-    { value: '2019', label: 'Founded', icon: '🏢' }
+  const stats: Stat[] = [
+    { value: 50000, label: 'Active Traders', suffix: '+' },
+    { value: 2.5, label: 'Billion in Volume', prefix: '$', suffix: 'B' },
+    { value: 99.9, label: 'Uptime', suffix: '%', decimals: 1 },
+    { value: 150, label: 'Countries Served', suffix: '+' }
   ]
 
   // Team Members
-  const teamMembers: TeamMember[] = [
+  const team: TeamMember[] = [
     {
-      name: 'Sarah Johnson',
-      position: 'CEO & Founder',
-      avatar: '👩‍💼',
-      bio: 'Former Goldman Sachs executive with 15+ years in financial markets and fintech innovation.',
-      linkedin: '#',
-      twitter: '#'
+      name: 'Alex Johnson',
+      role: 'CEO & Founder',
+      bio: 'Former Goldman Sachs trader with 15+ years in financial markets',
+      image: '/api/placeholder/150/150',
+      social: {
+        linkedin: '#',
+        twitter: '#',
+        email: 'alex@4xanalytics.com'
+      }
     },
     {
-      name: 'Michael Chen',
-      position: 'CTO',
-      avatar: '👨‍💻',
-      bio: 'Ex-Google engineer specializing in high-frequency trading systems and blockchain technology.',
-      linkedin: '#',
-      twitter: '#'
+      name: 'Sarah Chen',
+      role: 'CTO',
+      bio: 'Ex-Google engineer specializing in AI and machine learning',
+      image: '/api/placeholder/150/150',
+      social: {
+        linkedin: '#',
+        github: '#',
+        email: 'sarah@4xanalytics.com'
+      }
     },
     {
-      name: 'David Rodriguez',
-      position: 'Head of Trading',
-      avatar: '👨‍💼',
-      bio: 'Professional trader with 20+ years experience in forex, commodities, and cryptocurrency markets.',
-      linkedin: '#',
-      twitter: '#'
+      name: 'Michael Rodriguez',
+      role: 'Head of Trading',
+      bio: 'Quantitative analyst with expertise in algorithmic trading',
+      image: '/api/placeholder/150/150',
+      social: {
+        linkedin: '#',
+        twitter: '#',
+        email: 'michael@4xanalytics.com'
+      }
     },
     {
       name: 'Emily Watson',
-      position: 'Head of Compliance',
-      avatar: '👩‍⚖️',
-      bio: 'Former SEC attorney ensuring regulatory compliance and investor protection across all markets.',
-      linkedin: '#',
-      twitter: '#'
+      role: 'Head of Design',
+      bio: 'UX designer focused on creating intuitive trading experiences',
+      image: '/api/placeholder/150/150',
+      social: {
+        linkedin: '#',
+        twitter: '#',
+        email: 'emily@4xanalytics.com'
+      }
+    }
+  ]
+
+  const values = [
+    {
+      icon: <Shield className="h-8 w-8 text-blue-500" />,
+      title: 'Security First',
+      description: 'Your funds and data are protected with bank-level security and encryption.'
+    },
+    {
+      icon: <Zap className="h-8 w-8 text-yellow-500" />,
+      title: 'Lightning Fast',
+      description: 'Execute trades in milliseconds with our high-performance infrastructure.'
+    },
+    {
+      icon: <Heart className="h-8 w-8 text-red-500" />,
+      title: 'User-Centric',
+      description: 'Every feature is designed with our users\' success and experience in mind.'
+    },
+    {
+      icon: <Globe className="h-8 w-8 text-green-500" />,
+      title: 'Global Reach',
+      description: 'Access markets worldwide with 24/7 support in multiple languages.'
+    }
+  ]
+
+  const milestones = [
+    {
+      year: '2020',
+      title: 'Company Founded',
+      description: 'Started with a vision to democratize trading through AI'
+    },
+    {
+      year: '2021',
+      title: 'AI Engine Launch',
+      description: 'Released our first AI-powered trading analysis platform'
+    },
+    {
+      year: '2022',
+      title: 'Global Expansion',
+      description: 'Expanded to 50+ countries with multi-language support'
+    },
+    {
+      year: '2023',
+      title: 'Series A Funding',
+      description: 'Raised $25M to accelerate product development'
+    },
+    {
+      year: '2024',
+      title: 'Advanced Analytics',
+      description: 'Launched next-gen AI with 95%+ prediction accuracy'
     }
   ]
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-primary-light text-white">
-        <div className="container py-16">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              About 4X Trading Platform
-            </h1>
-            <p className="text-xl mb-8 opacity-90">
-              Empowering traders worldwide with cutting-edge technology, 
-              comprehensive market access, and professional-grade tools since 2019.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register" className="btn bg-white text-primary hover:bg-neutral-100 btn-lg">
-                Start Trading
-              </Link>
-              <Link href="/tutorial" className="btn btn-ghost border-white text-white hover:bg-white hover:text-primary btn-lg">
-                Learn More
-              </Link>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation />
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <Badge className="mb-6 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+            About 4X Analytics
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+            Revolutionizing Trading
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              Through AI Innovation
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            We're on a mission to democratize financial markets by providing cutting-edge AI tools 
+            that empower traders of all levels to make informed decisions and achieve their financial goals.
+          </p>
+        </motion.div>
+
+        {/* Stats Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-20"
+        >
+          <Card className="p-8 md:p-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0 shadow-xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    <AnimatedCounter
+                      value={stat.value}
+                      prefix={stat.prefix}
+                      suffix={stat.suffix}
+                      decimals={stat.decimals}
+                      delay={0.5 + index * 0.1}
+                    />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 font-medium">{stat.label}</p>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
-      </section>
+          </Card>
+        </motion.div>
 
-      {/* Company Stats */}
-      <section className="section bg-white">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary mb-4">
-              Trusted by Traders Worldwide
-            </h2>
-            <p className="text-lg text-secondary">
-              Our platform serves hundreds of thousands of traders across the globe
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {companyStats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl mb-3">{stat.icon}</div>
-                <div className="text-3xl font-bold text-primary mb-2">{stat.value}</div>
-                <div className="text-sm text-secondary">{stat.label}</div>
+        {/* Mission & Vision */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-20"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <Card className="p-8 hover-lift">
+              <div className="flex items-center mb-6">
+                <Target className="h-8 w-8 text-blue-500 mr-3" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Our Mission</h2>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
-      <section className="section">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-primary mb-6">Our Mission</h2>
-              <p className="text-lg text-secondary mb-6">
-                To democratize access to global financial markets by providing 
-                professional-grade trading tools, education, and support to traders 
-                of all experience levels.
+              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                To democratize access to sophisticated trading tools and AI-powered insights, 
+                enabling traders worldwide to make data-driven decisions and achieve financial success 
+                regardless of their experience level or background.
               </p>
-              <p className="text-secondary mb-8">
-                We believe that everyone should have access to the same powerful 
-                trading technologies and market insights that were once exclusive 
-                to institutional investors. Our platform bridges this gap by 
-                combining cutting-edge technology with user-friendly design.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-secondary">Transparent pricing with no hidden fees</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-secondary">Advanced security and regulatory compliance</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-success rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">✓</span>
-                  </div>
-                  <span className="text-secondary">24/7 customer support and education</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur-3xl opacity-20"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-neutral-200">
-                <h3 className="text-xl font-semibold text-primary mb-6">Our Vision</h3>
-                <p className="text-secondary mb-6">
-                  To become the world's most trusted and innovative trading platform, 
-                  empowering millions of traders to achieve their financial goals.
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-neutral-50 rounded-lg">
-                    <div className="text-2xl font-bold text-accent-primary">500K+</div>
-                    <div className="text-sm text-secondary">Happy Traders</div>
-                  </div>
-                  <div className="text-center p-4 bg-neutral-50 rounded-lg">
-                    <div className="text-2xl font-bold text-accent-primary">150+</div>
-                    <div className="text-sm text-secondary">Countries</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </Card>
 
-      {/* Core Values */}
-      <section className="section bg-white">
-        <div className="container">
+            <Card className="p-8 hover-lift">
+              <div className="flex items-center mb-6">
+                <Star className="h-8 w-8 text-purple-500 mr-3" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Our Vision</h2>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                To become the world's leading AI-powered trading platform, where technology meets 
+                human intuition to create unprecedented opportunities for financial growth and 
+                market understanding.
+              </p>
+            </Card>
+          </div>
+        </motion.div>
+
+        {/* Values */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mb-20"
+        >
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Our Core Values
             </h2>
-            <p className="text-lg text-secondary">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               The principles that guide everything we do
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Innovation */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">🚀</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Innovation</h3>
-              <p className="text-secondary">
-                Continuously pushing the boundaries of trading technology 
-                to provide cutting-edge solutions.
-              </p>
-            </div>
 
-            {/* Security */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">🔒</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Security</h3>
-              <p className="text-secondary">
-                Protecting our users' funds and data with bank-level 
-                security and regulatory compliance.
-              </p>
-            </div>
-
-            {/* Transparency */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">🔍</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Transparency</h3>
-              <p className="text-secondary">
-                Clear pricing, honest communication, and open about 
-                our processes and policies.
-              </p>
-            </div>
-
-            {/* Excellence */}
-            <div className="trading-card text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl text-white">⭐</span>
-              </div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Excellence</h3>
-              <p className="text-secondary">
-                Striving for perfection in every aspect of our platform 
-                and customer experience.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership Team */}
-      <section className="section">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary mb-4">
-              Leadership Team
-            </h2>
-            <p className="text-lg text-secondary">
-              Meet the experienced professionals leading 4X Trading Platform
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="trading-card text-center">
-                <div className="text-6xl mb-4">{member.avatar}</div>
-                <h3 className="text-xl font-semibold text-primary mb-2">{member.name}</h3>
-                <div className="text-accent-primary font-medium mb-4">{member.position}</div>
-                <p className="text-sm text-secondary mb-6">{member.bio}</p>
-                <div className="flex justify-center gap-3">
-                  {member.linkedin && (
-                    <Link href={member.linkedin} className="text-accent-primary hover:text-accent-secondary">
-                      <span className="text-xl">💼</span>
-                    </Link>
-                  )}
-                  {member.twitter && (
-                    <Link href={member.twitter} className="text-accent-primary hover:text-accent-secondary">
-                      <span className="text-xl">🐦</span>
-                    </Link>
-                  )}
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((value, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+              >
+                <Card className="p-6 text-center hover-lift interactive-card h-full">
+                  <div className="flex justify-center mb-4">
+                    {value.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                    {value.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {value.description}
+                  </p>
+                </Card>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Technology & Security */}
-      <section className="section bg-white">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-primary mb-6">
-                Advanced Technology & Security
-              </h2>
-              <p className="text-lg text-secondary mb-6">
-                Our platform is built on cutting-edge technology infrastructure 
-                designed for speed, reliability, and security.
-              </p>
-              
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-accent-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">⚡</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-primary mb-2">Ultra-Fast Execution</h4>
-                    <p className="text-sm text-secondary">
-                      Sub-millisecond order execution with direct market access 
-                      and co-located servers.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-accent-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">🔐</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-primary mb-2">Bank-Level Security</h4>
-                    <p className="text-sm text-secondary">
-                      256-bit SSL encryption, two-factor authentication, 
-                      and cold storage for digital assets.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-accent-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">📊</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-primary mb-2">Real-Time Analytics</h4>
-                    <p className="text-sm text-secondary">
-                      Advanced charting tools, technical indicators, 
-                      and AI-powered market insights.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-accent-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">🌐</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-primary mb-2">Global Infrastructure</h4>
-                    <p className="text-sm text-secondary">
-                      Distributed servers worldwide ensuring 99.9% uptime 
-                      and low-latency connections.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="trading-card text-center">
-                <div className="text-3xl mb-3">⚡</div>
-                <div className="text-2xl font-bold text-primary mb-2">0.1ms</div>
-                <div className="text-sm text-secondary">Average Execution</div>
-              </div>
-              <div className="trading-card text-center">
-                <div className="text-3xl mb-3">🔒</div>
-                <div className="text-2xl font-bold text-primary mb-2">256-bit</div>
-                <div className="text-sm text-secondary">SSL Encryption</div>
-              </div>
-              <div className="trading-card text-center">
-                <div className="text-3xl mb-3">🌍</div>
-                <div className="text-2xl font-bold text-primary mb-2">99.9%</div>
-                <div className="text-sm text-secondary">Uptime SLA</div>
-              </div>
-              <div className="trading-card text-center">
-                <div className="text-3xl mb-3">🛡️</div>
-                <div className="text-2xl font-bold text-primary mb-2">$100M</div>
-                <div className="text-sm text-secondary">Insurance Coverage</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Regulatory Compliance */}
-      <section className="section">
-        <div className="container">
+        {/* Timeline */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mb-20"
+        >
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary mb-4">
-              Regulatory Compliance
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Our Journey
             </h2>
-            <p className="text-lg text-secondary">
-              Licensed and regulated by leading financial authorities worldwide
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Key milestones in our mission to transform trading
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="trading-card text-center">
-              <div className="text-4xl mb-4">🇺🇸</div>
-              <h4 className="font-semibold text-primary mb-2">United States</h4>
-              <p className="text-sm text-secondary">SEC, FINRA, CFTC</p>
-            </div>
-            <div className="trading-card text-center">
-              <div className="text-4xl mb-4">🇬🇧</div>
-              <h4 className="font-semibold text-primary mb-2">United Kingdom</h4>
-              <p className="text-sm text-secondary">FCA</p>
-            </div>
-            <div className="trading-card text-center">
-              <div className="text-4xl mb-4">🇪🇺</div>
-              <h4 className="font-semibold text-primary mb-2">European Union</h4>
-              <p className="text-sm text-secondary">CySEC, BaFin</p>
-            </div>
-            <div className="trading-card text-center">
-              <div className="text-4xl mb-4">🇦🇺</div>
-              <h4 className="font-semibold text-primary mb-2">Australia</h4>
-              <p className="text-sm text-secondary">ASIC</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Contact & CTA */}
-      <section className="section bg-gradient-to-r from-primary to-primary-light text-white">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Start Trading?
-          </h2>
-          <p className="text-lg mb-8 opacity-90">
-            Join hundreds of thousands of traders who trust 4X Trading Platform
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link href="/register" className="btn bg-white text-primary hover:bg-neutral-100 btn-lg">
-              Create Free Account
-            </Link>
-            <Link href="/demo" className="btn btn-ghost border-white text-white hover:bg-white hover:text-primary btn-lg">
-              Try Demo
-            </Link>
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500 rounded-full hidden md:block"></div>
+            
+            <div className="space-y-12">
+              {milestones.map((milestone, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 1 + index * 0.2 }}
+                  className={`flex items-center ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                >
+                  <div className={`w-full md:w-5/12 ${index % 2 === 0 ? 'md:pr-8' : 'md:pl-8'}`}>
+                    <Card className="p-6 hover-lift">
+                      <div className="flex items-center mb-3">
+                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 mr-3">
+                          {milestone.year}
+                        </Badge>
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        {milestone.title}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        {milestone.description}
+                      </p>
+                    </Card>
+                  </div>
+                  
+                  {/* Timeline dot */}
+                  <div className="hidden md:flex w-2/12 justify-center">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full border-4 border-white dark:border-gray-900 shadow-lg"></div>
+                  </div>
+                  
+                  <div className="hidden md:block w-5/12"></div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 mt-12">
-            <div>
-              <h4 className="font-semibold mb-2">📧 Email Support</h4>
-              <p className="opacity-90">support@4xtrading.com</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">📞 Phone Support</h4>
-              <p className="opacity-90">+1 (555) 123-4567</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">💬 Live Chat</h4>
-              <p className="opacity-90">24/7 Available</p>
-            </div>
+        </motion.div>
+
+        {/* Team */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          className="mb-20"
+        >
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Meet Our Team
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              The brilliant minds behind 4X Analytics
+            </p>
           </div>
-        </div>
-      </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {team.map((member, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1.4 + index * 0.1 }}
+              >
+                <Card className="p-6 text-center hover-lift interactive-card">
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                    {member.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium mb-3">
+                    {member.role}
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                    {member.bio}
+                  </p>
+                  <div className="flex justify-center space-x-3">
+                    {member.social.linkedin && (
+                      <a href={member.social.linkedin} className="text-gray-400 hover:text-blue-600 transition-colors">
+                        <Linkedin className="h-5 w-5" />
+                      </a>
+                    )}
+                    {member.social.twitter && (
+                      <a href={member.social.twitter} className="text-gray-400 hover:text-blue-400 transition-colors">
+                        <Twitter className="h-5 w-5" />
+                      </a>
+                    )}
+                    {member.social.github && (
+                      <a href={member.social.github} className="text-gray-400 hover:text-gray-600 transition-colors">
+                        <Github className="h-5 w-5" />
+                      </a>
+                    )}
+                    {member.social.email && (
+                      <a href={`mailto:${member.social.email}`} className="text-gray-400 hover:text-green-600 transition-colors">
+                        <Mail className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.6 }}
+        >
+          <Card className="p-8 md:p-12 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Transform Your Trading?
+            </h2>
+            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+              Join thousands of successful traders who trust 4X Analytics for their trading decisions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-white text-blue-600 hover:bg-gray-100 hover-scale"
+              >
+                Start Free Trial
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-blue-600 hover-scale"
+              >
+                Contact Sales
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   )
 } 
