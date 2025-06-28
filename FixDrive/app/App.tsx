@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
+import { ThemeProvider } from '../src/context/ThemeContext';
 import '../src/i18n';
 import { Text, View } from 'react-native';
+import ClientProfileScreen from '../src/screens/profile/ClientProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +19,7 @@ function Placeholder({ label }: { label: string }) {
 function MainTabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Profile" children={() => <Placeholder label="Profile" />} />
+      <Tab.Screen name="Profile" component={ClientProfileScreen} />
       <Tab.Screen name="Chat" children={() => <Placeholder label="Chat" />} />
       <Tab.Screen name="Map" children={() => <Placeholder label="Map" />} />
       <Tab.Screen name="Drivers" children={() => <Placeholder label="Drivers" />} />
