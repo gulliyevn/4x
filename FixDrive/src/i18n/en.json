@@ -1,0 +1,12 @@
+{
+  "welcome": "Welcome to FixDrive!",
+  "login": "Login",
+  "register": "Register",
+  "profile": "Profile",
+  "driver": "Driver",
+  "client": "Client",
+  "map": "Map",
+  "schedule": "Schedule",
+  "bookings": "Bookings",
+  "chat": "Chat"
+} 

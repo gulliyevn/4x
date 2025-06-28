@@ -1,0 +1,12 @@
+{
+  "welcome": "¡Bienvenido a FixDrive!",
+  "login": "Iniciar sesión",
+  "register": "Registrarse",
+  "profile": "Perfil",
+  "driver": "Conductor",
+  "client": "Cliente",
+  "map": "Mapa",
+  "schedule": "Horario",
+  "bookings": "Reservas",
+  "chat": "Chat"
+} 

@@ -1,0 +1,12 @@
+{
+  "welcome": "FixDrive'a hoş geldiniz!",
+  "login": "Giriş Yap",
+  "register": "Kayıt Ol",
+  "profile": "Profil",
+  "driver": "Sürücü",
+  "client": "Müşteri",
+  "map": "Harita",
+  "schedule": "Takvim",
+  "bookings": "Rezervasyonlar",
+  "chat": "Sohbet"
+} 
