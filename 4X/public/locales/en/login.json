@@ -1,0 +1,18 @@
+{
+  "backToHome": "Back to Home",
+  "welcomeBack": "Welcome Back",
+  "signInToAccount": "Sign in to your trading account",
+  "emailAddress": "Email Address",
+  "enterEmail": "Enter your email",
+  "password": "Password",
+  "enterPassword": "Enter your password",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot password?",
+  "signIn": "Sign In",
+  "or": "Or",
+  "tryDemoMode": "Try Demo Mode",
+  "loginSuccessTitle": "Login Successful",
+  "loginSuccessMsg": "Welcome back! Redirecting to your dashboard...",
+  "loginFailedTitle": "Login Failed",
+  "loginFailedMsg": "Invalid email or password"
+} 

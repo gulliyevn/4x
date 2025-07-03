@@ -1,0 +1,18 @@
+{
+  "backToHome": "Ana sayfaya dön",
+  "welcomeBack": "Tekrar Hoş Geldiniz",
+  "signInToAccount": "Ticaret hesabınıza giriş yapın",
+  "emailAddress": "E-posta Adresi",
+  "enterEmail": "E-postanızı girin",
+  "password": "Şifre",
+  "enterPassword": "Şifrenizi girin",
+  "rememberMe": "Beni hatırla",
+  "forgotPassword": "Şifrenizi mi unuttunuz?",
+  "signIn": "Giriş Yap",
+  "or": "veya",
+  "tryDemoMode": "Demo Modunu Dene",
+  "loginSuccessTitle": "Giriş Başarılı",
+  "loginSuccessMsg": "Tekrar hoş geldiniz! Panele yönlendiriliyorsunuz...",
+  "loginFailedTitle": "Giriş Başarısız",
+  "loginFailedMsg": "Geçersiz e-posta veya şifre"
+} 

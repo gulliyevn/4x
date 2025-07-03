@@ -1,0 +1,18 @@
+{
+  "backToHome": "На главную",
+  "welcomeBack": "С возвращением",
+  "signInToAccount": "Войдите в свой торговый аккаунт",
+  "emailAddress": "Электронная почта",
+  "enterEmail": "Введите вашу почту",
+  "password": "Пароль",
+  "enterPassword": "Введите ваш пароль",
+  "rememberMe": "Запомнить меня",
+  "forgotPassword": "Забыли пароль?",
+  "signIn": "Войти",
+  "or": "или",
+  "tryDemoMode": "Попробовать демо режим",
+  "loginSuccessTitle": "Вход выполнен",
+  "loginSuccessMsg": "С возвращением! Перенаправляем в кабинет...",
+  "loginFailedTitle": "Ошибка входа",
+  "loginFailedMsg": "Неверная почта или пароль"
+} 
